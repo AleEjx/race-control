@@ -371,7 +371,7 @@
 
 <script>
   // ── CONFIGURE ────────────────────────────────────────────────────────────
-  const API_URL = "https://households-create-desktop-fresh.trycloudflare.com"; // e.g. APIRoute
+  const API_URL = "https://raceleague-control.loca.lt"; // e.g. http://123.456.789.0:3000
   // ────────────────────────────────────────────────────────────────────────
 
   let password = "";
@@ -404,6 +404,13 @@
       }
 
       const data = await res.json();
+
+      if (!data.webPanelEnabled) {
+        document.getElementById("login-error").textContent = "⚠️ Web panel is disabled. Use the Discord panel.";
+        password = "";
+        return;
+      }
+
       document.getElementById("login").style.display = "none";
       document.getElementById("widget").style.display = "block";
       updateStatus(data.connected, data.vcs);
