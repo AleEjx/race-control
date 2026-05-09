@@ -295,6 +295,7 @@
 <!-- ── Login ── -->
 <div id="login">
   <div class="logo">Race<span>Control</span></div>
+  <input type="text" id="username" placeholder="Your name (e.g. SETH)" style="width:100%;background:var(--surface);border:1px solid var(--border);color:var(--text);font-family:'Barlow',sans-serif;font-size:13px;padding:9px 12px;border-radius:var(--radius);outline:none;" />
   <input type="password" id="pw" placeholder="Password" />
   <button class="login-btn" onclick="login()">Enter</button>
   <div class="login-error" id="login-error"></div>
@@ -369,10 +370,11 @@
 
 <script>
   // ── CONFIGURE ────────────────────────────────────────────────────────────
-  const API_URL = "https://ties-warrior-compatible-antarctica.trycloudflare.com"; // e.g. http://123.456.789.0:3000
+  const API_URL = "https://raceleague-control.loca.lt"; // e.g. http://123.456.789.0:3000
   // ────────────────────────────────────────────────────────────────────────
 
   let password = "";
+  let username  = "Unknown";
   let collapsed = false;
 
   const isPopout = new URLSearchParams(location.search).has("popout");
@@ -384,8 +386,10 @@
 
   async function login() {
     const input = document.getElementById("pw").value.trim();
+    const name  = document.getElementById("username").value.trim();
     if (!input) return;
     password = input;
+    username = name || "Unknown";
 
     try {
       const res = await fetch(`${API_URL}/status`, {
@@ -444,7 +448,7 @@
       const res = await fetch(`${API_URL}/flag`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-password": password },
-        body: JSON.stringify({ flag }),
+        body: JSON.stringify({ flag, username }),
       });
       const data = await res.json();
       if (res.ok) showToast(`✓ ${flagName(flag)}`, "success");
@@ -513,7 +517,7 @@
       const res = await fetch(`${API_URL}/join`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-password": password },
-        body: JSON.stringify({}),
+        body: JSON.stringify({ username }),
       });
       const data = await res.json();
       if (res.ok) { showToast("✓ Joined all VCs", "success"); updateStatus(true, []); }
@@ -528,7 +532,7 @@
       const res = await fetch(`${API_URL}/leave`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-password": password },
-        body: JSON.stringify({}),
+        body: JSON.stringify({ username }),
       });
       const data = await res.json();
       if (res.ok) { showToast("✓ Left all VCs", "success"); updateStatus(false, []); }
