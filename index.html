@@ -318,6 +318,12 @@
   </div>
 
   <div class="widget-body">
+    <!-- Disabled banner -->
+    <div id="disabled-banner" style="display:none;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:14px 10px;background:rgba(255,23,68,0.08);border:1px solid rgba(255,23,68,0.3);border-radius:5px;text-align:center;">
+      <span style="font-size:13px;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:#ff1744;">Error</span>
+      <span style="font-size:10px;color:rgba(255,255,255,0.6);letter-spacing:0.5px;line-height:1.4;">The webpage is currently disabled,<br>use the discord commands.</span>
+    </div>
+
     <!-- Global -->
     <div>
       <div class="section-label">Global</div>
@@ -371,7 +377,7 @@
 
 <script>
   // ── CONFIGURE ────────────────────────────────────────────────────────────
-  const API_URL = "https://aircraft-asp-appears-consistently.trycloudflare.com"; // e.g. http://123.456.789.0:3000
+  const API_URL = "https://raceleague-control.loca.lt"; // e.g. http://123.456.789.0:3000
   // ────────────────────────────────────────────────────────────────────────
 
   let password = "";
@@ -405,15 +411,14 @@
 
       const data = await res.json();
 
-      if (!data.webPanelEnabled) {
-        document.getElementById("login-error").textContent = "⚠️ Web panel is disabled. Use the Discord panel.";
-        password = "";
-        return;
-      }
-
       document.getElementById("login").style.display = "none";
       document.getElementById("widget").style.display = "block";
       updateStatus(data.connected, data.vcs);
+
+      if (!data.webPanelEnabled) {
+        showDisabledBanner(true);
+      }
+
       pollStatus();
 
     } catch {
@@ -427,6 +432,7 @@
         const r = await fetch(`${API_URL}/status`, { headers: { "x-password": password } });
         const d = await r.json();
         updateStatus(d.connected, d.vcs);
+        showDisabledBanner(!d.webPanelEnabled);
       } catch { updateStatus(false, []); }
     }, 10_000);
   }
@@ -551,6 +557,13 @@
       if (res.ok) { showToast("✓ Left all VCs", "success"); updateStatus(false, []); }
       else         showToast(`✗ ${data.error}`, "error");
     } catch { showToast("✗ Bot unreachable", "error"); }
+  }
+
+  // ── Disabled banner ───────────────────────────────────────────────────────
+  function showDisabledBanner(show) {
+    const el = document.getElementById("disabled-banner");
+    if (!el) return;
+    el.style.display = show ? "flex" : "none";
   }
 
   // ── Join result popup ────────────────────────────────────────────────────
