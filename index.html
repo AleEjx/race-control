@@ -193,6 +193,31 @@
   <div class="login-error" id="pw-error"></div>
 </div>
 
+<!-- ── Blue Flag Driver Selector ── -->
+<div id="blueflag-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:200;align-items:center;justify-content:center;">
+  <div style="background:#13131a;border:1.5px solid rgba(41,121,255,0.4);border-radius:10px;box-shadow:0 0 24px rgba(41,121,255,0.15);width:calc(100% - 32px);max-width:320px;max-height:80vh;display:flex;flex-direction:column;">
+    <!-- Header -->
+    <div style="padding:12px 14px;border-bottom:1px solid #1f1f2e;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+      <div>
+        <div style="font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#fff;">🔵 Blue Flag</div>
+        <div style="font-size:9px;color:#50506a;letter-spacing:0.5px;margin-top:2px;">Select a driver</div>
+      </div>
+      <button onclick="closeBlueFlagModal()" style="background:none;border:none;color:#50506a;font-size:16px;cursor:pointer;padding:2px 6px;">✕</button>
+    </div>
+    <!-- Search -->
+    <div style="padding:10px 14px;border-bottom:1px solid #1f1f2e;flex-shrink:0;">
+      <input type="text" id="blueflag-search" placeholder="Search driver..." oninput="filterDrivers()" style="width:100%;background:#0c0c14;border:1px solid #1f1f2e;color:#e8e8f0;font-family:'Oxanium',sans-serif;font-size:12px;padding:7px 10px;border-radius:4px;outline:none;" />
+    </div>
+    <!-- Driver list -->
+    <div id="blueflag-list" style="overflow-y:auto;flex:1;padding:6px 8px;display:flex;flex-direction:column;gap:4px;"></div>
+    <!-- Under construction notice -->
+    <div style="padding:10px 14px;border-top:1px solid #1f1f2e;flex-shrink:0;display:flex;align-items:center;gap:6px;background:rgba(255,214,0,0.05);border-bottom-left-radius:10px;border-bottom-right-radius:10px;">
+      <span style="font-size:12px;">🚧</span>
+      <span style="font-size:9px;color:rgba(255,214,0,0.6);letter-spacing:0.5px;">Audio coming soon — currently under construction</span>
+    </div>
+  </div>
+</div>
+
 <!-- ── Blacklisted screen ── -->
 <div id="login-blacklisted" style="display:none;position:fixed;inset:0;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:24px;background:var(--bg);">
   <div style="width:100%;max-width:340px;background:rgba(120,0,0,0.15);border:1.5px solid #ff1744;border-radius:10px;box-shadow:0 0 24px rgba(255,23,68,0.25),0 0 60px rgba(255,23,68,0.08);padding:24px 20px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;">
@@ -350,7 +375,7 @@
     <div>
       <div class="section-label">Driver</div>
       <div class="flag-grid cols-2">
-        <button class="flag-btn blue"  onclick="showConstruction(event)"><span class="fi">🔵</span><span class="fn">Blue Flag</span></button>
+        <button class="flag-btn blue"  onclick="openBlueFlagModal(event)"><span class="fi">🔵</span><span class="fn">Blue Flag</span></button>
         <button class="flag-btn white" onclick="showConstruction(event)"><span class="fi">🏁</span><span class="fn">Checkered</span></button>
       </div>
     </div>
@@ -390,7 +415,7 @@
 
 <script>
   // ── CONFIG ────────────────────────────────────────────────────────────────
-  const API_URL = "https://aug-live-tied-patents.trycloudflare.com";
+  const API_URL       = "https://quote-terrorist-prayers-distance.trycloudflare.com";
   const CLIENT_ID     = "1467595519718195473";
   const REDIRECT_URI  = encodeURIComponent("https://race-control-one.vercel.app/callback");
   const DISCORD_OAUTH = `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=identify`;
@@ -1066,6 +1091,86 @@
 
   function closeToolbox() {
     document.getElementById("toolbox-panel").style.display = "none";
+  }
+
+  // ── Blue Flag Driver Selector ──────────────────────────────────────────
+  const DRIVERS = [
+    { name: "SETH",     number: "01", callsign: "VAS-01"  },
+    { name: "REN",      number: "02", callsign: "LTS-02"  },
+    { name: "HIGH",     number: "03", callsign: "ATL-03"  },
+    { name: "CODA",     number: "07", callsign: "MPS-56"  },
+    { name: "SPRO",     number: "08", callsign: "MPS-08"  },
+    { name: "CANT",     number: "05", callsign: "LOT-05"  },
+    { name: "LORENZO",  number: "11", callsign: "11"      },
+    { name: "NBOUCH",   number: "12", callsign: "RB-12"   },
+    { name: "ACHILLES", number: "15", callsign: "NC-15"   },
+    { name: "JOE",      number: "17", callsign: "NC-17"   },
+    { name: "AUBRN",    number: "18", callsign: "VAS-18"  },
+    { name: "TSVP",     number: "19", callsign: "MPS-19"  },
+    { name: "CREW",     number: "20", callsign: "RBR-20"  },
+    { name: "QBAN",     number: "21", callsign: "21"      },
+    { name: "SLASHER",  number: "22", callsign: "22"      },
+    { name: "ZEN",      number: "25", callsign: "ST-25"   },
+    { name: "WAKE",     number: "27", callsign: "MIS-27"  },
+    { name: "QUAH",     number: "28", callsign: "LTS-28"  },
+    { name: "ARMIN",    number: "29", callsign: "ST-29"   },
+    { name: "SWEATER",  number: "31", callsign: "APX-31"  },
+    { name: "SHADOW",   number: "48", callsign: "ST-48"   },
+    { name: "AYAN",     number: "52", callsign: "LOT-52"  },
+    { name: "CYCLONE",  number: "77", callsign: "MIS-77"  },
+    { name: "PETER",    number: "86", callsign: "NC-86"   },
+    { name: "BRYAN",    number: "87", callsign: "VSE-87"  },
+  ].sort((a, b) => parseInt(a.number) - parseInt(b.number));
+
+  function openBlueFlagModal(e) {
+    const btn = e?.currentTarget;
+    if (btn) { btn.classList.remove("firing"); void btn.offsetWidth; btn.classList.add("firing"); setTimeout(() => btn.classList.remove("firing"), 300); }
+    document.getElementById("blueflag-search").value = "";
+    renderDriverList(DRIVERS);
+    document.getElementById("blueflag-modal").style.display = "flex";
+    setTimeout(() => document.getElementById("blueflag-search").focus(), 100);
+  }
+
+  function closeBlueFlagModal() {
+    document.getElementById("blueflag-modal").style.display = "none";
+  }
+
+  function filterDrivers() {
+    const q       = document.getElementById("blueflag-search").value.toLowerCase();
+    const filtered = DRIVERS.filter(d =>
+      d.name.toLowerCase().includes(q) ||
+      d.callsign.toLowerCase().includes(q) ||
+      d.number.includes(q)
+    );
+    renderDriverList(filtered);
+  }
+
+  function renderDriverList(drivers) {
+    const list = document.getElementById("blueflag-list");
+    if (drivers.length === 0) {
+      list.innerHTML = '<div style="font-size:11px;color:#50506a;text-align:center;padding:12px;">No drivers found</div>';
+      return;
+    }
+    list.innerHTML = drivers.map(d => `
+      <button onclick="selectBlueFlagDriver('${d.name}', '${d.callsign}', '${d.number}')"
+        style="display:flex;align-items:center;gap:10px;background:#0c0c14;border:1px solid #1a1a28;border-radius:5px;padding:8px 10px;cursor:pointer;width:100%;text-align:left;transition:border-color 0.15s;"
+        onmouseover="this.style.borderColor='rgba(41,121,255,0.4)'" onmouseout="this.style.borderColor='#1a1a28'">
+        <div style="width:28px;height:28px;border-radius:4px;background:rgba(41,121,255,0.15);border:1px solid rgba(41,121,255,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <span style="font-size:11px;font-weight:800;color:#2979ff;">#${d.number}</span>
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:700;color:#e8e8f0;font-family:'Oxanium',sans-serif;">${d.name}</div>
+          <div style="font-size:9px;color:#50506a;font-family:'Oxanium',sans-serif;">${d.callsign}</div>
+        </div>
+        <div style="margin-left:auto;font-size:9px;color:#ffd600;font-family:'Oxanium',sans-serif;letter-spacing:0.5px;">🚧</div>
+      </button>
+    `).join("");
+  }
+
+  function selectBlueFlagDriver(name, callsign, number) {
+    closeBlueFlagModal();
+    // Show construction popup — audio not yet implemented
+    showToast(`🚧 Blue Flag for ${name} — coming soon!`, "error");
   }
 
   function showConstruction(e) {
