@@ -1,7 +1,7 @@
 {
   "rewrites": [
-    { "source": "/driver", "destination": "/driver.html" },
-    { "source": "/driver/(.*)", "destination": "/driver.html" },
-    { "source": "/(.*)", "destination": "/index.html" }
+    { "source": "/marshal", "destination": "/marshal.html" },
+    { "source": "/marshal/(.*)", "destination": "/marshal.html" },
+    { "source": "/(.*)", "destination": "/driver.html" }
   ]
 }
