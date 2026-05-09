@@ -1,5 +1,7 @@
 {
   "rewrites": [
+    { "source": "/driver", "destination": "/driver.html" },
+    { "source": "/driver/(.*)", "destination": "/driver.html" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
