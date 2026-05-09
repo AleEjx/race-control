@@ -221,8 +221,8 @@
 <!-- ── Blacklisted screen ── -->
 <div id="login-blacklisted" style="display:none;position:fixed;inset:0;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:24px;background:var(--bg);">
   <div style="width:100%;max-width:340px;background:rgba(120,0,0,0.15);border:1.5px solid #ff1744;border-radius:10px;box-shadow:0 0 24px rgba(255,23,68,0.25),0 0 60px rgba(255,23,68,0.08);padding:24px 20px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;">
-    <div style="font-size:28px;line-height:1;"></div>
-    <div style="font-family:'Oxanium',sans-serif;font-size:20px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#ff1744;">🚫 Blacklisted 🚫</div>
+    <div style="font-size:28px;line-height:1;">🚫</div>
+    <div style="font-family:'Oxanium',sans-serif;font-size:20px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#ff1744;">Blacklisted 🚫</div>
     <div style="font-family:'Oxanium',sans-serif;font-size:12px;color:rgba(255,255,255,0.6);line-height:1.6;">
       Hello <span id="blacklisted-username" style="color:#fff;font-weight:700;"></span>, you have been blacklisted from the Race Control panel.
     </div>
@@ -325,6 +325,36 @@
       <div id="admin-audit" style="display:flex;flex-direction:column;gap:4px;max-height:200px;overflow-y:auto;">Loading...</div>
     </div>
 
+    <!-- Custom Audio -->
+    <div id="section-audio" style="background:#13131a;border:1px solid #1f1f2e;border-radius:6px;padding:10px 12px;">
+      <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#50506a;margin-bottom:8px;">Play Custom Audio</div>
+
+      <div id="audio-dropzone"
+        ondragover="event.preventDefault();this.style.borderColor='#2979ff';"
+        ondragleave="this.style.borderColor='#1f1f2e';"
+        ondrop="handleAudioDrop(event)"
+        onclick="document.getElementById('audio-file-input').click()"
+        style="border:1.5px dashed #1f1f2e;border-radius:6px;padding:16px;text-align:center;cursor:pointer;transition:border-color 0.2s;">
+        <div style="font-size:20px;margin-bottom:4px;">🎵</div>
+        <div style="font-size:11px;font-weight:700;color:#e8e8f0;">Drop audio file here</div>
+        <div style="font-size:9px;color:#50506a;margin-top:2px;">or click to select · MP3, MP4, WAV, OGG · max 20MB</div>
+      </div>
+      <input type="file" id="audio-file-input" accept="audio/*,video/mp4" style="display:none;" onchange="handleAudioFile(this.files[0])" />
+
+      <div id="audio-status" style="display:none;margin-top:8px;font-size:11px;color:#50506a;text-align:center;"></div>
+
+      <div id="audio-preview" style="display:none;margin-top:8px;background:#0c0c14;border:1px solid #1a1a28;border-radius:5px;padding:8px 10px;display:none;align-items:center;justify-content:space-between;gap:8px;">
+        <div style="min-width:0;">
+          <div id="audio-filename" style="font-size:11px;font-weight:700;color:#e8e8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>
+          <div id="audio-filesize" style="font-size:9px;color:#50506a;"></div>
+        </div>
+        <div style="display:flex;gap:4px;flex-shrink:0;">
+          <button onclick="playCustomAudio()" id="audio-play-btn" style="background:rgba(0,230,118,0.1);border:1px solid rgba(0,230,118,0.3);color:#00e676;font-family:'Oxanium',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;padding:5px 10px;border-radius:4px;cursor:pointer;">▶ Play in VCs</button>
+          <button onclick="clearAudioFile()" style="background:#0c0c14;border:1px solid #1f1f2e;color:#50506a;font-family:'Oxanium',sans-serif;font-size:10px;font-weight:700;padding:5px 8px;border-radius:4px;cursor:pointer;">✕</button>
+        </div>
+      </div>
+    </div>
+
     <div style="font-size:9px;color:#30303a;text-align:center;letter-spacing:1px;padding-bottom:8px;">MORE FEATURES COMING SOON</div>
   </div>
 </div>
@@ -415,7 +445,7 @@
 
 <script>
   // ── CONFIG ────────────────────────────────────────────────────────────────
-  const API_URL = "https://aug-live-tied-patents.trycloudflare.com";
+  const API_URL       = "https://quote-terrorist-prayers-distance.trycloudflare.com";
   const CLIENT_ID     = "1467595519718195473";
   const REDIRECT_URI  = encodeURIComponent("https://race-control-one.vercel.app/callback");
   const DISCORD_OAUTH = `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=identify`;
@@ -1173,6 +1203,80 @@
     closeBlueFlagModal();
     // Show construction popup — audio not yet implemented
     showToast(`🚧 Blue Flag for ${name} — coming soon!`, "error");
+  }
+
+  // ── Custom Audio ─────────────────────────────────────────────────────────
+  let _audioFile = null;
+
+  function handleAudioDrop(e) {
+    e.preventDefault();
+    document.getElementById("audio-dropzone").style.borderColor = "#1f1f2e";
+    const file = e.dataTransfer.files[0];
+    if (file) handleAudioFile(file);
+  }
+
+  function handleAudioFile(file) {
+    if (!file) return;
+    if (file.size > 20 * 1024 * 1024) {
+      showToast("✗ File too large (max 20MB)", "error");
+      return;
+    }
+    _audioFile = file;
+    document.getElementById("audio-filename").textContent = file.name;
+    document.getElementById("audio-filesize").textContent = `${(file.size / 1024 / 1024).toFixed(2)} MB`;
+    document.getElementById("audio-preview").style.display = "flex";
+    document.getElementById("audio-status").style.display = "none";
+  }
+
+  function clearAudioFile() {
+    _audioFile = null;
+    document.getElementById("audio-preview").style.display = "none";
+    document.getElementById("audio-status").style.display = "none";
+    document.getElementById("audio-file-input").value = "";
+  }
+
+  async function playCustomAudio() {
+    if (!_audioFile) return;
+
+    const btn = document.getElementById("audio-play-btn");
+    btn.textContent = "⏳ Playing...";
+    btn.disabled    = true;
+
+    const status = document.getElementById("audio-status");
+    status.style.display = "block";
+    status.style.color   = "#50506a";
+    status.textContent   = "Uploading and playing...";
+
+    try {
+      const formData = new FormData();
+      formData.append("audio", _audioFile);
+
+      const res  = await fetch(`${API_URL}/admin/play-audio`, {
+        method:  "POST",
+        headers: { "x-discord-id": user.id, "x-discord-token": user.token },
+        body:    formData,
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        const ok = (data.results || []).filter(r => r.success).length;
+        status.style.color   = "#00e676";
+        status.textContent   = `✓ Played in ${ok} VC${ok !== 1 ? "s" : ""}!`;
+        showToast(`✓ Played in ${ok} VC${ok !== 1 ? "s" : ""}`, "success");
+      } else {
+        status.style.color   = "#ff1744";
+        status.textContent   = `✗ ${data.error}`;
+        showToast(`✗ ${data.error}`, "error");
+      }
+    } catch {
+      status.style.color   = "#ff1744";
+      status.textContent   = "✗ Bot unreachable";
+      showToast("✗ Bot unreachable", "error");
+    } finally {
+      btn.textContent = "▶ Play in VCs";
+      btn.disabled    = false;
+    }
   }
 
   function showConstruction(e) {
