@@ -295,6 +295,7 @@
       </div>
     </div>
     <div class="widget-controls">
+      <button class="ctrl-btn" id="btn-admin-switch" title="Admin Panel" onclick="toggleAdminMode()" style="display:none;font-size:9px;letter-spacing:0.5px;color:#ffd600;border-color:rgba(255,214,0,0.3);">Admin</button>
       <button class="ctrl-btn" id="btn-collapse" title="Collapse" onclick="toggleCollapse()">▲</button>
     </div>
   </div>
@@ -360,7 +361,7 @@
 
 <script>
   // ── CONFIG ────────────────────────────────────────────────────────────────
-  const API_URL = "https://captured-twelve-verification-respond.trycloudflare.com";
+  const API_URL       = "https://quote-terrorist-prayers-distance.trycloudflare.com";
   const CLIENT_ID     = "1467595519718195473";
   const REDIRECT_URI  = encodeURIComponent("https://race-control-one.vercel.app/callback");
   const DISCORD_OAUTH = `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=identify`;
@@ -468,8 +469,11 @@
       // All good — save session and show panel
       user.isAdmin = data.isAdmin || false;
       sessionStorage.setItem("rc_user", JSON.stringify(user));
-      if (user.isAdmin) showAdminPanel();
-      else showPanel();
+      if (user.isAdmin) {
+        showAdminPanel();
+      } else {
+        showPanel();
+      }
 
     } catch (err) {
       document.getElementById("pw-error").textContent = `❌ ${err.message}`;
@@ -477,9 +481,15 @@
   }
 
   async function showPanel() {
-    document.getElementById("login-discord").style.display = "none";
+    document.getElementById("login-discord").style.display  = "none";
     document.getElementById("login-password").style.display = "none";
-    document.getElementById("widget").style.display = "block";
+    document.getElementById("admin-panel").style.display    = "none";
+    document.getElementById("widget").style.display         = "block";
+    // Show admin switch button if admin user
+    if (user?.isAdmin) {
+      const btn = document.getElementById("btn-admin-switch");
+      if (btn) btn.style.display = "flex";
+    }
 
     // Set user info in header
     document.getElementById("user-name").textContent = user.username;
@@ -650,15 +660,18 @@
 
   function toggleAdminMode() {
     if (adminMode) {
-      // Switch to normal panel
       document.getElementById("admin-panel").style.display = "none";
-      document.getElementById("widget").style.display = "block";
+      showPanel();
       adminMode = false;
+      const btn = document.getElementById("btn-admin-switch");
+      if (btn) btn.textContent = "Admin";
     } else {
-      // Switch back to admin
       document.getElementById("widget").style.display = "none";
       document.getElementById("admin-panel").style.display = "block";
       adminMode = true;
+      const btn = document.getElementById("btn-admin-switch");
+      if (btn) btn.textContent = "← Panel";
+      loadAdminInfo();
     }
   }
 
@@ -780,18 +793,39 @@
 
       // Connected VCs
       const cvcs = document.getElementById("admin-connected-vcs");
+      // Match connected VCs with full voice channel data to get members
+      const vcMap = {};
+      for (const ch of data.voiceChannels) { if (ch.connected) vcMap[ch.id] = ch; }
+
       if (data.connectedVCs.length === 0) {
         cvcs.innerHTML = '<span style="color:#30303a;">No VCs connected</span>';
       } else {
-        cvcs.innerHTML = data.connectedVCs.map(vc => `
-          <div style="display:flex;align-items:center;justify-content:space-between;background:#0c0c14;border:1px solid #1a1a28;border-radius:4px;padding:6px 8px;">
-            <div>
-              <div style="font-size:11px;font-weight:700;color:#e8e8f0;">🎙️ ${vc.name}</div>
-              <div style="font-size:9px;color:#50506a;">${vc.guild} · ${vc.status}</div>
-            </div>
-            <button onclick="adminLeaveVC('${vc.vcId}', '${vc.name}')" style="background:rgba(255,23,68,0.1);border:1px solid rgba(255,23,68,0.3);color:#ff1744;font-family:'Oxanium',sans-serif;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:4px 8px;border-radius:4px;cursor:pointer;">Leave</button>
-          </div>
-        `).join("");
+        cvcs.innerHTML = data.connectedVCs.map(vc => {
+          const full    = vcMap[vc.vcId] || {};
+          const members = (full.members || []).filter(m => !m.bot);
+          const memberHtml = members.length > 0
+            ? `<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;">` +
+              members.map(m => `
+                <div style="display:flex;align-items:center;gap:4px;background:#0a0a12;border:1px solid #1a1a28;border-radius:12px;padding:2px 6px 2px 2px;">
+                  <img src="${m.avatar || `https://cdn.discordapp.com/embed/avatars/${parseInt(m.id)%5}.png`}" style="width:16px;height:16px;border-radius:50%;" />
+                  <span style="font-size:9px;color:#e8e8f0;">${m.username}</span>
+                </div>
+              `).join("") +
+              `</div>`
+            : `<div style="font-size:9px;color:#30303a;margin-top:4px;">No members in VC</div>`;
+
+          return `
+            <div style="background:#0c0c14;border:1px solid #1a1a28;border-radius:4px;padding:8px 10px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <div>
+                  <div style="font-size:11px;font-weight:700;color:#e8e8f0;">🎙️ ${vc.name}</div>
+                  <div style="font-size:9px;color:#50506a;">${vc.guild} · ${members.length} in VC</div>
+                </div>
+                <button onclick="adminLeaveVC('${vc.vcId}', '${vc.name.replace(/'/g,"\'")}', false)" style="background:rgba(255,23,68,0.1);border:1px solid rgba(255,23,68,0.3);color:#ff1744;font-family:'Oxanium',sans-serif;font-size:9px;font-weight:700;padding:4px 8px;border-radius:4px;cursor:pointer;">Leave</button>
+              </div>
+              ${memberHtml}
+            </div>`;
+        }).join("");
       }
 
       // All voice channels — store for search filtering
