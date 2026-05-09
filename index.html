@@ -253,8 +253,8 @@
     <div>
       <div class="section-label">Driver</div>
       <div class="flag-grid cols-2">
-        <button class="flag-btn blue"  onclick="triggerFlag('blue',      event)"><span class="fi">🔵</span><span class="fn">Blue Flag</span></button>
-        <button class="flag-btn white" onclick="triggerFlag('checkered', event)"><span class="fi">🏁</span><span class="fn">Checkered</span></button>
+        <button class="flag-btn blue"  onclick="showConstruction(event)"><span class="fi">🔵</span><span class="fn">Blue Flag</span></button>
+        <button class="flag-btn white" onclick="showConstruction(event)"><span class="fi">🏁</span><span class="fn">Checkered</span></button>
       </div>
     </div>
     <div class="divider"></div>
@@ -278,13 +278,22 @@
   </div>
 </div>
 
+<div id="construction-popup" style="display:none;position:fixed;inset:0;align-items:center;justify-content:center;z-index:500;background:rgba(0,0,0,0.5);">
+  <div style="width:calc(100% - 32px);max-width:300px;background:rgba(30,20,0,0.95);border:1.5px solid #ffd600;border-radius:10px;box-shadow:0 0 24px rgba(255,214,0,0.3),0 0 60px rgba(255,214,0,0.08);padding:20px 18px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;">
+    <div style="font-size:24px;">🚧</div>
+    <div style="font-family:'Oxanium',sans-serif;font-size:14px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#ffd600;">Under Construction</div>
+    <div style="font-family:'Oxanium',sans-serif;font-size:11px;color:rgba(255,255,255,0.5);line-height:1.6;">This button is currently under construction.</div>
+    <button onclick="document.getElementById('construction-popup').style.display='none'" style="margin-top:4px;width:100%;background:rgba(255,214,0,0.1);border:1px solid rgba(255,214,0,0.4);color:#ffd600;font-family:'Oxanium',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:8px;border-radius:5px;cursor:pointer;">Dismiss</button>
+  </div>
+</div>
+
 <div id="join-result"></div>
 <div id="toast"></div>
 <div id="cooldown-bar"><div id="cooldown-fill"></div></div>
 
 <script>
   // ── CONFIG ────────────────────────────────────────────────────────────────
-  const API_URL = "https://forgot-organizing-older-adam.trycloudflare.com";
+  const API_URL       = "https://quote-terrorist-prayers-distance.trycloudflare.com";
   const CLIENT_ID     = "1467595519718195473";
   const REDIRECT_URI  = encodeURIComponent("https://race-control-one.vercel.app/callback");
   const DISCORD_OAUTH = `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=identify`;
@@ -564,6 +573,12 @@
     if (secs < 60)      el.textContent = `— ${secs}s ago`;
     else if (secs < 3600) el.textContent = `— ${Math.floor(secs / 60)}m ${secs % 60}s ago`;
     else                el.textContent = `— ${Math.floor(secs / 3600)}h ${Math.floor((secs % 3600) / 60)}m ago`;
+  }
+
+  function showConstruction(e) {
+    const btn = e?.currentTarget;
+    if (btn) { btn.classList.remove("firing"); void btn.offsetWidth; btn.classList.add("firing"); setTimeout(() => btn.classList.remove("firing"), 300); }
+    document.getElementById("construction-popup").style.display = "flex";
   }
 
   function startCooldown() {
