@@ -31,7 +31,7 @@
     }
 
     /* ── Login ── */
-    #login {
+    #login-discord {
       position: fixed; inset: 0;
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
@@ -154,8 +154,8 @@
 </head>
 <body>
 
-<!-- ── Login ── -->
-<div id="login">
+<!-- ── Step 1: Discord login ── -->
+<div id="login-discord">
   <div class="logo">Race<span>Control</span></div>
   <div class="login-sub">Marshalling System</div>
   <button class="discord-btn" onclick="loginWithDiscord()">
@@ -163,6 +163,19 @@
     Login with Discord
   </button>
   <div class="login-error" id="login-error"></div>
+</div>
+
+<!-- ── Step 2: Password ── -->
+<div id="login-password" style="display:none;position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:20px;background:var(--bg);">
+  <div class="logo">Race<span>Control</span></div>
+  <div id="login-user-info" style="display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);padding:8px 14px;border-radius:20px;">
+    <img id="login-avatar" src="" style="width:24px;height:24px;border-radius:50%;" />
+    <span id="login-username" style="font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--green);"></span>
+    <span style="font-size:10px;color:var(--muted);">✓ Verified</span>
+  </div>
+  <input type="password" id="pw" placeholder="Enter password" style="width:100%;background:var(--surface);border:1px solid var(--border);color:var(--text);font-family:'Barlow',sans-serif;font-size:13px;padding:9px 12px;border-radius:var(--radius);outline:none;" />
+  <button class="discord-btn" style="background:var(--red);" onclick="submitPassword()">Enter</button>
+  <div class="login-error" id="pw-error"></div>
 </div>
 
 <!-- ── Widget ── -->
@@ -250,11 +263,9 @@
   const code   = params.get("code");
 
   if (code) {
-    // Remove code from URL cleanly
     window.history.replaceState({}, document.title, "/");
     exchangeCode(code);
   } else {
-    // Check if already logged in via sessionStorage
     const saved = sessionStorage.getItem("rc_user");
     if (saved) {
       user = JSON.parse(saved);
@@ -267,7 +278,7 @@
   }
 
   async function exchangeCode(code) {
-    document.getElementById("login-error").textContent = "Logging in...";
+    document.getElementById("login-error").textContent = "Verifying your account...";
     try {
       const res = await fetch(`${API_URL}/auth`, {
         method: "POST",
@@ -276,14 +287,66 @@
       });
 
       const data = await res.json();
+
+      if (res.status === 403) {
+        document.getElementById("login-error").textContent = "❌ " + (data.error || "Access denied.");
+        return;
+      }
+
       if (!res.ok) throw new Error(data.error || "Auth failed");
 
+      // Role verified — now show password screen
       user = data.user;
+      showPasswordScreen();
+
+    } catch (err) {
+      document.getElementById("login-error").textContent = `❌ ${err.message}`;
+    }
+  }
+
+  function showPasswordScreen() {
+    document.getElementById("login-discord").style.display = "none";
+    const pwScreen = document.getElementById("login-password");
+    pwScreen.style.display = "flex";
+
+    // Show their Discord info
+    document.getElementById("login-username").textContent = user.username;
+    const avatarEl = document.getElementById("login-avatar");
+    if (user.avatar) {
+      avatarEl.src = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=32`;
+    } else {
+      avatarEl.src = `https://cdn.discordapp.com/embed/avatars/${parseInt(user.id) % 5}.png`;
+    }
+
+    document.getElementById("pw").focus();
+    document.getElementById("pw").addEventListener("keydown", e => {
+      if (e.key === "Enter") submitPassword();
+    });
+  }
+
+  async function submitPassword() {
+    const pw = document.getElementById("pw").value.trim();
+    if (!pw) return;
+
+    try {
+      const res = await fetch(`${API_URL}/verify-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-discord-id": user.id, "x-discord-token": user.token },
+        body: JSON.stringify({ password: pw }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        document.getElementById("pw-error").textContent = "❌ " + (data.error || "Wrong password.");
+        return;
+      }
+
+      // All good — save session and show panel
       sessionStorage.setItem("rc_user", JSON.stringify(user));
       showPanel();
 
     } catch (err) {
-      document.getElementById("login-error").textContent = `❌ ${err.message}`;
+      document.getElementById("pw-error").textContent = `❌ ${err.message}`;
     }
   }
 
