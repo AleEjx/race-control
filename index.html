@@ -24,10 +24,12 @@
     }
 
     html, body {
-      background: transparent;
+      background: var(--bg);
       width: 100%;
       height: 100%;
       overflow: hidden;
+      margin: 0;
+      padding: 0;
     }
 
     /* ─── LOGIN ─────────────────────────────────────────────────────── */
@@ -88,14 +90,16 @@
     #widget {
       display: none;
       position: fixed;
-      top: 12px;
-      right: 12px;
-      width: 240px;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100%;
       background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      overflow: hidden;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+      border: none;
+      border-radius: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
       font-family: 'Barlow Condensed', sans-serif;
       user-select: none;
     }
@@ -352,7 +356,7 @@
 
 <script>
   // ── CONFIGURE ────────────────────────────────────────────────────────────
-  const API_URL = "https://customs-seeking-zinc-pork.trycloudflare.com"; // e.g. http://123.456.789.0:3000
+  const API_URL = "https://raceleague-control.loca.lt"; // e.g. http://123.456.789.0:3000
   // ────────────────────────────────────────────────────────────────────────
 
   let password = "";
