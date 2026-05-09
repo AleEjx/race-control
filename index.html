@@ -138,6 +138,20 @@
       white-space: pre; z-index: 998; pointer-events: none; text-align: center;
     }
 
+    #cooldown-bar {
+      display: none;
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--border);
+      z-index: 1000;
+    }
+    #cooldown-fill {
+      height: 100%;
+      background: var(--red);
+      width: 100%;
+    }
+
     #toast {
       position: fixed; bottom: 10px; left: 50%;
       transform: translateX(-50%) translateY(40px);
@@ -245,18 +259,21 @@
 
 <div id="join-result"></div>
 <div id="toast"></div>
+<div id="cooldown-bar"><div id="cooldown-fill"></div></div>
 
 <script>
   // ── CONFIG ────────────────────────────────────────────────────────────────
-  const API_URL = "https://reflects-anyway-equipped-blocking.trycloudflare.com";
+  const API_URL       = "https://quote-terrorist-prayers-distance.trycloudflare.com";
   const CLIENT_ID     = "1467595519718195473";
   const REDIRECT_URI  = encodeURIComponent("https://race-control-one.vercel.app/callback");
   const DISCORD_OAUTH = `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=identify`;
   // ─────────────────────────────────────────────────────────────────────────
 
-  let user     = null; // { id, username, avatar }
-  let collapsed = false;
+  let user      = null; // { id, username, avatar }
+  let collapsed  = false;
   let toastTimer;
+  let cooldown   = false;
+  let cooldownTimer;
 
   // ── Check for OAuth callback code ─────────────────────────────────────────
   const params = new URLSearchParams(location.search);
@@ -406,6 +423,8 @@
   }
 
   async function triggerFlag(flag, e) {
+    if (cooldown) { showToast("⏳ Wait 5 seconds!", "error"); return; }
+    startCooldown();
     const btn = e?.currentTarget;
     if (btn) { btn.classList.remove("firing"); void btn.offsetWidth; btn.classList.add("firing"); setTimeout(() => btn.classList.remove("firing"), 300); }
     try {
@@ -422,6 +441,8 @@
   }
 
   async function joinVCs(e) {
+    if (cooldown) { showToast("⏳ Wait 5 seconds!", "error"); return; }
+    startCooldown();
     const btn = e?.currentTarget;
     if (btn) { btn.classList.remove("firing"); void btn.offsetWidth; btn.classList.add("firing"); setTimeout(() => btn.classList.remove("firing"), 300); }
     try {
@@ -441,6 +462,8 @@
   }
 
   async function leaveVCs(e) {
+    if (cooldown) { showToast("⏳ Wait 5 seconds!", "error"); return; }
+    startCooldown();
     const btn = e?.currentTarget;
     if (btn) { btn.classList.remove("firing"); void btn.offsetWidth; btn.classList.add("firing"); setTimeout(() => btn.classList.remove("firing"), 300); }
     try {
@@ -466,6 +489,34 @@
     collapsed = !collapsed;
     document.getElementById("widget").classList.toggle("collapsed", collapsed);
     document.getElementById("btn-collapse").textContent = collapsed ? "▼" : "▲";
+  }
+
+  function startCooldown() {
+    cooldown = true;
+    clearTimeout(cooldownTimer);
+    showCooldownBar();
+    cooldownTimer = setTimeout(() => {
+      cooldown = false;
+      hideCooldownBar();
+    }, 5000);
+  }
+
+  function showCooldownBar() {
+    const bar = document.getElementById("cooldown-bar");
+    const fill = document.getElementById("cooldown-fill");
+    if (!bar || !fill) return;
+    bar.style.display = "block";
+    fill.style.transition = "none";
+    fill.style.width = "100%";
+    // Trigger reflow
+    void fill.offsetWidth;
+    fill.style.transition = "width 5s linear";
+    fill.style.width = "0%";
+  }
+
+  function hideCooldownBar() {
+    const bar = document.getElementById("cooldown-bar");
+    if (bar) bar.style.display = "none";
   }
 
   function showJoinResult(text) {
