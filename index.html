@@ -456,7 +456,11 @@
     const url = location.href.includes("?")
       ? location.href + "&popout"
       : location.href + "?popout";
-    window.open(url, "RaceControl", "width=260,height=420,resizable=yes,alwaysOnTop=yes");
+    // Try popup first, fall back to new tab
+    const popup = window.open(url, "RaceControl", "width=260,height=460,resizable=yes");
+    if (!popup || popup.closed || typeof popup.closed === "undefined") {
+      window.open(url, "_blank");
+    }
   }
 
   // ── Drag to reposition (widget mode only) ──────────────────────────────
