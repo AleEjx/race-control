@@ -415,7 +415,7 @@
 
 <script>
   // ── CONFIG ────────────────────────────────────────────────────────────────
-  const API_URL = "https://aug-live-tied-patents.trycloudflare.com";
+  const API_URL       = "https://quote-terrorist-prayers-distance.trycloudflare.com";
   const CLIENT_ID     = "1467595519718195473";
   const REDIRECT_URI  = encodeURIComponent("https://race-control-one.vercel.app/callback");
   const DISCORD_OAUTH = `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=identify`;
@@ -907,15 +907,17 @@
       if (!data.blacklistFull || data.blacklistFull.length === 0) {
         bl.innerHTML = '<span style="color:#30303a;">No users blacklisted</span>';
       } else {
-        bl.innerHTML = data.blacklistFull.map(e => `
-          <div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid #1a1a28;">
-            <div>
-              <div style="font-size:11px;color:#ff1744;">🚫 ${e.username || e.id}</div>
-              <div style="font-size:9px;color:#50506a;">${e.reason || "No reason"} · <code style="font-size:8px;">${e.id}</code></div>
-            </div>
-            <button onclick="adminRemoveBlacklist('${e.id}', '${(e.username||e.id).replace(/'/g,"\'")}'')" style="background:#0c0c14;border:1px solid #1f1f2e;color:#50506a;font-family:'Oxanium',sans-serif;font-size:9px;font-weight:700;padding:3px 7px;border-radius:4px;cursor:pointer;">Remove</button>
-          </div>
-        `).join("");
+        bl.innerHTML = data.blacklistFull.map(e => {
+            const safeId   = e.id;
+            const safeName = (e.username || e.id).replace(/'/g, "");
+            return `<div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid #1a1a28;">
+              <div>
+                <div style="font-size:11px;color:#ff1744;">🚫 ${e.username || e.id}</div>
+                <div style="font-size:9px;color:#50506a;">${e.reason || "No reason"} · <code style="font-size:8px;">${e.id}</code></div>
+              </div>
+              <button data-id="${e.id}" data-name="${(e.username||e.id).replace(/"/g,'')}" onclick="adminRemoveBlacklist(this.dataset.id, this.dataset.name)" style="background:#0c0c14;border:1px solid #1f1f2e;color:#50506a;font-family:'Oxanium',sans-serif;font-size:9px;font-weight:700;padding:3px 7px;border-radius:4px;cursor:pointer;">Remove</button>
+            </div>`;
+          }).join("");
       }
 
       // Sessions
