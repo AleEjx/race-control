@@ -234,6 +234,8 @@
     .flag-btn.blue:hover   { border-color: var(--blue);   background: rgba(41,121,255,0.08); }
     .flag-btn.orange:hover { border-color: var(--orange); background: rgba(255,109,0,0.08); }
     .flag-btn.white:hover  { border-color: var(--white);  background: rgba(255,255,255,0.05); }
+    .flag-btn.vc-join:hover  { border-color: var(--green); background: rgba(0,230,118,0.08); }
+    .flag-btn.vc-leave:hover { border-color: var(--red);   background: rgba(255,23,68,0.08); }
 
     .flag-btn.firing { animation: pop 0.25s ease; }
     @keyframes pop {
@@ -347,6 +349,17 @@
         <button class="flag-btn orange" onclick="triggerFlag('sc_ending',  event)"><span class="fi">🟠</span><span class="fn">Ending</span></button>
         <button class="flag-btn orange" onclick="triggerFlag('sc_speedup', event)"><span class="fi">🟠</span><span class="fn">Speed Up</span></button>
         <button class="flag-btn orange" onclick="triggerFlag('sfl',        event)"><span class="fi">🟠</span><span class="fn">SFL</span></button>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- VC Controls -->
+    <div>
+      <div class="section-label">Voice Channels</div>
+      <div class="flag-grid cols-2">
+        <button class="flag-btn vc-join" onclick="joinVCs(event)"><span class="fi">🎙️</span><span class="fn">Join VCs</span></button>
+        <button class="flag-btn vc-leave" onclick="leaveVCs(event)"><span class="fi">🔌</span><span class="fn">Leave VCs</span></button>
       </div>
     </div>
   </div>
@@ -490,6 +503,37 @@
     });
 
     document.addEventListener("mouseup", () => { dragging = false; });
+  }
+
+  // ── Join / Leave VCs ────────────────────────────────────────────────────
+  async function joinVCs(e) {
+    const btn = e?.currentTarget;
+    if (btn) { btn.classList.remove("firing"); void btn.offsetWidth; btn.classList.add("firing"); setTimeout(() => btn.classList.remove("firing"), 300); }
+    try {
+      const res = await fetch(`${API_URL}/join`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-password": password },
+        body: JSON.stringify({}),
+      });
+      const data = await res.json();
+      if (res.ok) { showToast("✓ Joined all VCs", "success"); updateStatus(true, []); }
+      else         showToast(`✗ ${data.error}`, "error");
+    } catch { showToast("✗ Bot unreachable", "error"); }
+  }
+
+  async function leaveVCs(e) {
+    const btn = e?.currentTarget;
+    if (btn) { btn.classList.remove("firing"); void btn.offsetWidth; btn.classList.add("firing"); setTimeout(() => btn.classList.remove("firing"), 300); }
+    try {
+      const res = await fetch(`${API_URL}/leave`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-password": password },
+        body: JSON.stringify({}),
+      });
+      const data = await res.json();
+      if (res.ok) { showToast("✓ Left all VCs", "success"); updateStatus(false, []); }
+      else         showToast(`✗ ${data.error}`, "error");
+    } catch { showToast("✗ Bot unreachable", "error"); }
   }
 
   // ── Toast ───────────────────────────────────────────────────────────────
