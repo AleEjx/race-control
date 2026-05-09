@@ -205,6 +205,11 @@
         <div class="status-dot" id="status-dot"></div>
         <span id="status-text">–</span>
       </div>
+      <div class="status-pill" id="last-flag-pill" style="display:none;">
+        <span id="last-flag-emoji" style="font-size:8px;"></span>
+        <span id="last-flag-text"></span>
+        <span id="last-flag-time" style="color:var(--muted);"></span>
+      </div>
     </div>
     <div class="widget-controls">
       <button class="ctrl-btn" id="btn-collapse" title="Collapse" onclick="toggleCollapse()">▲</button>
@@ -274,6 +279,7 @@
   let toastTimer;
   let cooldown   = false;
   let cooldownTimer;
+  let lastFlag   = null;
 
   // ── Check for OAuth callback code ─────────────────────────────────────────
   const params = new URLSearchParams(location.search);
@@ -434,7 +440,10 @@
         body: JSON.stringify({ flag, username: user.username, discordId: user.id }),
       });
       const data = await res.json();
-      if (res.ok) showToast(`✓ ${flagName(flag)}`, "success");
+      if (res.ok) {
+        showToast(`✓ ${flagName(flag)}`, "success");
+        setLastFlag(flagName(flag));
+      }
       else if (res.status === 403) showToast("✗ Web panel disabled", "error");
       else showToast(`✗ ${data.error}`, "error");
     } catch { showToast("✗ Bot unreachable", "error"); }
@@ -489,6 +498,47 @@
     collapsed = !collapsed;
     document.getElementById("widget").classList.toggle("collapsed", collapsed);
     document.getElementById("btn-collapse").textContent = collapsed ? "▼" : "▲";
+  }
+
+  const FLAG_EMOJIS = {
+    "Green Flag": "🟢", "Yellow Flag": "🟡", "Full Course Yellow": "🟡",
+    "Red Flag": "🔴", "Blue Flag": "🔵", "SC Deployed": "🟠",
+    "SC Ending": "🟠", "SC Speed Up": "🟠", "Single File Line": "🟠",
+    "Checkered Flag": "🏁",
+  };
+
+  let lastFlagTime   = null;
+  let lastFlagInterval = null;
+
+  function setLastFlag(name) {
+    lastFlag     = name;
+    lastFlagTime = Date.now();
+
+    const pill  = document.getElementById("last-flag-pill");
+    const emoji = document.getElementById("last-flag-emoji");
+    const text  = document.getElementById("last-flag-text");
+    if (!pill || !text) return;
+
+    emoji.textContent = FLAG_EMOJIS[name] || "🏁";
+    text.textContent  = `Last: ${name}`;
+    pill.style.display = "flex";
+
+    // Clear any existing timer
+    if (lastFlagInterval) clearInterval(lastFlagInterval);
+
+    // Update time ago every second
+    updateTimeAgo();
+    lastFlagInterval = setInterval(updateTimeAgo, 1000);
+  }
+
+  function updateTimeAgo() {
+    if (!lastFlagTime) return;
+    const el = document.getElementById("last-flag-time");
+    if (!el) return;
+    const secs = Math.floor((Date.now() - lastFlagTime) / 1000);
+    if (secs < 60)      el.textContent = `— ${secs}s ago`;
+    else if (secs < 3600) el.textContent = `— ${Math.floor(secs / 60)}m ${secs % 60}s ago`;
+    else                el.textContent = `— ${Math.floor(secs / 3600)}h ${Math.floor((secs % 3600) / 60)}m ago`;
   }
 
   function startCooldown() {
