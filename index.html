@@ -214,6 +214,8 @@
     <div style="display:flex;align-items:center;gap:8px;">
       <span style="font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:#fff;">Race<span style="color:#ff1744;">Control</span></span>
       <button onclick="toggleAdminMode()" style="background:rgba(255,214,0,0.15);border:1px solid rgba(255,214,0,0.4);color:#ffd600;font-family:'Oxanium',sans-serif;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;border-radius:4px;cursor:pointer;" id="admin-toggle-btn">Admin ⇄</button>
+      <button onclick="openToolbox()" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#50506a;font-family:'Oxanium',sans-serif;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;border-radius:4px;cursor:pointer;">🧰</button>
+      <button onclick="openToolbox()" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#50506a;font-family:'Oxanium',sans-serif;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;border-radius:4px;cursor:pointer;">🧰</button>
     </div>
     <div style="display:flex;align-items:center;gap:6px;">
       <img id="admin-avatar" src="" style="width:20px;height:20px;border-radius:50%;" />
@@ -221,10 +223,19 @@
     </div>
   </div>
 
+  <!-- Toolbox overlay -->
+  <div id="toolbox-panel" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:100;align-items:center;justify-content:center;">
+    <div style="background:#13131a;border:1px solid #1f1f2e;border-radius:8px;padding:16px;width:calc(100% - 32px);max-width:300px;">
+      <div style="font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#fff;margin-bottom:12px;">🧰 Toolbox</div>
+      <div style="display:flex;flex-direction:column;gap:8px;" id="toolbox-toggles"></div>
+      <button onclick="closeToolbox()" style="width:100%;margin-top:12px;background:#0c0c14;border:1px solid #1f1f2e;color:#50506a;font-family:'Oxanium',sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:8px;border-radius:4px;cursor:pointer;">Done</button>
+    </div>
+  </div>
+
   <div style="padding:12px;display:flex;flex-direction:column;gap:12px;">
 
     <!-- Status row -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+    <div id="section-status" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
       <div style="background:#13131a;border:1px solid #1f1f2e;border-radius:6px;padding:10px 12px;">
         <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#50506a;margin-bottom:4px;">Web Panel</div>
         <div id="admin-web-status" style="font-size:13px;font-weight:700;">–</div>
@@ -236,26 +247,26 @@
     </div>
 
     <!-- Connected VCs -->
-    <div style="background:#13131a;border:1px solid #1f1f2e;border-radius:6px;padding:10px 12px;">
+    <div id="section-connected" style="background:#13131a;border:1px solid #1f1f2e;border-radius:6px;padding:10px 12px;">
       <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#50506a;margin-bottom:8px;">Connected Voice Channels</div>
       <div id="admin-connected-vcs" style="display:flex;flex-direction:column;gap:4px;font-size:11px;color:#50506a;">Loading...</div>
     </div>
 
     <!-- All Voice Channels -->
-    <div style="background:#13131a;border:1px solid #1f1f2e;border-radius:6px;padding:10px 12px;">
+    <div id="section-allvcs" style="background:#13131a;border:1px solid #1f1f2e;border-radius:6px;padding:10px 12px;">
       <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#50506a;margin-bottom:6px;">All Voice Channels</div>
       <input type="text" id="vc-search" placeholder="Search channels..." oninput="filterVCs()" style="width:100%;background:#0c0c14;border:1px solid #1f1f2e;color:#e8e8f0;font-family:'Oxanium',sans-serif;font-size:11px;padding:6px 10px;border-radius:4px;outline:none;margin-bottom:6px;" />
       <div id="admin-all-vcs" style="display:flex;flex-direction:column;gap:4px;max-height:200px;overflow-y:auto;">Loading...</div>
     </div>
 
     <!-- Guilds -->
-    <div style="background:#13131a;border:1px solid #1f1f2e;border-radius:6px;padding:10px 12px;">
+    <div id="section-guilds" style="background:#13131a;border:1px solid #1f1f2e;border-radius:6px;padding:10px 12px;">
       <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#50506a;margin-bottom:8px;">Bot Servers</div>
       <div id="admin-guilds" style="display:flex;flex-direction:column;gap:6px;">Loading...</div>
     </div>
 
     <!-- Blacklist -->
-    <div style="background:#13131a;border:1px solid #1f1f2e;border-radius:6px;padding:10px 12px;">
+    <div id="section-blacklist" style="background:#13131a;border:1px solid #1f1f2e;border-radius:6px;padding:10px 12px;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
         <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#50506a;">Blacklisted Users</div>
         <button onclick="showAddBlacklist()" style="background:rgba(255,23,68,0.1);border:1px solid rgba(255,23,68,0.3);color:#ff1744;font-family:'Oxanium',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.5px;padding:3px 8px;border-radius:4px;cursor:pointer;">+ Add</button>
@@ -272,19 +283,19 @@
     </div>
 
     <!-- Session Viewer -->
-    <div style="background:#13131a;border:1px solid #1f1f2e;border-radius:6px;padding:10px 12px;">
+    <div id="section-sessions" style="background:#13131a;border:1px solid #1f1f2e;border-radius:6px;padding:10px 12px;">
       <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#50506a;margin-bottom:8px;">Active Sessions</div>
       <div id="admin-sessions" style="display:flex;flex-direction:column;gap:6px;">Loading...</div>
     </div>
 
     <!-- Login History -->
-    <div style="background:#13131a;border:1px solid #1f1f2e;border-radius:6px;padding:10px 12px;">
+    <div id="section-logins" style="background:#13131a;border:1px solid #1f1f2e;border-radius:6px;padding:10px 12px;">
       <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#50506a;margin-bottom:8px;">Login History</div>
       <div id="admin-logins" style="display:flex;flex-direction:column;gap:4px;max-height:180px;overflow-y:auto;">Loading...</div>
     </div>
 
     <!-- Audit Log -->
-    <div style="background:#13131a;border:1px solid #1f1f2e;border-radius:6px;padding:10px 12px;">
+    <div id="section-audit" style="background:#13131a;border:1px solid #1f1f2e;border-radius:6px;padding:10px 12px;">
       <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#50506a;margin-bottom:8px;">Audit Log</div>
       <div id="admin-audit" style="display:flex;flex-direction:column;gap:4px;max-height:200px;overflow-y:auto;">Loading...</div>
     </div>
@@ -379,7 +390,7 @@
 
 <script>
   // ── CONFIG ────────────────────────────────────────────────────────────────
-  const API_URL = "https://baltimore-back-dialogue-cooling.trycloudflare.com";
+  const API_URL       = "https://quote-terrorist-prayers-distance.trycloudflare.com";
   const CLIENT_ID     = "1467595519718195473";
   const REDIRECT_URI  = encodeURIComponent("https://race-control-one.vercel.app/callback");
   const DISCORD_OAUTH = `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=identify`;
@@ -786,6 +797,7 @@
       ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=32`
       : `https://cdn.discordapp.com/embed/avatars/${parseInt(user.id) % 5}.png`;
 
+    applySectionVisibility();
     await loadAdminInfo();
     setInterval(loadAdminInfo, 15_000);
   }
@@ -986,6 +998,74 @@
       if (res.ok) { showToast(`✓ Left ${name}`, "success"); await loadAdminInfo(); }
       else showToast(`✗ ${data.error}`, "error");
     } catch { showToast("✗ Bot unreachable", "error"); }
+  }
+
+  // ── Toolbox ──────────────────────────────────────────────────────────────
+  const SECTIONS = [
+    { id: "section-status",    label: "Status & Uptime" },
+    { id: "section-connected", label: "Connected Voice Channels" },
+    { id: "section-allvcs",    label: "All Voice Channels" },
+    { id: "section-guilds",    label: "Bot Servers" },
+    { id: "section-blacklist", label: "Blacklisted Users" },
+    { id: "section-sessions",  label: "Active Sessions" },
+    { id: "section-logins",    label: "Login History" },
+    { id: "section-audit",     label: "Audit Log" },
+  ];
+
+  // Load visibility from localStorage
+  function getSectionVisibility() {
+    try { return JSON.parse(localStorage.getItem("rc_admin_sections") || "{}"); } catch { return {}; }
+  }
+
+  function saveSectionVisibility(vis) {
+    localStorage.setItem("rc_admin_sections", JSON.stringify(vis));
+  }
+
+  function applySectionVisibility() {
+    const vis = getSectionVisibility();
+    for (const s of SECTIONS) {
+      const el = document.getElementById(s.id);
+      if (!el) continue;
+      const hidden = vis[s.id] === false;
+      el.style.display = hidden ? "none" : "";
+    }
+  }
+
+  function openToolbox() {
+    const vis      = getSectionVisibility();
+    const container = document.getElementById("toolbox-toggles");
+    const panel    = document.getElementById("toolbox-panel");
+    if (!container || !panel) return;
+
+    container.innerHTML = SECTIONS.map(s => {
+      const visible = vis[s.id] !== false;
+      return `
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid #1a1a28;">
+          <span style="font-size:11px;color:#e8e8f0;">${s.label}</span>
+          <button onclick="toggleSection('${s.id}', this)" style="background:${visible ? "rgba(0,230,118,0.15)" : "rgba(255,23,68,0.1)"};border:1px solid ${visible ? "rgba(0,230,118,0.4)" : "rgba(255,23,68,0.3)"};color:${visible ? "#00e676" : "#ff1744"};font-family:'Oxanium',sans-serif;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 10px;border-radius:4px;cursor:pointer;">${visible ? "Visible" : "Hidden"}</button>
+        </div>`;
+    }).join("");
+
+    panel.style.display = "flex";
+  }
+
+  function toggleSection(id, btn) {
+    const vis     = getSectionVisibility();
+    const visible = vis[id] !== false;
+    vis[id]       = !visible;
+    saveSectionVisibility(vis);
+    applySectionVisibility();
+
+    // Update button
+    const nowVisible = !visible;
+    btn.textContent   = nowVisible ? "Visible" : "Hidden";
+    btn.style.background = nowVisible ? "rgba(0,230,118,0.15)" : "rgba(255,23,68,0.1)";
+    btn.style.borderColor = nowVisible ? "rgba(0,230,118,0.4)" : "rgba(255,23,68,0.3)";
+    btn.style.color       = nowVisible ? "#00e676" : "#ff1744";
+  }
+
+  function closeToolbox() {
+    document.getElementById("toolbox-panel").style.display = "none";
   }
 
   function showConstruction(e) {
