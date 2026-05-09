@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Race Control</title>
-  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -26,7 +26,7 @@
       background: var(--bg);
       width: 100%; height: 100%;
       overflow: hidden; margin: 0; padding: 0;
-      font-family: 'Barlow Condensed', sans-serif;
+      font-family: 'Oxanium', sans-serif;
       color: var(--text);
     }
 
@@ -85,7 +85,7 @@
       background: var(--discord); flex-shrink: 0;
       object-fit: cover;
     }
-    .status-pill { display: flex; align-items: center; gap: 5px; font-size: 10px; letter-spacing: 0.5px; text-transform: uppercase; color: var(--muted); }
+    .status-pill { display: flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; color: var(--text); }
     .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--muted); flex-shrink: 0; transition: background 0.3s; }
     .status-dot.live { background: var(--green); box-shadow: 0 0 5px var(--green); }
     .widget-controls { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
@@ -207,8 +207,8 @@
       </div>
       <div class="status-pill" id="last-flag-pill" style="display:none;">
         <span id="last-flag-emoji" style="font-size:8px;"></span>
-        <span id="last-flag-text"></span>
-        <span id="last-flag-time" style="color:var(--muted);"></span>
+        <span id="last-flag-text" style="font-size:12px;font-weight:700;color:var(--text);"></span>
+        <span id="last-flag-time" style="font-size:11px;color:var(--muted);"></span>
       </div>
     </div>
     <div class="widget-controls">
@@ -268,7 +268,7 @@
 
 <script>
   // ── CONFIG ────────────────────────────────────────────────────────────────
-  const API_URL = "https://math-warriors-representatives-joke.trycloudflare.com";
+  const API_URL       = "https://quote-terrorist-prayers-distance.trycloudflare.com";
   const CLIENT_ID     = "1467595519718195473";
   const REDIRECT_URI  = encodeURIComponent("https://race-control-one.vercel.app/callback");
   const DISCORD_OAUTH = `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=identify`;
