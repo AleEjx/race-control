@@ -341,7 +341,10 @@
       </div>
       <input type="file" id="audio-file-input" accept="audio/*,video/mp4" style="display:none;" onchange="handleAudioFile(this.files[0])" />
 
-      <div id="audio-status" style="display:none;margin-top:8px;font-size:11px;color:#50506a;text-align:center;"></div>
+      <div style="display:flex;gap:6px;margin-top:8px;">
+        <div id="audio-status" style="display:none;flex:1;font-size:11px;color:#50506a;text-align:center;padding-top:2px;"></div>
+        <button onclick="stopAudio()" style="background:rgba(255,23,68,0.1);border:1px solid rgba(255,23,68,0.3);color:#ff1744;font-family:'Oxanium',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;padding:5px 10px;border-radius:4px;cursor:pointer;white-space:nowrap;">⏹ Stop</button>
+      </div>
 
       <div id="audio-preview" style="display:none;margin-top:8px;background:#0c0c14;border:1px solid #1a1a28;border-radius:5px;padding:8px 10px;display:none;align-items:center;justify-content:space-between;gap:8px;">
         <div style="min-width:0;">
@@ -445,7 +448,7 @@
 
 <script>
   // ── CONFIG ────────────────────────────────────────────────────────────────
-  const API_URL = "https://breakfast-patricia-input-stage.trycloudflare.com";
+  const API_URL       = "https://quote-terrorist-prayers-distance.trycloudflare.com";
   const CLIENT_ID     = "1467595519718195473";
   const REDIRECT_URI  = encodeURIComponent("https://race-control-one.vercel.app/callback");
   const DISCORD_OAUTH = `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=identify`;
@@ -1277,6 +1280,22 @@
       btn.textContent = "▶ Play in VCs";
       btn.disabled    = false;
     }
+  }
+
+  async function stopAudio() {
+    try {
+      const res  = await fetch(`${API_URL}/admin/stop-audio`, {
+        method:  "POST",
+        headers: { "Content-Type": "application/json", "x-discord-id": user.id, "x-discord-token": user.token },
+        body:    JSON.stringify({}),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        showToast(`⏹ Stopped ${data.stopped} player${data.stopped !== 1 ? "s" : ""}`, "success");
+        const status = document.getElementById("audio-status");
+        if (status) { status.style.display = "block"; status.style.color = "#ff1744"; status.textContent = "⏹ Audio stopped"; }
+      } else showToast(`✗ ${data.error}`, "error");
+    } catch { showToast("✗ Bot unreachable", "error"); }
   }
 
   function showConstruction(e) {
