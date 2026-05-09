@@ -248,7 +248,7 @@
 
 <script>
   // ── CONFIG ────────────────────────────────────────────────────────────────
-  const API_URL = "https://reflects-anyway-equipped-blocking.trycloudflare.com";
+  const API_URL       = "https://quote-terrorist-prayers-distance.trycloudflare.com";
   const CLIENT_ID     = "1467595519718195473";
   const REDIRECT_URI  = encodeURIComponent("https://race-control-one.vercel.app/callback");
   const DISCORD_OAUTH = `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=identify`;
@@ -351,7 +351,8 @@
   }
 
   async function showPanel() {
-    document.getElementById("login").style.display = "none";
+    document.getElementById("login-discord").style.display = "none";
+    document.getElementById("login-password").style.display = "none";
     document.getElementById("widget").style.display = "block";
 
     // Set user info in header
