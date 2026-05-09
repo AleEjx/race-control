@@ -213,7 +213,7 @@
   <div style="background:#0f0f1a;border-bottom:1px solid #1f1f2e;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;">
     <div style="display:flex;align-items:center;gap:8px;">
       <span style="font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:#fff;">Race<span style="color:#ff1744;">Control</span></span>
-      <span style="background:rgba(255,214,0,0.15);border:1px solid rgba(255,214,0,0.4);color:#ffd600;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;border-radius:4px;">Admin</span>
+      <button onclick="toggleAdminMode()" style="background:rgba(255,214,0,0.15);border:1px solid rgba(255,214,0,0.4);color:#ffd600;font-family:'Oxanium',sans-serif;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;border-radius:4px;cursor:pointer;" id="admin-toggle-btn">Admin ⇄</button>
     </div>
     <div style="display:flex;align-items:center;gap:6px;">
       <img id="admin-avatar" src="" style="width:20px;height:20px;border-radius:50%;" />
@@ -243,7 +243,8 @@
 
     <!-- All Voice Channels -->
     <div style="background:#13131a;border:1px solid #1f1f2e;border-radius:6px;padding:10px 12px;">
-      <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#50506a;margin-bottom:8px;">All Voice Channels</div>
+      <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#50506a;margin-bottom:6px;">All Voice Channels</div>
+      <input type="text" id="vc-search" placeholder="Search channels..." oninput="filterVCs()" style="width:100%;background:#0c0c14;border:1px solid #1f1f2e;color:#e8e8f0;font-family:'Oxanium',sans-serif;font-size:11px;padding:6px 10px;border-radius:4px;outline:none;margin-bottom:6px;" />
       <div id="admin-all-vcs" style="display:flex;flex-direction:column;gap:4px;max-height:200px;overflow-y:auto;">Loading...</div>
     </div>
 
@@ -255,11 +256,22 @@
 
     <!-- Blacklist -->
     <div style="background:#13131a;border:1px solid #1f1f2e;border-radius:6px;padding:10px 12px;">
-      <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#50506a;margin-bottom:8px;">Blacklisted Users</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#50506a;">Blacklisted Users</div>
+        <button onclick="showAddBlacklist()" style="background:rgba(255,23,68,0.1);border:1px solid rgba(255,23,68,0.3);color:#ff1744;font-family:'Oxanium',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.5px;padding:3px 8px;border-radius:4px;cursor:pointer;">+ Add</button>
+      </div>
+      <div id="admin-add-blacklist" style="display:none;gap:4px;margin-bottom:8px;flex-direction:column;">
+        <input type="text" id="bl-userid" placeholder="Discord ID or username" style="width:100%;background:#0c0c14;border:1px solid #1f1f2e;color:#e8e8f0;font-family:'Oxanium',sans-serif;font-size:11px;padding:6px 10px;border-radius:4px;outline:none;" />
+        <input type="text" id="bl-reason" placeholder="Reason (optional)" style="width:100%;background:#0c0c14;border:1px solid #1f1f2e;color:#e8e8f0;font-family:'Oxanium',sans-serif;font-size:11px;padding:6px 10px;border-radius:4px;outline:none;" />
+        <div style="display:flex;gap:4px;">
+          <button onclick="adminAddBlacklist()" style="flex:1;background:rgba(255,23,68,0.15);border:1px solid rgba(255,23,68,0.4);color:#ff1744;font-family:'Oxanium',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.5px;padding:6px;border-radius:4px;cursor:pointer;">Blacklist</button>
+          <button onclick="document.getElementById('admin-add-blacklist').style.display='none'" style="flex:1;background:#0c0c14;border:1px solid #1f1f2e;color:#50506a;font-family:'Oxanium',sans-serif;font-size:10px;font-weight:700;padding:6px;border-radius:4px;cursor:pointer;">Cancel</button>
+        </div>
+      </div>
       <div id="admin-blacklist" style="font-size:11px;color:#50506a;">Loading...</div>
     </div>
 
-    <div style="font-size:9px;color:#30303a;text-align:center;letter-spacing:1px;">MORE FEATURES COMING SOON</div>
+    <div style="font-size:9px;color:#30303a;text-align:center;letter-spacing:1px;padding-bottom:8px;">MORE FEATURES COMING SOON</div>
   </div>
 </div>
 
@@ -348,7 +360,7 @@
 
 <script>
   // ── CONFIG ────────────────────────────────────────────────────────────────
-  const API_URL = "https://heated-disks-car-steam.trycloudflare.com";
+  const API_URL       = "https://quote-terrorist-prayers-distance.trycloudflare.com";
   const CLIENT_ID     = "1467595519718195473";
   const REDIRECT_URI  = encodeURIComponent("https://race-control-one.vercel.app/callback");
   const DISCORD_OAUTH = `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=identify`;
@@ -633,6 +645,105 @@
   }
 
   // ── Admin Panel ─────────────────────────────────────────────────────────
+  let adminMode = true;
+  let allVCData = [];
+
+  function toggleAdminMode() {
+    if (adminMode) {
+      // Switch to normal panel
+      document.getElementById("admin-panel").style.display = "none";
+      document.getElementById("widget").style.display = "block";
+      adminMode = false;
+    } else {
+      // Switch back to admin
+      document.getElementById("widget").style.display = "none";
+      document.getElementById("admin-panel").style.display = "block";
+      adminMode = true;
+    }
+  }
+
+  function filterVCs() {
+    const q = document.getElementById("vc-search")?.value?.toLowerCase() || "";
+    renderVCList(allVCData.filter(ch =>
+      ch.name.toLowerCase().includes(q) || ch.guild.toLowerCase().includes(q)
+    ));
+  }
+
+  function renderVCList(channels) {
+    const el = document.getElementById("admin-all-vcs");
+    if (!el) return;
+    if (channels.length === 0) {
+      el.innerHTML = '<span style="font-size:11px;color:#30303a;">No channels found</span>';
+      return;
+    }
+    el.innerHTML = channels.map(ch => `
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:5px 4px;border-bottom:1px solid #1a1a28;">
+        <div style="min-width:0;flex:1;">
+          <span style="font-size:11px;color:${ch.connected ? "#00e676" : "#e8e8f0"};">${ch.connected ? "🟢" : "⚪"} ${ch.name}</span>
+          <span style="font-size:9px;color:#50506a;margin-left:4px;">${ch.guild}${ch.connected ? ` · 👥 ${ch.memberCount}` : ` · ${ch.memberCount} members`}</span>
+        </div>
+        ${!ch.connected
+          ? `<button onclick="adminJoinVC('${ch.id}', '${ch.name.replace(/'/g,"\'")}', '${ch.guildId}')" style="background:rgba(0,230,118,0.08);border:1px solid rgba(0,230,118,0.3);color:#00e676;font-family:'Oxanium',sans-serif;font-size:9px;font-weight:700;padding:3px 7px;border-radius:4px;cursor:pointer;white-space:nowrap;flex-shrink:0;">Join</button>`
+          : `<button onclick="adminLeaveVC('${ch.id}', '${ch.name.replace(/'/g,"\'")}', true)" style="background:rgba(255,23,68,0.08);border:1px solid rgba(255,23,68,0.3);color:#ff1744;font-family:'Oxanium',sans-serif;font-size:9px;font-weight:700;padding:3px 7px;border-radius:4px;cursor:pointer;white-space:nowrap;flex-shrink:0;">Leave</button>`
+        }
+      </div>
+    `).join("");
+  }
+
+  function showAddBlacklist() {
+    const el = document.getElementById("admin-add-blacklist");
+    el.style.display = el.style.display === "none" ? "flex" : "none";
+  }
+
+  async function adminAddBlacklist() {
+    const target = document.getElementById("bl-userid")?.value?.trim();
+    const reason = document.getElementById("bl-reason")?.value?.trim() || "No reason provided";
+    if (!target) return showToast("Enter a user ID or username", "error");
+
+    try {
+      const res  = await fetch(`${API_URL}/admin/blacklist`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-discord-id": user.id, "x-discord-token": user.token },
+        body: JSON.stringify({ target, reason }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        showToast(`✓ Blacklisted ${data.username}`, "success");
+        document.getElementById("bl-userid").value = "";
+        document.getElementById("bl-reason").value = "";
+        document.getElementById("admin-add-blacklist").style.display = "none";
+        await loadAdminInfo();
+      } else showToast(`✗ ${data.error}`, "error");
+    } catch { showToast("✗ Bot unreachable", "error"); }
+  }
+
+  async function adminRemoveBlacklist(id, username) {
+    try {
+      const res  = await fetch(`${API_URL}/admin/blacklist/remove`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-discord-id": user.id, "x-discord-token": user.token },
+        body: JSON.stringify({ id }),
+      });
+      const data = await res.json();
+      if (res.ok) { showToast(`✓ Removed ${username}`, "success"); await loadAdminInfo(); }
+      else showToast(`✗ ${data.error}`, "error");
+    } catch { showToast("✗ Bot unreachable", "error"); }
+  }
+
+  async function adminLeaveGuild(guildId, name) {
+    if (!confirm(`Leave server "${name}"? This cannot be undone.`)) return;
+    try {
+      const res  = await fetch(`${API_URL}/admin/leave-guild`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-discord-id": user.id, "x-discord-token": user.token },
+        body: JSON.stringify({ guildId }),
+      });
+      const data = await res.json();
+      if (res.ok) { showToast(`✓ Left ${name}`, "success"); await loadAdminInfo(); }
+      else showToast(`✗ ${data.error}`, "error");
+    } catch { showToast("✗ Bot unreachable", "error"); }
+  }
+
   async function showAdminPanel() {
     document.getElementById("login-discord").style.display   = "none";
     document.getElementById("login-password").style.display  = "none";
@@ -683,39 +794,38 @@
         `).join("");
       }
 
-      // All voice channels
-      const avcs = document.getElementById("admin-all-vcs");
-      avcs.innerHTML = data.voiceChannels.map(ch => `
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:5px 4px;border-bottom:1px solid #1a1a28;">
-          <div>
-            <span style="font-size:11px;color:${ch.connected ? "#00e676" : "#e8e8f0"};">${ch.connected ? "🟢" : "⚪"} ${ch.name}</span>
-            <span style="font-size:9px;color:#50506a;margin-left:6px;">${ch.guild} · ${ch.memberCount} members</span>
-          </div>
-          ${!ch.connected
-            ? `<button onclick="adminJoinVC('${ch.id}', '${ch.name}')" style="background:rgba(0,230,118,0.08);border:1px solid rgba(0,230,118,0.3);color:#00e676;font-family:'Oxanium',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;padding:3px 7px;border-radius:4px;cursor:pointer;">Join</button>`
-            : `<span style="font-size:9px;color:#00e676;">Connected</span>`
-          }
-        </div>
-      `).join("");
+      // All voice channels — store for search filtering
+      allVCData = data.voiceChannels;
+      const q = document.getElementById("vc-search")?.value || "";
+      renderVCList(q ? allVCData.filter(ch => ch.name.toLowerCase().includes(q.toLowerCase()) || ch.guild.toLowerCase().includes(q.toLowerCase())) : allVCData);
 
       // Guilds
       document.getElementById("admin-guilds").innerHTML = data.guilds.map(g => `
-        <div style="display:flex;align-items:center;gap:8px;padding:4px 0;">
-          ${g.icon ? `<img src="${g.icon}" style="width:24px;height:24px;border-radius:50%;" />` : `<div style="width:24px;height:24px;border-radius:50%;background:#1f1f2e;display:flex;align-items:center;justify-content:center;font-size:10px;">${g.name[0]}</div>`}
-          <div>
-            <div style="font-size:11px;font-weight:700;color:#e8e8f0;">${g.name}</div>
-            <div style="font-size:9px;color:#50506a;">${g.memberCount} members · ${g.id}</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-bottom:1px solid #1a1a28;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            ${g.icon ? `<img src="${g.icon}" style="width:24px;height:24px;border-radius:50%;" />` : `<div style="width:24px;height:24px;border-radius:50%;background:#1f1f2e;display:flex;align-items:center;justify-content:center;font-size:10px;">${g.name[0]}</div>`}
+            <div>
+              <div style="font-size:11px;font-weight:700;color:#e8e8f0;">${g.name}</div>
+              <div style="font-size:9px;color:#50506a;">${g.memberCount} members · ${g.id}</div>
+            </div>
           </div>
+          <button onclick="adminLeaveGuild('${g.id}', '${g.name.replace(/'/g,"\'")}'')" style="background:#0c0c14;border:1px solid rgba(255,23,68,0.2);color:#ff1744;font-family:'Oxanium',sans-serif;font-size:9px;font-weight:700;padding:3px 7px;border-radius:4px;cursor:pointer;">Leave</button>
         </div>
       `).join("");
 
       // Blacklist
       const bl = document.getElementById("admin-blacklist");
-      if (data.blacklist.length === 0) {
+      if (!data.blacklistFull || data.blacklistFull.length === 0) {
         bl.innerHTML = '<span style="color:#30303a;">No users blacklisted</span>';
       } else {
-        bl.innerHTML = data.blacklist.map(id => `
-          <div style="font-size:11px;color:#ff1744;padding:2px 0;">🚫 ${id}</div>
+        bl.innerHTML = data.blacklistFull.map(e => `
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid #1a1a28;">
+            <div>
+              <div style="font-size:11px;color:#ff1744;">🚫 ${e.username || e.id}</div>
+              <div style="font-size:9px;color:#50506a;">${e.reason || "No reason"} · <code style="font-size:8px;">${e.id}</code></div>
+            </div>
+            <button onclick="adminRemoveBlacklist('${e.id}', '${(e.username||e.id).replace(/'/g,"\'")}'')" style="background:#0c0c14;border:1px solid #1f1f2e;color:#50506a;font-family:'Oxanium',sans-serif;font-size:9px;font-weight:700;padding:3px 7px;border-radius:4px;cursor:pointer;">Remove</button>
+          </div>
         `).join("");
       }
 
