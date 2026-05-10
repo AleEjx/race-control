@@ -469,6 +469,32 @@
         <button class="flag-btn vc-leave" onclick="leaveVCs(event)"><span class="fi">🔌</span><span class="fn">Leave VCs</span></button>
       </div>
     </div>
+
+    <!-- Race Setup — only shown to race directors -->
+    <div id="widget-race-setup" style="display:none;">
+      <div class="divider" style="margin:4px 0 8px;"></div>
+      <div class="section-label">🏁 Race Setup</div>
+      <div style="background:#0c0c14;border:1px solid var(--border);border-radius:6px;padding:10px 12px;display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+          <span style="font-size:11px;">Total Laps</span>
+          <input type="number" id="widget-race-laps" min="1" max="99" value="10" style="width:65px;background:#0a0a10;border:1px solid var(--border);color:var(--text);font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;padding:4px 8px;border-radius:4px;outline:none;text-align:center;" />
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+          <div><div style="font-size:11px;">Mandatory Pit Stops</div><div style="font-size:9px;color:var(--muted);">0 = disabled</div></div>
+          <input type="number" id="widget-race-pits" min="0" max="9" value="0" style="width:65px;background:#0a0a10;border:1px solid var(--border);color:var(--text);font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;padding:4px 8px;border-radius:4px;outline:none;text-align:center;" />
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+          <div><div style="font-size:11px;">Next Lap Cooldown</div><div style="font-size:9px;color:var(--muted);">seconds (0 = none)</div></div>
+          <input type="number" id="widget-race-interval" min="0" max="3600" value="0" style="width:65px;background:#0a0a10;border:1px solid var(--border);color:var(--text);font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;padding:4px 8px;border-radius:4px;outline:none;text-align:center;" />
+        </div>
+        <div style="display:flex;gap:5px;">
+          <button onclick="widgetStartRace()" style="flex:1;background:rgba(0,230,118,0.12);border:1px solid rgba(0,230,118,0.4);color:#00e676;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:7px;border-radius:4px;cursor:pointer;">🏁 Start</button>
+          <button onclick="widgetResetRace()" style="background:#0a0a10;border:1px solid var(--border);color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;padding:7px 10px;border-radius:4px;cursor:pointer;">Reset</button>
+        </div>
+        <div id="widget-race-status" style="font-size:10px;color:var(--muted);text-align:center;min-height:14px;"></div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -487,7 +513,7 @@
 
 <script>
   // ── CONFIG ────────────────────────────────────────────────────────────────
-  const API_URL = "https://cylinder-podcasts-get-entire.trycloudflare.com";
+  const API_URL       = "https://quote-terrorist-prayers-distance.trycloudflare.com";
   const CLIENT_ID     = "1467595519718195473";
   const REDIRECT_URI  = encodeURIComponent("https://race-control-one.vercel.app/marshal");
   const DISCORD_OAUTH = `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=identify`;
@@ -594,6 +620,7 @@
 
       // All good — save session and show panel
       user.isAdmin = data.isAdmin || false;
+      user.roles   = data.roles   || [];
       sessionStorage.setItem("rc_user", JSON.stringify(user));
       if (user.isAdmin) {
         showAdminPanel();
@@ -606,6 +633,8 @@
     }
   }
 
+  const RACE_DIRECTOR_ROLE = "1464788930296549572";
+
   async function showPanel() {
     document.getElementById("login-discord").style.display  = "none";
     document.getElementById("login-password").style.display = "none";
@@ -615,6 +644,11 @@
     if (user?.isAdmin) {
       const btn = document.getElementById("btn-admin-switch");
       if (btn) btn.style.display = "flex";
+    }
+    // Show race setup if user has race director role
+    if (user?.roles && user.roles.includes(RACE_DIRECTOR_ROLE)) {
+      const rs = document.getElementById("widget-race-setup");
+      if (rs) rs.style.display = "block";
     }
 
     // Set user info in header
@@ -1331,6 +1365,46 @@
   }
 
   // ── Race Setup ───────────────────────────────────────────────────────────
+  async function widgetStartRace() {
+    const laps        = parseInt(document.getElementById("widget-race-laps")?.value) || 0;
+    const pits        = parseInt(document.getElementById("widget-race-pits")?.value) || 0;
+    const lapInterval = parseInt(document.getElementById("widget-race-interval")?.value) || 0;
+    if (!laps || laps < 1) { showToast("✗ Enter valid lap count", "error"); return; }
+
+    const status = document.getElementById("widget-race-status");
+    if (status) { status.textContent = "Starting..."; status.style.color = "var(--muted)"; }
+
+    try {
+      const res  = await fetch(`${API_URL}/driver/setup`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-discord-id": user.id, "x-discord-token": user.token },
+        body: JSON.stringify({ totalLaps: laps, mandatoryPits: pits, lapIntervalSeconds: lapInterval }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        if (status) { status.textContent = `✓ Race live — ${laps} laps`; status.style.color = "#00e676"; }
+        showToast("✓ Race started!", "success");
+      } else {
+        if (status) { status.textContent = `✗ ${data.error}`; status.style.color = "#ff1744"; }
+      }
+    } catch { showToast("✗ Bot unreachable", "error"); }
+  }
+
+  async function widgetResetRace() {
+    try {
+      const res = await fetch(`${API_URL}/driver/reset`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-discord-id": user.id, "x-discord-token": user.token },
+        body: JSON.stringify({}),
+      });
+      if (res.ok) {
+        const status = document.getElementById("widget-race-status");
+        if (status) { status.textContent = "Race reset."; status.style.color = "var(--muted)"; }
+        showToast("✓ Race reset", "success");
+      }
+    } catch { showToast("✗ Bot unreachable", "error"); }
+  }
+
   async function startRace() {
     const laps        = parseInt(document.getElementById("race-laps").value);
     const pits        = parseInt(document.getElementById("race-pits").value) || 0;
