@@ -553,7 +553,7 @@
 
 <script>
   // ── CONFIG ────────────────────────────────────────────────────────────────
-  const API_URL = "https://veteran-focal-somewhat-received.trycloudflare.com";
+  const API_URL      = "https://quote-terrorist-prayers-distance.trycloudflare.com";
   const CLIENT_ID    = "1467595519718195473";
   const REQUIRED_ROLE = "1464790972679454903";
   const REDIRECT_URI  = encodeURIComponent(window.location.origin + "/");
@@ -737,11 +737,13 @@
   }
 
   // ── Race state polling ────────────────────────────────────────────────────
+  let _raceState = null;
+
   async function pollRaceState() {
     try {
       const res  = await fetch(`${API_URL}/driver/state`);
       const data = await res.json();
-      if (res.ok) renderRaceState(data);
+      if (res.ok) { _raceState = data; renderRaceState(data); }
     } catch {}
   }
 
@@ -775,16 +777,77 @@
             <div class="lb-callsign">${d.callsign}</div>
           </div>
           <div class="lb-right">
-            <div class="lb-lap">Lap ${d.lap || 1}</div>
-            ${d.inPits ? '<div class="lb-pits">PIT</div>' : `<div class="lb-gap">${pos === 1 ? "Leader" : d.gap || "–"}</div>`}
+            <div class="lb-lap">Lap ${d.lap || 1}${data.totalLaps ? `/${data.totalLaps}` : ""}</div>
+            ${d.inPits
+              ? `<div class="lb-pits">PIT${data.mandatoryPits > 0 ? ` (${d.pitCount||0}/${data.mandatoryPits})` : ""}</div>`
+              : `<div class="lb-gap">${pos === 1 ? "Leader" : d.gap || "–"}</div>`
+            }
+            ${data.mandatoryPits > 0 && !d.inPits && (d.pitCount||0) >= data.mandatoryPits
+              ? `<div style="font-size:8px;color:#00e676;">✓ Pitted</div>`
+              : data.mandatoryPits > 0 && !d.inPits
+              ? `<div style="font-size:8px;color:#ff6d00;">${d.pitCount||0}/${data.mandatoryPits} pits</div>`
+              : ""
+            }
           </div>
         </div>`;
     }).join("");
   }
 
+  // ── Cooldowns ─────────────────────────────────────────────────────────────
+  const GLOBAL_COOLDOWN_MS = 7000;
+  let   globalCooldownUntil = 0;
+  let   lapCooldownUntil    = 0;
+  const cooldownTimers      = {};
+
+  function startButtonCooldown(action, ms) {
+    const btnId = `btn-${action.replace(/_/g, "-")}`;
+    const btn   = document.getElementById(btnId);
+    if (!btn) return;
+
+    btn.disabled = true;
+    const original = btn.querySelector(".a-name")?.textContent || action;
+    const nameEl   = btn.querySelector(".a-name");
+
+    clearInterval(cooldownTimers[action]);
+    const end = Date.now() + ms;
+
+    cooldownTimers[action] = setInterval(() => {
+      const remaining = Math.ceil((end - Date.now()) / 1000);
+      if (remaining <= 0) {
+        clearInterval(cooldownTimers[action]);
+        btn.disabled = false;
+        if (nameEl) nameEl.textContent = original;
+        btn.style.opacity = "1";
+      } else {
+        if (nameEl) nameEl.textContent = `${remaining}s`;
+        btn.style.opacity = "0.5";
+      }
+    }, 100);
+  }
+
+  function startAllButtonsCooldown(ms) {
+    ["blue_flag", "next_lap", "pitting", "in_race"].forEach(a => startButtonCooldown(a, ms));
+  }
+
   // ── Actions ───────────────────────────────────────────────────────────────
   async function sendAction(action) {
-    const btn = document.getElementById(`btn-${action.replace("_", "-")}`);
+    const now = Date.now();
+
+    // Global 7s cooldown check
+    if (now < globalCooldownUntil) {
+      const rem = Math.ceil((globalCooldownUntil - now) / 1000);
+      dpToast(`⏳ Wait ${rem}s`, "err");
+      return;
+    }
+
+    // Lap-specific interval check
+    if (action === "next_lap" && lapCooldownUntil > now) {
+      const rem = Math.ceil((lapCooldownUntil - now) / 1000);
+      dpToast(`⏳ Next lap available in ${rem}s`, "err");
+      return;
+    }
+
+    const btn = document.getElementById(`btn-${action.replace(/_/g, "-")}`);
     if (btn) { btn.classList.add("active-state"); setTimeout(() => btn.classList.remove("active-state"), 300); }
 
     try {
@@ -802,8 +865,23 @@
         }),
       });
       const data = await res.json();
-      if (res.ok) dpToast(`✓ ${actionLabel(action)} sent`, "ok");
-      else        dpToast(`✗ ${data.error}`, "err");
+      if (res.ok) {
+        dpToast(`✓ ${actionLabel(action)} sent`, "ok");
+
+        // Start global 7s cooldown on all buttons
+        globalCooldownUntil = now + GLOBAL_COOLDOWN_MS;
+        startAllButtonsCooldown(GLOBAL_COOLDOWN_MS);
+
+        // If next_lap, also apply lap-specific interval from race state
+        if (action === "next_lap" && _raceState?.lapIntervalSeconds > 0) {
+          const lapMs = _raceState.lapIntervalSeconds * 1000;
+          lapCooldownUntil = now + lapMs;
+          // Override the next_lap button cooldown with the longer one if needed
+          if (lapMs > GLOBAL_COOLDOWN_MS) startButtonCooldown("next_lap", lapMs);
+        }
+      } else {
+        dpToast(`✗ ${data.error}`, "err");
+      }
     } catch { dpToast("✗ Bot unreachable", "err"); }
   }
 
