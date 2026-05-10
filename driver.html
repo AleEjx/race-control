@@ -557,7 +557,7 @@
 
 <script>
   // ── CONFIG ────────────────────────────────────────────────────────────────
-  const API_URL = "https://cnet-soundtrack-convenience-nylon.trycloudflare.com";
+  const API_URL      = "https://quote-terrorist-prayers-distance.trycloudflare.com";
   const CLIENT_ID    = "1467595519718195473";
   const REQUIRED_ROLE = "1464790972679454903";
   const REDIRECT_URI  = encodeURIComponent(window.location.origin + "/");
@@ -603,20 +603,21 @@
   try { const saved = JSON.parse(localStorage.getItem("rc_keybinds")); if (saved) keybinds = { ...keybinds, ...saved }; } catch {}
 
   // ── OAuth ─────────────────────────────────────────────────────────────────
-  // Check if panel is enabled before showing anything
+  // ── Init — check panel status then handle OAuth/session ─────────────────
+  const _params = new URLSearchParams(location.search);
+  const _code   = _params.get("code");
+
   (async () => {
     try {
       const res  = await fetch(`${API_URL}/panel-status`);
       const data = await res.json();
       if (!data.driver) { showScreen("screen-maintenance"); return; }
     } catch {}
-    initApp();
-  })();
 
-  function initApp() {
-    if (code) {
-      window.history.replaceState({}, document.title, "/driver");
-      exchangeCode(code);
+    // Panel is on — proceed with auth
+    if (_code) {
+      window.history.replaceState({}, document.title, "/");
+      exchangeCode(_code);
     } else {
       const saved = sessionStorage.getItem("rc_driver_user");
       if (saved) {
@@ -624,7 +625,7 @@
         showRoleScreen();
       }
     }
-  }
+  })();
 
   function loginWithDiscord() {
     window.location.href = DISCORD_OAUTH;
