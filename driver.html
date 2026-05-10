@@ -31,6 +31,7 @@
       overflow-x: hidden;
     }
 
+    /* ── Screens ── */
     .screen {
       display: none;
       position: fixed;
@@ -131,6 +132,7 @@
     .error-text { font-size: 11px; color: var(--red); text-align: center; min-height: 16px; }
     .info-text  { font-size: 10px; color: var(--muted); text-align: center; line-height: 1.5; }
 
+    /* ── Driver Panel ── */
     #driver-panel {
       display: none;
       flex-direction: column;
@@ -348,7 +350,7 @@
     .notif.flag-blue   { border-color: var(--blue);   color: var(--blue); }
     .notif.flag-orange { border-color: var(--orange); color: var(--orange); }
 
-
+    /* Toast */
     #dp-toast {
       position: fixed;
       bottom: 16px;
@@ -372,7 +374,7 @@
     #dp-toast.ok  { border-color: var(--green); color: var(--green); }
     #dp-toast.err { border-color: var(--red);   color: var(--red); }
 
-
+    /* Popout leaderboard */
     #lb-popout-btn {
       font-size: 9px;
       letter-spacing: 1px;
@@ -390,7 +392,7 @@
 </head>
 <body>
 
-
+<!-- ── Maintenance Screen ── -->
 <div class="screen" id="screen-maintenance">
   <div style="width:100%;max-width:340px;background:rgba(0,0,0,0.4);border:1.5px solid rgba(255,214,0,0.5);border-radius:10px;box-shadow:0 0 24px rgba(255,214,0,0.2),0 0 60px rgba(255,214,0,0.06);padding:28px 24px;display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;">
     <div style="font-size:32px;">🚧</div>
@@ -401,7 +403,7 @@
   </div>
 </div>
 
-
+<!-- ── Screen 1: Discord Login ── -->
 <div class="screen active" id="screen-login">
   <div style="position:fixed;top:14px;right:14px;">
     <a href="/marshal" style="font-family:'Oxanium',sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);background:var(--surface);border:1px solid var(--border);padding:6px 12px;border-radius:4px;text-decoration:none;transition:color 0.15s,border-color 0.15s;" onmouseover="this.style.color='var(--text)';this.style.borderColor='var(--blue)'" onmouseout="this.style.color='var(--muted)';this.style.borderColor='var(--border)'">Marshal Login →</a>
@@ -418,7 +420,7 @@
   </div>
 </div>
 
-
+<!-- ── Screen 2: Role Selection ── -->
 <div class="screen" id="screen-role">
   <div class="logo">Race<span>League</span></div>
   <div class="card">
@@ -446,7 +448,7 @@
   </div>
 </div>
 
-
+<!-- ── Screen 3: Engineer — enter driver username ── -->
 <div class="screen" id="screen-engineer">
   <div class="logo">Race<span>League</span></div>
   <div class="card">
@@ -459,7 +461,7 @@
   </div>
 </div>
 
-
+<!-- ── Screen 4: Driver — select their own username ── -->
 <div class="screen" id="screen-driver-select">
   <div class="logo">Race<span>League</span></div>
   <div class="card">
@@ -472,7 +474,7 @@
   </div>
 </div>
 
-
+<!-- ── Main Driver Panel ── -->
 <div id="driver-panel">
   <div class="panel-header">
     <div class="header-left">
@@ -528,7 +530,7 @@
       </div>
     </div>
 
-
+    <!-- Keybind settings -->
     <div>
       <div class="section-title">Keybinds <span style="font-size:8px;color:var(--muted);">(click to change)</span></div>
       <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:10px 12px;">
@@ -554,48 +556,55 @@
 <div id="dp-toast"></div>
 
 <script>
-
-  const API_URL = "https://markets-focal-exchanges-representations.trycloudflare.com";
+  const API_URL      = "https://quote-terrorist-prayers-distance.trycloudflare.com";
   const CLIENT_ID    = "1467595519718195473";
   const REQUIRED_ROLE = "1464790972679454903";
   const REDIRECT_URI  = encodeURIComponent(window.location.origin + "/");
   const DISCORD_OAUTH = `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=identify`;
 
+  const DRIVER_DISCORD_IDS = {
+    "884223249939050507": "ACHILLES",
+    "799844642984034314": "AUBRN",
+    "1487269583898284183": "BRYAN",
+    "749509586800869418": "CHASE",
+    "660419748894343169": "CODA",
+    "1228434328653140162": "CONTRAPTION",
+    "818561366948315198": "LAMAR",
+    "852652597315240028": "NBOUCH",
+    "1318225336265084998": "NOJO",
+    "1140182555207946301": "PETER",
+    "708247459343761421": "QUAH",
+    "763093725903585291": "SETH",
+    "1112809205771010150": "SHADOW",
+    "1127975831197724813": "SUPA",
+    "1036614995737321552": "SWEATER",
+    "1081740933021835354": "UNLIMITED",
+  };
 
   const DRIVERS = [
-    { name: "SETH",     number: "01", callsign: "VAS-01"  },
-    { name: "REN",      number: "02", callsign: "LTS-02"  },
-    { name: "HIGH",     number: "03", callsign: "ATL-03"  },
-    { name: "CODA",     number: "07", callsign: "MPS-56"  },
-    { name: "SPRO",     number: "08", callsign: "MPS-08"  },
-    { name: "CANT",     number: "05", callsign: "LOT-05"  },
-    { name: "LORENZO",  number: "11", callsign: "11"      },
-    { name: "NBOUCH",   number: "12", callsign: "RB-12"   },
-    { name: "ACHILLES", number: "15", callsign: "NC-15"   },
-    { name: "JOE",      number: "17", callsign: "NC-17"   },
-    { name: "AUBRN",    number: "18", callsign: "VAS-18"  },
-    { name: "TSVP",     number: "19", callsign: "MPS-19"  },
-    { name: "CREW",     number: "20", callsign: "RBR-20"  },
-    { name: "QBAN",     number: "21", callsign: "21"      },
-    { name: "SLASHER",  number: "22", callsign: "22"      },
-    { name: "ZEN",      number: "25", callsign: "ST-25"   },
-    { name: "WAKE",     number: "27", callsign: "MIS-27"  },
-    { name: "QUAH",     number: "28", callsign: "LTS-28"  },
-    { name: "ARMIN",    number: "29", callsign: "ST-29"   },
-    { name: "SWEATER",  number: "31", callsign: "APX-31"  },
-    { name: "SHADOW",   number: "48", callsign: "ST-48"   },
-    { name: "AYAN",     number: "52", callsign: "LOT-52"  },
-    { name: "CYCLONE",  number: "77", callsign: "MIS-77"  },
-    { name: "PETER",    number: "86", callsign: "NC-86"   },
-    { name: "BRYAN",    number: "87", callsign: "VSE-87"  },
+    { name: "ACHILLES",    number: "15", callsign: "NC-15"   },
+    { name: "AUBRN",       number: "18", callsign: "VAS-18"  },
+    { name: "BRYAN",       number: "87", callsign: "VSE-87"  },
+    { name: "CHASE",       number: "09", callsign: "CH-09"   },
+    { name: "CODA",        number: "07", callsign: "MPS-56"  },
+    { name: "CONTRAPTION", number: "33", callsign: "CON-33"  },
+    { name: "LAMAR",       number: "44", callsign: "LMR-44"  },
+    { name: "NBOUCH",      number: "12", callsign: "RB-12"   },
+    { name: "NOJO",        number: "55", callsign: "NJ-55"   },
+    { name: "PETER",       number: "86", callsign: "NC-86"   },
+    { name: "QUAH",        number: "28", callsign: "LTS-28"  },
+    { name: "SETH",        number: "01", callsign: "VAS-01"  },
+    { name: "SHADOW",      number: "48", callsign: "ST-48"   },
+    { name: "SUPA",        number: "66", callsign: "SUP-66"  },
+    { name: "SWEATER",     number: "31", callsign: "APX-31"  },
+    { name: "UNLIMITED",   number: "99", callsign: "UNL-99"  },
   ].sort((a, b) => parseInt(a.number) - parseInt(b.number));
 
   let user       = null;
-  let driverInfo = null;
+  let driverInfo = null; // { name, number, callsign }
   let isEngineer = false;
   let toastTimer;
   let listeningFor = null;
-
 
   let keybinds = { blue_flag: "b", next_lap: "l", pitting: "p" };
   try { const saved = JSON.parse(localStorage.getItem("rc_keybinds")); if (saved) keybinds = { ...keybinds, ...saved }; } catch {}
@@ -609,7 +618,6 @@
       const data = await res.json();
       if (!data.driver) { showScreen("screen-maintenance"); return; }
     } catch {}
-
 
     if (_code) {
       window.history.replaceState({}, document.title, "/");
@@ -655,7 +663,6 @@
     }
   }
 
-
   function showScreen(id) {
     document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
     const el = document.getElementById(id);
@@ -665,10 +672,31 @@
   function goBack(screen) { showScreen(screen); }
 
   function showRoleScreen() {
+    const autoDriver = DRIVER_DISCORD_IDS[user.id];
+    if (autoDriver) {
+      const driver = DRIVERS.find(d => d.name === autoDriver);
+      if (driver) {
+        isEngineer = false;
+        driverInfo = driver;
+        launchPanel();
+        return;
+      }
+    }
+
     document.getElementById("role-avatar").src = user.avatar
       ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=64`
       : `https://cdn.discordapp.com/embed/avatars/${parseInt(user.id) % 5}.png`;
     document.getElementById("role-username").textContent = user.username;
+
+    document.querySelectorAll(".role-btn").forEach(btn => {
+      if (btn.getAttribute("onclick") && btn.getAttribute("onclick").includes("racer")) {
+        btn.style.display = "none";
+      }
+    });
+
+    const title = document.querySelector("#screen-role .card-title");
+    if (title) title.textContent = "You are joining as an Engineer";
+
     showScreen("screen-role");
   }
 
@@ -684,7 +712,6 @@
     }
   }
 
-
   function confirmEngineer() {
     const input = document.getElementById("engineer-driver-input").value.trim().toUpperCase();
     const driver = DRIVERS.find(d => d.name === input);
@@ -695,7 +722,6 @@
     driverInfo = driver;
     launchPanel();
   }
-
 
   function filterDriverSelect() {
     const q = document.getElementById("driver-search-input").value.toLowerCase();
@@ -723,12 +749,10 @@
     launchPanel();
   }
 
-
   function launchPanel() {
     document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
     document.getElementById("driver-panel").style.display = "flex";
     document.getElementById("driver-panel").style.flexDirection = "column";
-
 
     document.getElementById("dp-avatar").src = user.avatar
       ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=64`
@@ -737,7 +761,6 @@
     document.getElementById("dp-drivernum").textContent  = `#${driverInfo.number}`;
     if (isEngineer) document.getElementById("dp-engineer-badge").style.display = "block";
 
-
     for (const [action, key] of Object.entries(keybinds)) {
       const el = document.getElementById(`kb-${action}`);
       if (el) el.textContent = key.toUpperCase();
@@ -745,17 +768,14 @@
       if (btn) btn.textContent = key.toUpperCase();
     }
 
-
     pollRaceState();
     setInterval(pollRaceState, 5000);
   }
-
 
   let _raceState = null;
 
   async function pollRaceState() {
     try {
-
       const statusRes = await fetch(`${API_URL}/panel-status`);
       const statusData = await statusRes.json();
       if (!statusData.driver) { showScreen("screen-maintenance"); document.getElementById("driver-panel").style.display = "none"; return; }
@@ -775,17 +795,13 @@
   }
 
   function kickToBlacklisted() {
-
     sessionStorage.removeItem("rc_driver_user");
-
 
     document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
     document.getElementById("driver-panel").style.display = "none";
 
-
     const bl = document.getElementById("screen-blacklisted");
     if (bl) { bl.classList.add("active"); return; }
-
 
     const screen = document.createElement("div");
     screen.id        = "screen-blacklisted";
@@ -820,7 +836,6 @@
   }
 
   function renderRaceState(data) {
-
     if (data.webPanelEnabled === false) {
       setButtonsDisabled(true, "⚫ Driver panel is currently disabled by a marshal.");
       const pill = document.getElementById("race-status-pill");
@@ -829,13 +844,11 @@
       return;
     }
 
-
     if (!data.raceStarted) {
       setButtonsDisabled(true, "⏳ Waiting for marshal to start the race...");
     } else {
       setButtonsDisabled(false, "");
     }
-
 
     const pill = document.getElementById("race-status-pill");
     pill.className = "race-status-pill";
@@ -844,7 +857,6 @@
     else if (data.status === "red")    { pill.classList.add("red");    pill.textContent = "🔴 Red Flag"; }
     else if (data.status === "sc")     { pill.classList.add("yellow"); pill.textContent = "🟠 Safety Car"; }
     else { pill.textContent = "● Waiting"; }
-
 
     const lb = document.getElementById("leaderboard");
     if (!data.drivers || data.drivers.length === 0) {
@@ -881,7 +893,6 @@
     }).join("");
   }
 
-
   let inPits = false;
 
   function togglePitting() {
@@ -906,7 +917,6 @@
       sendAction("in_race");
     }
   }
-
 
   const GLOBAL_COOLDOWN_MS = 7000;
   let   globalCooldownUntil = 0;
@@ -943,17 +953,14 @@
     ["blue_flag", "next_lap", "pitting", "in_race"].forEach(a => startButtonCooldown(a, ms));
   }
 
-
   async function sendAction(action) {
     const now = Date.now();
-
 
     if (now < globalCooldownUntil) {
       const rem = Math.ceil((globalCooldownUntil - now) / 1000);
       dpToast(`⏳ Wait ${rem}s`, "err");
       return;
     }
-
 
     if (action === "next_lap" && lapCooldownUntil > now) {
       const rem = Math.ceil((lapCooldownUntil - now) / 1000);
@@ -982,14 +989,12 @@
       if (res.ok) {
         dpToast(`✓ ${actionLabel(action)} sent`, "ok");
 
-
         globalCooldownUntil = now + GLOBAL_COOLDOWN_MS;
         startAllButtonsCooldown(GLOBAL_COOLDOWN_MS);
 
         if (action === "next_lap" && _raceState?.lapIntervalSeconds > 0) {
           const lapMs = _raceState.lapIntervalSeconds * 1000;
           lapCooldownUntil = now + lapMs;
-
           if (lapMs > GLOBAL_COOLDOWN_MS) startButtonCooldown("next_lap", lapMs);
         }
       } else {
@@ -1001,7 +1006,6 @@
   function actionLabel(a) {
     return { blue_flag:"Blue Flag Request", next_lap:"Next Lap", pitting:"Pitting", in_race:"Back on Track" }[a] || a;
   }
-
 
   function startListening(action) {
     if (listeningFor) stopListening();
@@ -1031,7 +1035,6 @@
       return;
     }
 
-
     if (document.activeElement.tagName === "INPUT") return;
     if (document.getElementById("driver-panel").style.display === "none") return;
 
@@ -1049,7 +1052,6 @@
   function popoutLeaderboard() {
     window.open(location.href + "?leaderboard", "Leaderboard", "width=300,height=500,resizable=yes");
   }
-
 
   function dpToast(msg, type = "") {
     const t = document.getElementById("dp-toast");
