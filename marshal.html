@@ -486,7 +486,7 @@
       const res = await fetch(`${API_URL}/auth`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code, redirectUri: "https://race-control-one.vercel.app/callback" }),
+        body: JSON.stringify({ code, redirectUri: "https://race-control-one.vercel.app/marshal" }),
       });
 
       const data = await res.json();
