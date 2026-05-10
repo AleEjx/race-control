@@ -221,8 +221,8 @@
 <!-- ── Blacklisted screen ── -->
 <div id="login-blacklisted" style="display:none;position:fixed;inset:0;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:24px;background:var(--bg);">
   <div style="width:100%;max-width:340px;background:rgba(120,0,0,0.15);border:1.5px solid #ff1744;border-radius:10px;box-shadow:0 0 24px rgba(255,23,68,0.25),0 0 60px rgba(255,23,68,0.08);padding:24px 20px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;">
-    <div style="font-size:28px;line-height:1;"></div>
-    <div style="font-family:'Oxanium',sans-serif;font-size:20px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#ff1744;">🚫 Blacklisted 🚫</div>
+    <div style="font-size:28px;line-height:1;">🚫</div>
+    <div style="font-family:'Oxanium',sans-serif;font-size:20px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#ff1744;">Blacklisted 🚫</div>
     <div style="font-family:'Oxanium',sans-serif;font-size:12px;color:rgba(255,255,255,0.6);line-height:1.6;">
       Hello <span id="blacklisted-username" style="color:#fff;font-weight:700;"></span>, you have been blacklisted from the Race Control panel.
     </div>
@@ -330,16 +330,28 @@
       <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#50506a;margin-bottom:8px;">🏁 Race Setup</div>
 
       <div style="display:flex;flex-direction:column;gap:8px;">
-        <!-- Laps -->
+        <!-- Total Laps -->
         <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
           <span style="font-size:11px;color:#e8e8f0;">Total Laps</span>
           <input type="number" id="race-laps" min="1" max="99" value="10" style="width:70px;background:#0c0c14;border:1px solid #1f1f2e;color:#e8e8f0;font-family:'Oxanium',sans-serif;font-size:12px;font-weight:700;padding:5px 8px;border-radius:4px;outline:none;text-align:center;" />
         </div>
 
-        <!-- Mandatory Pits -->
-        <div style="display:flex;align-items:center;justify-content:space-between;">
-          <span style="font-size:11px;color:#e8e8f0;">Mandatory Pit Stop</span>
-          <button id="pits-toggle" onclick="togglePits()" style="background:rgba(255,23,68,0.1);border:1px solid rgba(255,23,68,0.3);color:#ff1744;font-family:'Oxanium',sans-serif;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:4px 10px;border-radius:4px;cursor:pointer;">Off</button>
+        <!-- Mandatory Pit Stops (number) -->
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+          <div>
+            <div style="font-size:11px;color:#e8e8f0;">Mandatory Pit Stops</div>
+            <div style="font-size:9px;color:#50506a;">0 = disabled</div>
+          </div>
+          <input type="number" id="race-pits" min="0" max="9" value="0" style="width:70px;background:#0c0c14;border:1px solid #1f1f2e;color:#e8e8f0;font-family:'Oxanium',sans-serif;font-size:12px;font-weight:700;padding:5px 8px;border-radius:4px;outline:none;text-align:center;" />
+        </div>
+
+        <!-- Next Lap Interval -->
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+          <div>
+            <div style="font-size:11px;color:#e8e8f0;">Next Lap Cooldown</div>
+            <div style="font-size:9px;color:#50506a;">seconds (0 = no limit)</div>
+          </div>
+          <input type="number" id="race-lap-interval" min="0" max="3600" value="0" style="width:70px;background:#0c0c14;border:1px solid #1f1f2e;color:#e8e8f0;font-family:'Oxanium',sans-serif;font-size:12px;font-weight:700;padding:5px 8px;border-radius:4px;outline:none;text-align:center;" />
         </div>
 
         <!-- Start / Reset buttons -->
@@ -475,7 +487,7 @@
 
 <script>
   // ── CONFIG ────────────────────────────────────────────────────────────────
-  const API_URL = "https://veteran-focal-somewhat-received.trycloudflare.com";
+  const API_URL       = "https://quote-terrorist-prayers-distance.trycloudflare.com";
   const CLIENT_ID     = "1467595519718195473";
   const REDIRECT_URI  = encodeURIComponent("https://race-control-one.vercel.app/marshal");
   const DISCORD_OAUTH = `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=identify`;
@@ -1319,26 +1331,10 @@
   }
 
   // ── Race Setup ───────────────────────────────────────────────────────────
-  let mandatoryPits = false;
-
-  function togglePits() {
-    mandatoryPits = !mandatoryPits;
-    const btn = document.getElementById("pits-toggle");
-    if (mandatoryPits) {
-      btn.textContent   = "On";
-      btn.style.background = "rgba(0,230,118,0.15)";
-      btn.style.borderColor = "rgba(0,230,118,0.4)";
-      btn.style.color   = "#00e676";
-    } else {
-      btn.textContent   = "Off";
-      btn.style.background = "rgba(255,23,68,0.1)";
-      btn.style.borderColor = "rgba(255,23,68,0.3)";
-      btn.style.color   = "#ff1744";
-    }
-  }
-
   async function startRace() {
-    const laps = parseInt(document.getElementById("race-laps").value);
+    const laps        = parseInt(document.getElementById("race-laps").value);
+    const pits        = parseInt(document.getElementById("race-pits").value) || 0;
+    const lapInterval = parseInt(document.getElementById("race-lap-interval").value) || 0;
     if (!laps || laps < 1) { showToast("✗ Enter valid lap count", "error"); return; }
 
     const status = document.getElementById("race-setup-status");
@@ -1349,11 +1345,13 @@
       const res  = await fetch(`${API_URL}/driver/setup`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-discord-id": user.id, "x-discord-token": user.token },
-        body: JSON.stringify({ totalLaps: laps, mandatoryPits }),
+        body: JSON.stringify({ totalLaps: laps, mandatoryPits: pits, lapIntervalSeconds: lapInterval }),
       });
       const data = await res.json();
       if (res.ok) {
-        status.textContent = `✓ Race live — ${laps} laps${mandatoryPits ? ", mandatory pits" : ""}`;
+        const pitStr      = pits > 0 ? `, ${pits} mandatory pit${pits > 1 ? "s" : ""}` : "";
+        const intervalStr = lapInterval > 0 ? `, ${lapInterval}s lap cooldown` : "";
+        status.textContent = `✓ Race live — ${laps} laps${pitStr}${intervalStr}`;
         status.style.color = "#00e676";
         showToast("✓ Race started!", "success");
       } else {
