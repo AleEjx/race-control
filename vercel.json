@@ -1,7 +1,9 @@
 {
   "rewrites": [
-    { "source": "/marshal", "destination": "/marshal.html" },
+    { "source": "/marshal",    "destination": "/marshal.html" },
     { "source": "/marshal/(.*)", "destination": "/marshal.html" },
-    { "source": "/(.*)", "destination": "/driver.html" }
+    { "source": "/v1",         "destination": "/driver-v1.html" },
+    { "source": "/v1/(.*)",    "destination": "/driver-v1.html" },
+    { "source": "/(.*)",       "destination": "/driver.html" }
   ]
 }
