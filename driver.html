@@ -500,7 +500,7 @@
     <div>
       <div class="section-title">Quick Actions</div>
       <div id="action-notice" style="display:none;font-size:10px;color:var(--muted);text-align:center;padding:8px 10px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:5px;margin-bottom:6px;letter-spacing:0.5px;">⏳ Waiting for race to start...</div>
-      <div class="action-grid">
+      <div class="action-grid" style="grid-template-columns:1fr 1fr 1fr;">
         <button class="action-btn blue-flag" onclick="sendAction('blue_flag')" id="btn-blue-flag">
           <span class="a-key" id="key-blue-flag">B</span>
           <span class="a-icon">🔵</span>
@@ -511,15 +511,10 @@
           <span class="a-icon">🏁</span>
           <span class="a-name">Next Lap</span>
         </button>
-        <button class="action-btn pitting" onclick="sendAction('pitting')" id="btn-pitting">
+        <button class="action-btn pitting" onclick="togglePitting()" id="btn-pitting">
           <span class="a-key" id="key-pitting">P</span>
-          <span class="a-icon">🔧</span>
-          <span class="a-name">Pitting</span>
-        </button>
-        <button class="action-btn in-race" onclick="sendAction('in_race')" id="btn-in-race">
-          <span class="a-key" id="key-in-race">R</span>
-          <span class="a-icon">🏎️</span>
-          <span class="a-name">Back on Track</span>
+          <span class="a-icon" id="pit-icon">🔧</span>
+          <span class="a-name" id="pit-label">Pitting</span>
         </button>
       </div>
     </div>
@@ -540,10 +535,7 @@
           <span class="keybind-label">🔧 Pitting</span>
           <div class="keybind-key" id="kb-pitting" onclick="startListening('pitting')">P</div>
         </div>
-        <div class="keybind-row" style="border:none;">
-          <span class="keybind-label">🏎️ Back on Track</span>
-          <div class="keybind-key" id="kb-in_race" onclick="startListening('in_race')">R</div>
-        </div>
+
       </div>
     </div>
 
@@ -554,7 +546,7 @@
 
 <script>
   // ── CONFIG ────────────────────────────────────────────────────────────────
-  const API_URL = "https://tile-suspension-vid-ict.trycloudflare.com";
+  const API_URL      = "https://quote-terrorist-prayers-distance.trycloudflare.com";
   const CLIENT_ID    = "1467595519718195473";
   const REQUIRED_ROLE = "1464790972679454903";
   const REDIRECT_URI  = encodeURIComponent(window.location.origin + "/");
@@ -596,7 +588,7 @@
   let listeningFor = null;
 
   // Keybinds — load from localStorage or defaults
-  let keybinds = { blue_flag: "b", next_lap: "l", pitting: "p", in_race: "r" };
+  let keybinds = { blue_flag: "b", next_lap: "l", pitting: "p" };
   try { const saved = JSON.parse(localStorage.getItem("rc_keybinds")); if (saved) keybinds = { ...keybinds, ...saved }; } catch {}
 
   // ── OAuth ─────────────────────────────────────────────────────────────────
@@ -803,7 +795,7 @@
       const isMe  = d.name === driverInfo?.name;
       const posClass = pos === 1 ? "p1" : pos === 2 ? "p2" : pos === 3 ? "p3" : "";
       return `
-        <div class="lb-row ${isMe ? "is-me" : ""} ${d.inPits ? "in-pits" : ""}">
+        <div class="lb-row ${isMe ? "is-me" : ""}" style="${d.inPits ? "border-color:rgba(255,214,0,0.5);background:rgba(255,214,0,0.06);box-shadow:0 0 8px rgba(255,214,0,0.1);" : ""}">
           <div class="lb-pos ${posClass}">${pos}</div>
           <div class="lb-num">#${d.number}</div>
           <div class="lb-info">
@@ -825,6 +817,32 @@
           </div>
         </div>`;
     }).join("");
+  }
+
+  // ── Pit state ────────────────────────────────────────────────────────────
+  let inPits = false;
+
+  function togglePitting() {
+    inPits = !inPits;
+    const btn   = document.getElementById("btn-pitting");
+    const icon  = document.getElementById("pit-icon");
+    const label = document.getElementById("pit-label");
+
+    if (inPits) {
+      icon.textContent  = "🔧";
+      label.textContent = "In Pits";
+      btn.style.borderColor  = "rgba(255,214,0,0.6)";
+      btn.style.background   = "rgba(255,214,0,0.12)";
+      btn.style.color        = "#ffd600";
+      sendAction("pitting");
+    } else {
+      icon.textContent  = "🔧";
+      label.textContent = "Pitting";
+      btn.style.borderColor  = "";
+      btn.style.background   = "";
+      btn.style.color        = "";
+      sendAction("in_race");
+    }
   }
 
   // ── Cooldowns ─────────────────────────────────────────────────────────────
@@ -958,7 +976,12 @@
 
     const pressed = e.key.toLowerCase();
     for (const [action, key] of Object.entries(keybinds)) {
-      if (pressed === key) { e.preventDefault(); sendAction(action); break; }
+      if (pressed === key) {
+        e.preventDefault();
+        if (action === "pitting") togglePitting();
+        else sendAction(action);
+        break;
+      }
     }
   });
 
