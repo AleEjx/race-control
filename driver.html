@@ -31,7 +31,6 @@
       overflow-x: hidden;
     }
 
-    /* ── Screens ── */
     .screen {
       display: none;
       position: fixed;
@@ -132,7 +131,6 @@
     .error-text { font-size: 11px; color: var(--red); text-align: center; min-height: 16px; }
     .info-text  { font-size: 10px; color: var(--muted); text-align: center; line-height: 1.5; }
 
-    /* ── Driver Panel ── */
     #driver-panel {
       display: none;
       flex-direction: column;
@@ -350,7 +348,7 @@
     .notif.flag-blue   { border-color: var(--blue);   color: var(--blue); }
     .notif.flag-orange { border-color: var(--orange); color: var(--orange); }
 
-    /* Toast */
+
     #dp-toast {
       position: fixed;
       bottom: 16px;
@@ -374,7 +372,7 @@
     #dp-toast.ok  { border-color: var(--green); color: var(--green); }
     #dp-toast.err { border-color: var(--red);   color: var(--red); }
 
-    /* Popout leaderboard */
+
     #lb-popout-btn {
       font-size: 9px;
       letter-spacing: 1px;
@@ -392,7 +390,7 @@
 </head>
 <body>
 
-<!-- ── Maintenance Screen ── -->
+
 <div class="screen" id="screen-maintenance">
   <div style="width:100%;max-width:340px;background:rgba(0,0,0,0.4);border:1.5px solid rgba(255,214,0,0.5);border-radius:10px;box-shadow:0 0 24px rgba(255,214,0,0.2),0 0 60px rgba(255,214,0,0.06);padding:28px 24px;display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;">
     <div style="font-size:32px;">🚧</div>
@@ -403,7 +401,7 @@
   </div>
 </div>
 
-<!-- ── Screen 1: Discord Login ── -->
+
 <div class="screen active" id="screen-login">
   <div style="position:fixed;top:14px;right:14px;">
     <a href="/marshal" style="font-family:'Oxanium',sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);background:var(--surface);border:1px solid var(--border);padding:6px 12px;border-radius:4px;text-decoration:none;transition:color 0.15s,border-color 0.15s;" onmouseover="this.style.color='var(--text)';this.style.borderColor='var(--blue)'" onmouseout="this.style.color='var(--muted)';this.style.borderColor='var(--border)'">Marshal Login →</a>
@@ -420,7 +418,7 @@
   </div>
 </div>
 
-<!-- ── Screen 2: Role Selection ── -->
+
 <div class="screen" id="screen-role">
   <div class="logo">Race<span>League</span></div>
   <div class="card">
@@ -448,7 +446,7 @@
   </div>
 </div>
 
-<!-- ── Screen 3: Engineer — enter driver username ── -->
+
 <div class="screen" id="screen-engineer">
   <div class="logo">Race<span>League</span></div>
   <div class="card">
@@ -461,7 +459,7 @@
   </div>
 </div>
 
-<!-- ── Screen 4: Driver — select their own username ── -->
+
 <div class="screen" id="screen-driver-select">
   <div class="logo">Race<span>League</span></div>
   <div class="card">
@@ -474,7 +472,7 @@
   </div>
 </div>
 
-<!-- ── Main Driver Panel ── -->
+
 <div id="driver-panel">
   <div class="panel-header">
     <div class="header-left">
@@ -530,7 +528,7 @@
       </div>
     </div>
 
-    <!-- Keybind settings -->
+
     <div>
       <div class="section-title">Keybinds <span style="font-size:8px;color:var(--muted);">(click to change)</span></div>
       <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:10px 12px;">
@@ -556,13 +554,13 @@
 <div id="dp-toast"></div>
 
 <script>
-  // ── CONFIG ────────────────────────────────────────────────────────────────
+
   const API_URL = "https://markets-focal-exchanges-representations.trycloudflare.com";
   const CLIENT_ID    = "1467595519718195473";
   const REQUIRED_ROLE = "1464790972679454903";
   const REDIRECT_URI  = encodeURIComponent(window.location.origin + "/");
   const DISCORD_OAUTH = `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=identify`;
-  // ─────────────────────────────────────────────────────────────────────────
+
 
   const DRIVERS = [
     { name: "SETH",     number: "01", callsign: "VAS-01"  },
@@ -593,17 +591,15 @@
   ].sort((a, b) => parseInt(a.number) - parseInt(b.number));
 
   let user       = null;
-  let driverInfo = null; // { name, number, callsign }
+  let driverInfo = null;
   let isEngineer = false;
   let toastTimer;
   let listeningFor = null;
 
-  // Keybinds — load from localStorage or defaults
+
   let keybinds = { blue_flag: "b", next_lap: "l", pitting: "p" };
   try { const saved = JSON.parse(localStorage.getItem("rc_keybinds")); if (saved) keybinds = { ...keybinds, ...saved }; } catch {}
 
-  // ── OAuth ─────────────────────────────────────────────────────────────────
-  // ── Init — check panel status then handle OAuth/session ─────────────────
   const _params = new URLSearchParams(location.search);
   const _code   = _params.get("code");
 
@@ -614,7 +610,7 @@
       if (!data.driver) { showScreen("screen-maintenance"); return; }
     } catch {}
 
-    // Panel is on — proceed with auth
+
     if (_code) {
       window.history.replaceState({}, document.title, "/");
       exchangeCode(_code);
@@ -659,7 +655,7 @@
     }
   }
 
-  // ── Screens ───────────────────────────────────────────────────────────────
+
   function showScreen(id) {
     document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
     const el = document.getElementById(id);
@@ -688,7 +684,7 @@
     }
   }
 
-  // ── Engineer flow ─────────────────────────────────────────────────────────
+
   function confirmEngineer() {
     const input = document.getElementById("engineer-driver-input").value.trim().toUpperCase();
     const driver = DRIVERS.find(d => d.name === input);
@@ -700,7 +696,7 @@
     launchPanel();
   }
 
-  // ── Racer flow ────────────────────────────────────────────────────────────
+
   function filterDriverSelect() {
     const q = document.getElementById("driver-search-input").value.toLowerCase();
     renderDriverSelectList(DRIVERS.filter(d =>
@@ -727,13 +723,13 @@
     launchPanel();
   }
 
-  // ── Launch panel ──────────────────────────────────────────────────────────
+
   function launchPanel() {
     document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
     document.getElementById("driver-panel").style.display = "flex";
     document.getElementById("driver-panel").style.flexDirection = "column";
 
-    // Set header info
+
     document.getElementById("dp-avatar").src = user.avatar
       ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=64`
       : `https://cdn.discordapp.com/embed/avatars/${parseInt(user.id) % 5}.png`;
@@ -741,7 +737,7 @@
     document.getElementById("dp-drivernum").textContent  = `#${driverInfo.number}`;
     if (isEngineer) document.getElementById("dp-engineer-badge").style.display = "block";
 
-    // Apply saved keybinds to UI
+
     for (const [action, key] of Object.entries(keybinds)) {
       const el = document.getElementById(`kb-${action}`);
       if (el) el.textContent = key.toUpperCase();
@@ -749,17 +745,17 @@
       if (btn) btn.textContent = key.toUpperCase();
     }
 
-    // Start polling
+
     pollRaceState();
     setInterval(pollRaceState, 5000);
   }
 
-  // ── Race state polling ────────────────────────────────────────────────────
+
   let _raceState = null;
 
   async function pollRaceState() {
     try {
-      // Check if panel was disabled
+
       const statusRes = await fetch(`${API_URL}/panel-status`);
       const statusData = await statusRes.json();
       if (!statusData.driver) { showScreen("screen-maintenance"); document.getElementById("driver-panel").style.display = "none"; return; }
@@ -779,18 +775,18 @@
   }
 
   function kickToBlacklisted() {
-    // Stop all polling
+
     sessionStorage.removeItem("rc_driver_user");
 
-    // Hide all screens and panel
+
     document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
     document.getElementById("driver-panel").style.display = "none";
 
-    // Show blacklisted screen
+
     const bl = document.getElementById("screen-blacklisted");
     if (bl) { bl.classList.add("active"); return; }
 
-    // Create blacklisted screen dynamically if it doesn't exist
+
     const screen = document.createElement("div");
     screen.id        = "screen-blacklisted";
     screen.className = "screen active";
@@ -824,7 +820,7 @@
   }
 
   function renderRaceState(data) {
-    // Check if panel is disabled
+
     if (data.webPanelEnabled === false) {
       setButtonsDisabled(true, "⚫ Driver panel is currently disabled by a marshal.");
       const pill = document.getElementById("race-status-pill");
@@ -833,14 +829,14 @@
       return;
     }
 
-    // Disable buttons if no race started
+
     if (!data.raceStarted) {
       setButtonsDisabled(true, "⏳ Waiting for marshal to start the race...");
     } else {
       setButtonsDisabled(false, "");
     }
 
-    // Race status pill
+
     const pill = document.getElementById("race-status-pill");
     pill.className = "race-status-pill";
     if (data.status === "green")       { pill.classList.add("green");  pill.textContent = "🟢 Race Live"; }
@@ -849,7 +845,7 @@
     else if (data.status === "sc")     { pill.classList.add("yellow"); pill.textContent = "🟠 Safety Car"; }
     else { pill.textContent = "● Waiting"; }
 
-    // Leaderboard
+
     const lb = document.getElementById("leaderboard");
     if (!data.drivers || data.drivers.length === 0) {
       lb.innerHTML = '<div style="font-size:11px;color:var(--muted);text-align:center;padding:16px;">Waiting for race to start...</div>';
@@ -885,7 +881,7 @@
     }).join("");
   }
 
-  // ── Pit state ────────────────────────────────────────────────────────────
+
   let inPits = false;
 
   function togglePitting() {
@@ -911,7 +907,7 @@
     }
   }
 
-  // ── Cooldowns ─────────────────────────────────────────────────────────────
+
   const GLOBAL_COOLDOWN_MS = 7000;
   let   globalCooldownUntil = 0;
   let   lapCooldownUntil    = 0;
@@ -947,18 +943,18 @@
     ["blue_flag", "next_lap", "pitting", "in_race"].forEach(a => startButtonCooldown(a, ms));
   }
 
-  // ── Actions ───────────────────────────────────────────────────────────────
+
   async function sendAction(action) {
     const now = Date.now();
 
-    // Global 7s cooldown check
+
     if (now < globalCooldownUntil) {
       const rem = Math.ceil((globalCooldownUntil - now) / 1000);
       dpToast(`⏳ Wait ${rem}s`, "err");
       return;
     }
 
-    // Lap-specific interval check
+
     if (action === "next_lap" && lapCooldownUntil > now) {
       const rem = Math.ceil((lapCooldownUntil - now) / 1000);
       dpToast(`⏳ Next lap available in ${rem}s`, "err");
@@ -986,15 +982,14 @@
       if (res.ok) {
         dpToast(`✓ ${actionLabel(action)} sent`, "ok");
 
-        // Start global 7s cooldown on all buttons
+
         globalCooldownUntil = now + GLOBAL_COOLDOWN_MS;
         startAllButtonsCooldown(GLOBAL_COOLDOWN_MS);
 
-        // If next_lap, also apply lap-specific interval from race state
         if (action === "next_lap" && _raceState?.lapIntervalSeconds > 0) {
           const lapMs = _raceState.lapIntervalSeconds * 1000;
           lapCooldownUntil = now + lapMs;
-          // Override the next_lap button cooldown with the longer one if needed
+
           if (lapMs > GLOBAL_COOLDOWN_MS) startButtonCooldown("next_lap", lapMs);
         }
       } else {
@@ -1007,7 +1002,7 @@
     return { blue_flag:"Blue Flag Request", next_lap:"Next Lap", pitting:"Pitting", in_race:"Back on Track" }[a] || a;
   }
 
-  // ── Keybinds ──────────────────────────────────────────────────────────────
+
   function startListening(action) {
     if (listeningFor) stopListening();
     listeningFor = action;
@@ -1036,7 +1031,7 @@
       return;
     }
 
-    // Don't fire keybinds when typing in an input
+
     if (document.activeElement.tagName === "INPUT") return;
     if (document.getElementById("driver-panel").style.display === "none") return;
 
@@ -1051,12 +1046,11 @@
     }
   });
 
-  // ── Pop out leaderboard ───────────────────────────────────────────────────
   function popoutLeaderboard() {
     window.open(location.href + "?leaderboard", "Leaderboard", "width=300,height=500,resizable=yes");
   }
 
-  // ── Toast ─────────────────────────────────────────────────────────────────
+
   function dpToast(msg, type = "") {
     const t = document.getElementById("dp-toast");
     t.textContent = msg;
