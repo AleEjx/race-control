@@ -524,7 +524,7 @@
 
 <script>
   // ── CONFIG ────────────────────────────────────────────────────────────────
-  const API_URL = "https://services-removing-launch-sue.trycloudflare.com";
+  const API_URL       = "https://quote-terrorist-prayers-distance.trycloudflare.com";
   const CLIENT_ID     = "1467595519718195473";
   const REDIRECT_URI  = encodeURIComponent("https://race-control-one.vercel.app/marshal");
   const DISCORD_OAUTH = `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=identify`;
@@ -692,6 +692,10 @@
         const r = await fetch(`${API_URL}/status`, {
           headers: { "x-discord-id": user.id, "x-discord-token": user.token }
         });
+        if (r.status === 403) {
+          const d = await r.json();
+          if (d.blacklisted) { kickMarshalToBlacklisted(); return; }
+        }
         const d = await r.json();
         updateStatus(d.connected, d.vcs);
         showDisabledBanner(!d.webPanelEnabled);
@@ -708,6 +712,20 @@
     } else {
       dot.classList.remove("live");
       text.textContent = "Not in VCs";
+    }
+  }
+
+  function kickMarshalToBlacklisted() {
+    sessionStorage.removeItem("rc_user");
+    document.getElementById("widget").style.display       = "none";
+    document.getElementById("admin-panel").style.display  = "none";
+    const bl = document.getElementById("login-blacklisted");
+    if (bl) {
+      document.getElementById("login-discord").style.display  = "none";
+      document.getElementById("login-password").style.display = "none";
+      const uname = document.getElementById("blacklisted-username");
+      if (uname) uname.textContent = user?.username || "User";
+      bl.style.display = "flex";
     }
   }
 
