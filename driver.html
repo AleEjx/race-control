@@ -319,6 +319,8 @@
     }
     .keybind-key.listening { border-color: var(--blue); color: var(--yellow); }
 
+    @keyframes flagSlideIn { from { transform:translateY(-12px); opacity:0; } to { transform:translateY(0); opacity:1; } }
+
     /* Flag Notification Center */
     #flag-notification {
       display: none;
@@ -512,7 +514,7 @@
 
     <!-- Actions -->
     <div>
-      <div class="section-title">Quick Actions</div>
+      
       <div id="action-notice" style="display:none;font-size:10px;color:var(--muted);text-align:center;padding:8px 10px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:5px;margin-bottom:6px;letter-spacing:0.5px;">⏳ Waiting for race to start...</div>
       <div class="action-grid" style="grid-template-columns:1fr 1fr 1fr;">
         <button class="action-btn blue-flag" onclick="sendAction('blue_flag')" id="btn-blue-flag">
@@ -535,7 +537,7 @@
 
     <!-- Keybind settings -->
     <div>
-      <div class="section-title">Keybinds <span style="font-size:8px;color:var(--muted);">(click to change)</span></div>
+      
       <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:10px 12px;">
         <div class="keybind-row">
           <span class="keybind-label">🔵 Request Blue Flag</span>
@@ -559,13 +561,14 @@
 <div id="dp-toast"></div>
 
 <script>
-  const API_URL = "https://organ-reputation-fcc-hash.trycloudflare.com";
+  const API_URL      = "https://quote-terrorist-prayers-distance.trycloudflare.com";
   const CLIENT_ID    = "1467595519718195473";
   const REQUIRED_ROLE = "1464790972679454903";
   const REDIRECT_URI  = encodeURIComponent(window.location.origin + "/");
   const DISCORD_OAUTH = `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=identify`;
 
   const DRIVER_DISCORD_IDS = {
+    "790254318389166111": "SANDRIK",
     "884223249939050507": "ACHILLES",
     "799844642984034314": "AUBRN",
     "1487269583898284183": "BRYAN",
@@ -585,6 +588,7 @@
   };
 
   const DRIVERS = [
+    { name: "SANDRIK",     number: "109", callsign: "ES-109"  },
     { name: "ACHILLES",    number: "15", callsign: "NC-15"   },
     { name: "AUBRN",       number: "18", callsign: "VAS-18"  },
     { name: "BRYAN",       number: "87", callsign: "VSE-87"  },
@@ -1103,17 +1107,34 @@
     const container = document.getElementById("flag-notification");
     if (!container) return;
 
+    const colors = {
+      green:  { bg:"rgba(0,230,118,0.08)",  border:"rgba(0,230,118,0.6)",  text:"#00e676", glow:"rgba(0,230,118,0.2)" },
+      yellow: { bg:"rgba(255,214,0,0.08)",  border:"rgba(255,214,0,0.6)",  text:"#ffd600", glow:"rgba(255,214,0,0.2)" },
+      red:    { bg:"rgba(255,23,68,0.08)",   border:"rgba(255,23,68,0.6)",  text:"#ff1744", glow:"rgba(255,23,68,0.2)" },
+      blue:   { bg:"rgba(41,121,255,0.08)",  border:"rgba(41,121,255,0.6)", text:"#2979ff", glow:"rgba(41,121,255,0.2)" },
+      orange: { bg:"rgba(255,109,0,0.08)",   border:"rgba(255,109,0,0.6)",  text:"#ff6d00", glow:"rgba(255,109,0,0.2)" },
+      white:  { bg:"rgba(255,255,255,0.05)", border:"rgba(255,255,255,0.5)",text:"#ffffff", glow:"rgba(255,255,255,0.1)" },
+    };
+    const c = colors[def.color] || colors.white;
+
+    container.style.display = "block";
     container.innerHTML = `
-      <div class="flag-notif-card ${def.color}">
-        <span class="flag-notif-emoji">${def.emoji}</span>
-        <div class="flag-notif-body">
-          <div class="flag-notif-title">${def.title}</div>
-          <div class="flag-notif-sub">${def.sub}</div>
+      <div style="
+        display:flex;align-items:center;gap:14px;
+        padding:14px 16px;
+        background:${c.bg};
+        border:1.5px solid ${c.border};
+        border-radius:10px;
+        box-shadow:0 0 30px ${c.glow};
+        animation:flagSlideIn 0.4s cubic-bezier(0.34,1.56,0.64,1);
+      ">
+        <span style="font-size:36px;line-height:1;flex-shrink:0;">${def.emoji}</span>
+        <div>
+          <div style="font-size:18px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:${c.text};">${def.title}</div>
+          <div style="font-size:11px;margin-top:3px;color:${c.text};opacity:0.75;">${def.sub}</div>
         </div>
       </div>`;
-    container.style.display = "block";
 
-    // Play audio through the browser
     if (def.sound) {
       const audio = new Audio(`${API_URL}/sounds/${def.sound}`);
       audio.volume = 1.0;
