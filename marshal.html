@@ -31,7 +31,7 @@
       color: var(--text);
     }
 
-
+    /* ── Login ── */
     #login-discord {
       position: fixed; inset: 0;
       display: flex; flex-direction: column;
@@ -56,7 +56,7 @@
     .discord-btn svg { width: 20px; height: 20px; fill: #fff; flex-shrink: 0; }
     .login-error { color: var(--red); font-size: 10px; min-height: 14px; text-align: center; letter-spacing: 0.5px; }
 
-
+    /* ── Widget ── */
     #widget {
       display: none; position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -177,7 +177,7 @@
 </head>
 <body>
 
-
+<!-- ── Maintenance Screen ── -->
 <div id="marshal-maintenance" style="display:none;position:fixed;inset:0;background:var(--bg);align-items:center;justify-content:center;flex-direction:column;gap:16px;z-index:9999;">
   <div style="width:100%;max-width:340px;background:rgba(0,0,0,0.4);border:1.5px solid rgba(255,214,0,0.5);border-radius:10px;box-shadow:0 0 24px rgba(255,214,0,0.2);padding:28px 24px;display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;font-family:'Barlow Condensed',sans-serif;">
     <div style="font-size:32px;">🚧</div>
@@ -188,6 +188,7 @@
   </div>
 </div>
 
+<!-- ── Step 1: Discord login ── -->
 <div id="login-discord">
   <div class="logo">Race<span>Control</span></div>
   <div class="login-sub">Marshalling System</div>
@@ -198,7 +199,7 @@
   <div class="login-error" id="login-error"></div>
 </div>
 
-
+<!-- ── Step 2: Password ── -->
 <div id="login-password" style="display:none;position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:20px;background:var(--bg);">
   <div class="logo">Race<span>Control</span></div>
   <div id="login-user-info" style="display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);padding:8px 14px;border-radius:20px;">
@@ -211,10 +212,10 @@
   <div class="login-error" id="pw-error"></div>
 </div>
 
-
+<!-- ── Blue Flag Driver Selector ── -->
 <div id="blueflag-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:200;align-items:center;justify-content:center;">
   <div style="background:#13131a;border:1.5px solid rgba(41,121,255,0.4);border-radius:10px;box-shadow:0 0 24px rgba(41,121,255,0.15);width:calc(100% - 32px);max-width:320px;max-height:80vh;display:flex;flex-direction:column;">
-
+    <!-- Header -->
     <div style="padding:12px 14px;border-bottom:1px solid #1f1f2e;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
       <div>
         <div style="font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#fff;">🔵 Blue Flag</div>
@@ -222,13 +223,13 @@
       </div>
       <button onclick="closeBlueFlagModal()" style="background:none;border:none;color:#50506a;font-size:16px;cursor:pointer;padding:2px 6px;">✕</button>
     </div>
-
+    <!-- Search -->
     <div style="padding:10px 14px;border-bottom:1px solid #1f1f2e;flex-shrink:0;">
       <input type="text" id="blueflag-search" placeholder="Search driver..." oninput="filterDrivers()" style="width:100%;background:#0c0c14;border:1px solid #1f1f2e;color:#e8e8f0;font-family:'Oxanium',sans-serif;font-size:12px;padding:7px 10px;border-radius:4px;outline:none;" />
     </div>
-
+    <!-- Driver list -->
     <div id="blueflag-list" style="overflow-y:auto;flex:1;padding:6px 8px;display:flex;flex-direction:column;gap:4px;"></div>
-
+    <!-- Under construction notice -->
     <div style="padding:10px 14px;border-top:1px solid #1f1f2e;flex-shrink:0;display:flex;align-items:center;gap:6px;background:rgba(255,214,0,0.05);border-bottom-left-radius:10px;border-bottom-right-radius:10px;">
       <span style="font-size:12px;">🚧</span>
       <span style="font-size:9px;color:rgba(255,214,0,0.6);letter-spacing:0.5px;">Audio coming soon — currently under construction</span>
@@ -236,7 +237,7 @@
   </div>
 </div>
 
-
+<!-- ── Blacklisted screen ── -->
 <div id="login-blacklisted" style="display:none;position:fixed;inset:0;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:24px;background:var(--bg);">
   <div style="width:100%;max-width:340px;background:rgba(120,0,0,0.15);border:1.5px solid #ff1744;border-radius:10px;box-shadow:0 0 24px rgba(255,23,68,0.25),0 0 60px rgba(255,23,68,0.08);padding:24px 20px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;">
     <div style="font-size:28px;line-height:1;">🚫</div>
@@ -252,7 +253,7 @@
   </div>
 </div>
 
-
+<!-- ── Admin Panel ── -->
 <div id="admin-panel" style="display:none;position:fixed;inset:0;background:#0a0a0f;overflow-y:auto;font-family:'Oxanium',sans-serif;color:#e8e8f0;">
   <div style="background:#0f0f1a;border-bottom:1px solid #1f1f2e;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;">
     <div style="display:flex;align-items:center;gap:8px;">
@@ -266,7 +267,7 @@
     </div>
   </div>
 
-
+  <!-- Toolbox overlay -->
   <div id="toolbox-panel" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:100;align-items:center;justify-content:center;">
     <div style="background:#13131a;border:1px solid #1f1f2e;border-radius:8px;padding:16px;width:calc(100% - 32px);max-width:300px;">
       <div style="font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#fff;margin-bottom:12px;">🧰 Toolbox</div>
@@ -277,7 +278,7 @@
 
   <div style="padding:12px;display:flex;flex-direction:column;gap:12px;">
 
-
+    <!-- Status row -->
     <div id="section-status" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
       <div style="background:#13131a;border:1px solid #1f1f2e;border-radius:6px;padding:10px 12px;">
         <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#50506a;margin-bottom:4px;">Web Panel</div>
@@ -289,26 +290,26 @@
       </div>
     </div>
 
-
+    <!-- Connected VCs -->
     <div id="section-connected" style="background:#13131a;border:1px solid #1f1f2e;border-radius:6px;padding:10px 12px;">
       <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#50506a;margin-bottom:8px;">Connected Voice Channels</div>
       <div id="admin-connected-vcs" style="display:flex;flex-direction:column;gap:4px;font-size:11px;color:#50506a;">Loading...</div>
     </div>
 
-
+    <!-- All Voice Channels -->
     <div id="section-allvcs" style="background:#13131a;border:1px solid #1f1f2e;border-radius:6px;padding:10px 12px;">
       <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#50506a;margin-bottom:6px;">All Voice Channels</div>
       <input type="text" id="vc-search" placeholder="Search channels..." oninput="filterVCs()" style="width:100%;background:#0c0c14;border:1px solid #1f1f2e;color:#e8e8f0;font-family:'Oxanium',sans-serif;font-size:11px;padding:6px 10px;border-radius:4px;outline:none;margin-bottom:6px;" />
       <div id="admin-all-vcs" style="display:flex;flex-direction:column;gap:4px;max-height:200px;overflow-y:auto;">Loading...</div>
     </div>
 
- 
+    <!-- Guilds -->
     <div id="section-guilds" style="background:#13131a;border:1px solid #1f1f2e;border-radius:6px;padding:10px 12px;">
       <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#50506a;margin-bottom:8px;">Bot Servers</div>
       <div id="admin-guilds" style="display:flex;flex-direction:column;gap:6px;">Loading...</div>
     </div>
 
-
+    <!-- Blacklist -->
     <div id="section-blacklist" style="background:#13131a;border:1px solid #1f1f2e;border-radius:6px;padding:10px 12px;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
         <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#50506a;">Blacklisted Users</div>
@@ -325,36 +326,36 @@
       <div id="admin-blacklist" style="font-size:11px;color:#50506a;">Loading...</div>
     </div>
 
-
+    <!-- Session Viewer -->
     <div id="section-sessions" style="background:#13131a;border:1px solid #1f1f2e;border-radius:6px;padding:10px 12px;">
       <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#50506a;margin-bottom:8px;">Active Sessions</div>
       <div id="admin-sessions" style="display:flex;flex-direction:column;gap:6px;">Loading...</div>
     </div>
 
-
+    <!-- Login History -->
     <div id="section-logins" style="background:#13131a;border:1px solid #1f1f2e;border-radius:6px;padding:10px 12px;">
       <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#50506a;margin-bottom:8px;">Login History</div>
       <div id="admin-logins" style="display:flex;flex-direction:column;gap:4px;max-height:180px;overflow-y:auto;">Loading...</div>
     </div>
 
-
+    <!-- Audit Log -->
     <div id="section-audit" style="background:#13131a;border:1px solid #1f1f2e;border-radius:6px;padding:10px 12px;">
       <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#50506a;margin-bottom:8px;">Audit Log</div>
       <div id="admin-audit" style="display:flex;flex-direction:column;gap:4px;max-height:200px;overflow-y:auto;">Loading...</div>
     </div>
 
-
+    <!-- Race Setup -->
     <div id="section-racesetup" style="background:#13131a;border:1px solid #1f1f2e;border-radius:6px;padding:10px 12px;">
       <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#50506a;margin-bottom:8px;">🏁 Race Setup</div>
 
       <div style="display:flex;flex-direction:column;gap:8px;">
-
+        <!-- Total Laps -->
         <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
           <span style="font-size:11px;color:#e8e8f0;">Total Laps</span>
           <input type="number" id="race-laps" min="1" max="99" value="10" style="width:70px;background:#0c0c14;border:1px solid #1f1f2e;color:#e8e8f0;font-family:'Oxanium',sans-serif;font-size:12px;font-weight:700;padding:5px 8px;border-radius:4px;outline:none;text-align:center;" />
         </div>
 
-
+        <!-- Mandatory Pit Stops (number) -->
         <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
           <div>
             <div style="font-size:11px;color:#e8e8f0;">Mandatory Pit Stops</div>
@@ -363,7 +364,7 @@
           <input type="number" id="race-pits" min="0" max="9" value="0" style="width:70px;background:#0c0c14;border:1px solid #1f1f2e;color:#e8e8f0;font-family:'Oxanium',sans-serif;font-size:12px;font-weight:700;padding:5px 8px;border-radius:4px;outline:none;text-align:center;" />
         </div>
 
-
+        <!-- Next Lap Interval -->
         <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
           <div>
             <div style="font-size:11px;color:#e8e8f0;">Next Lap Cooldown</div>
@@ -372,7 +373,7 @@
           <input type="number" id="race-lap-interval" min="0" max="3600" value="0" style="width:70px;background:#0c0c14;border:1px solid #1f1f2e;color:#e8e8f0;font-family:'Oxanium',sans-serif;font-size:12px;font-weight:700;padding:5px 8px;border-radius:4px;outline:none;text-align:center;" />
         </div>
 
-
+        <!-- Start / Reset buttons -->
         <div style="display:flex;gap:6px;margin-top:4px;">
           <button onclick="startRace()" style="flex:1;background:rgba(0,230,118,0.15);border:1px solid rgba(0,230,118,0.4);color:#00e676;font-family:'Oxanium',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:8px;border-radius:4px;cursor:pointer;">🏁 Start Race</button>
           <button onclick="resetRace()" style="background:#0c0c14;border:1px solid #1f1f2e;color:#50506a;font-family:'Oxanium',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:8px 12px;border-radius:4px;cursor:pointer;">Reset</button>
@@ -382,7 +383,7 @@
       </div>
     </div>
 
-
+    <!-- Custom Audio -->
     <div id="section-audio" style="background:#13131a;border:1px solid #1f1f2e;border-radius:6px;padding:10px 12px;">
       <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#50506a;margin-bottom:8px;">Play Custom Audio</div>
 
@@ -419,7 +420,7 @@
   </div>
 </div>
 
-
+<!-- ── Widget ── -->
 <div id="widget">
   <div class="widget-header">
     <div class="widget-header-left">
@@ -445,13 +446,13 @@
   </div>
 
   <div class="widget-body">
-
+    <!-- Disabled banner -->
     <div id="disabled-banner">
       <div class="err-title">Error</div>
       <div class="err-body">The webpage is currently disabled,<br>use the discord commands.</div>
     </div>
 
-
+    <!-- Global -->
     <div>
       <div class="section-label">Global flags</div>
       <div class="flag-grid cols-2">
@@ -481,17 +482,12 @@
     </div>
     <div class="divider"></div>
     <div>
-      <div class="section-label">Voice channels</div>
-      <div class="flag-grid cols-2">
-        <button class="flag-btn vc-join"  onclick="joinVCs(event)"><span class="fi">🎙️</span><span class="fn">Join VCs</span></button>
-        <button class="flag-btn vc-leave" onclick="leaveVCs(event)"><span class="fi">🔌</span><span class="fn">Leave VCs</span></button>
-      </div>
-    </div>
+ 
 
-
+    <!-- Blue Flag Notifications -->
     <div id="blueflag-notifications" style="display:none;flex-direction:column;gap:6px;"></div>
 
-
+    <!-- Race Setup — only shown to race directors -->
     <div id="widget-race-setup" style="display:none;">
       <div class="divider" style="margin:4px 0 8px;"></div>
       <div class="section-label">🏁 Race Setup</div>
@@ -533,21 +529,21 @@
 <div id="cooldown-bar"><div id="cooldown-fill"></div></div>
 
 <script>
-
-  const API_URL = "https://organ-reputation-fcc-hash.trycloudflare.com";
+  // ── CONFIG ────────────────────────────────────────────────────────────────
+  const API_URL       = "https://quote-terrorist-prayers-distance.trycloudflare.com";
   const CLIENT_ID     = "1467595519718195473";
   const REDIRECT_URI  = encodeURIComponent("https://race-control-one.vercel.app/marshal");
   const DISCORD_OAUTH = `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=identify`;
+  // ─────────────────────────────────────────────────────────────────────────
 
-
-  let user      = null;
+  let user      = null; // { id, username, avatar }
   let collapsed  = false;
   let toastTimer;
   let cooldown   = false;
   let cooldownTimer;
   let lastFlag   = null;
 
-
+  // ── Check if marshal panel is enabled ────────────────────────────────────
   (async () => {
     try {
       const res  = await fetch(`${API_URL}/panel-status`);
@@ -559,7 +555,7 @@
     } catch {}
   })();
 
-
+  // ── Poll panel status every 10s to show/hide maintenance ──────────────────
   setInterval(async () => {
     try {
       const res  = await fetch(`${API_URL}/panel-status`);
@@ -573,7 +569,7 @@
     } catch {}
   }, 10_000);
 
-
+  // ── Check for OAuth callback code ─────────────────────────────────────────
   const params = new URLSearchParams(location.search);
   const code   = params.get("code");
 
@@ -608,7 +604,7 @@
           document.getElementById("login-discord").style.display = "none";
           const bl = document.getElementById("login-blacklisted");
           bl.style.display = "flex";
-
+          // Try to get username from the partial data
           const uname = data.username || "User";
           document.getElementById("blacklisted-username").textContent = uname;
         } else {
@@ -619,6 +615,7 @@
 
       if (!res.ok) throw new Error(data.error || "Auth failed");
 
+      // Role verified — now show password screen
       user = data.user;
       showPasswordScreen();
 
@@ -632,7 +629,7 @@
     const pwScreen = document.getElementById("login-password");
     pwScreen.style.display = "flex";
 
-
+    // Show their Discord info
     document.getElementById("login-username").textContent = user.username;
     const avatarEl = document.getElementById("login-avatar");
     if (user.avatar) {
@@ -664,7 +661,7 @@
         return;
       }
 
-
+      // All good — save session and show panel
       user.isAdmin = data.isAdmin || false;
       user.roles   = data.roles   || [];
       sessionStorage.setItem("rc_user", JSON.stringify(user));
@@ -686,18 +683,18 @@
     document.getElementById("login-password").style.display = "none";
     document.getElementById("admin-panel").style.display    = "none";
     document.getElementById("widget").style.display         = "block";
-
+    // Show admin switch button if admin user
     if (user?.isAdmin) {
       const btn = document.getElementById("btn-admin-switch");
       if (btn) btn.style.display = "flex";
     }
-
+    // Show race setup if user has race director role
     if (user?.roles && user.roles.includes(RACE_DIRECTOR_ROLE)) {
       const rs = document.getElementById("widget-race-setup");
       if (rs) rs.style.display = "block";
     }
 
-
+    // Set user info in header
     document.getElementById("user-name").textContent = user.username;
     if (user.avatar) {
       document.getElementById("user-avatar").src = `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=32`;
@@ -705,7 +702,7 @@
       document.getElementById("user-avatar").src = `https://cdn.discordapp.com/embed/avatars/${parseInt(user.id) % 5}.png`;
     }
 
-
+    // Check status
     try {
       const r = await fetch(`${API_URL}/status`, {
         headers: { "x-discord-id": user.id, "x-discord-token": user.token }
@@ -716,7 +713,7 @@
     } catch { updateStatus(false, []); }
 
     pollStatus();
-
+    // Poll blue flag requests every 3 seconds
     setInterval(pollBlueFlagRequests, 3000);
     pollBlueFlagRequests();
   }
@@ -789,7 +786,7 @@
     } catch { showToast("✗ Bot unreachable", "error"); }
   }
 
-
+  // ── Blue Flag Notifications (marshal panel) ──────────────────────────────
   let _knownBlueFlagIds = new Set();
 
   let _bfAlertInterval = null;
@@ -801,12 +798,12 @@
       _bfAudioCtx = ctx;
       const now  = ctx.currentTime;
 
-
+      // Loud two-tone beep
       [0, 0.22].forEach((offset, i) => {
         const osc  = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.connect(gain); gain.connect(ctx.destination);
-        osc.frequency.value = i === 0 ? 1047 : 784; 
+        osc.frequency.value = i === 0 ? 1047 : 784; // C6 → G5
         gain.gain.setValueAtTime(0, now + offset);
         gain.gain.linearRampToValueAtTime(0.8, now + offset + 0.02);
         gain.gain.setValueAtTime(0.8, now + offset + 0.15);
@@ -818,7 +815,7 @@
   }
 
   function startBlueFlagAlert() {
-    if (_bfAlertInterval) return; 
+    if (_bfAlertInterval) return; // already alerting
     playBlueFlagBeep();
     _bfAlertInterval = setInterval(playBlueFlagBeep, 1500);
   }
@@ -871,6 +868,7 @@
       });
       _knownBlueFlagIds.delete(id);
       await pollBlueFlagRequests();
+      // Stop alert if no more requests
       const remaining = document.querySelectorAll('[id^="bf-"]');
       if (remaining.length === 0) stopBlueFlagAlert();
     } catch {}
@@ -950,10 +948,10 @@
     text.textContent  = `Last: ${name}`;
     pill.style.display = "flex";
 
-
+    // Clear any existing timer
     if (lastFlagInterval) clearInterval(lastFlagInterval);
 
-
+    // Update time ago every second
     updateTimeAgo();
     lastFlagInterval = setInterval(updateTimeAgo, 1000);
   }
@@ -968,7 +966,7 @@
     else                el.textContent = `— ${Math.floor(secs / 3600)}h ${Math.floor((secs % 3600) / 60)}m ago`;
   }
 
-
+  // ── Admin Panel ─────────────────────────────────────────────────────────
   let adminMode = true;
   let allVCData = [];
 
@@ -1095,20 +1093,20 @@
       const data = await res.json();
       if (!res.ok) return;
 
-
+      // Web panel status
       document.getElementById("admin-web-status").innerHTML =
         data.webPanelEnabled
           ? '<span style="color:#00e676;">Enabled 🟢</span>'
           : '<span style="color:#ff1744;">Disabled 🔴</span>';
 
-
+      // Uptime
       const u = Math.floor(data.uptime);
       const h = Math.floor(u / 3600), m = Math.floor((u % 3600) / 60), s = u % 60;
       document.getElementById("admin-uptime").textContent = `${h}h ${m}m ${s}s`;
 
-
+      // Connected VCs
       const cvcs = document.getElementById("admin-connected-vcs");
-   
+      // Match connected VCs with full voice channel data to get members
       const vcMap = {};
       for (const ch of data.voiceChannels) { if (ch.connected) vcMap[ch.id] = ch; }
 
@@ -1143,7 +1141,7 @@
         }).join("");
       }
 
- 
+      // All voice channels — store for search filtering
       allVCData = data.voiceChannels;
       const q = document.getElementById("vc-search")?.value || "";
       renderVCList(q ? allVCData.filter(ch => ch.name.toLowerCase().includes(q.toLowerCase()) || ch.guild.toLowerCase().includes(q.toLowerCase())) : allVCData);
@@ -1162,7 +1160,7 @@
         </div>
       `).join("");
 
- 
+      // Blacklist
       const bl = document.getElementById("admin-blacklist");
       if (!data.blacklistFull || data.blacklistFull.length === 0) {
         bl.innerHTML = '<span style="color:#30303a;">No users blacklisted</span>';
@@ -1180,7 +1178,7 @@
           }).join("");
       }
 
-
+      // Sessions
       try {
         const sr   = await fetch(`${API_URL}/admin/sessions`, { headers: { "x-discord-id": user.id, "x-discord-token": user.token } });
         const sd   = await sr.json();
@@ -1204,7 +1202,7 @@
         }
       } catch {}
 
-
+      // Login history
       try {
         const lr   = await fetch(`${API_URL}/admin/logins`, { headers: { "x-discord-id": user.id, "x-discord-token": user.token } });
         const ld   = await lr.json();
@@ -1230,7 +1228,7 @@
         }
       } catch {}
 
-
+      // Audit log
       try {
         const ar   = await fetch(`${API_URL}/admin/audit`, { headers: { "x-discord-id": user.id, "x-discord-token": user.token } });
         const ad   = await ar.json();
@@ -1287,7 +1285,7 @@
     } catch { showToast("✗ Bot unreachable", "error"); }
   }
 
-
+  // ── Toolbox ──────────────────────────────────────────────────────────────
   const SECTIONS = [
     { id: "section-status",    label: "Status & Uptime" },
     { id: "section-connected", label: "Connected Voice Channels" },
@@ -1301,7 +1299,7 @@
     { id: "section-audio",     label: "Custom Audio Player" },
   ];
 
-
+  // Load visibility from localStorage
   function getSectionVisibility() {
     try { return JSON.parse(localStorage.getItem("rc_admin_sections") || "{}"); } catch { return {}; }
   }
@@ -1345,7 +1343,7 @@
     saveSectionVisibility(vis);
     applySectionVisibility();
 
-
+    // Update button
     const nowVisible = !visible;
     btn.textContent   = nowVisible ? "Visible" : "Hidden";
     btn.style.background = nowVisible ? "rgba(0,230,118,0.15)" : "rgba(255,23,68,0.1)";
@@ -1357,7 +1355,7 @@
     document.getElementById("toolbox-panel").style.display = "none";
   }
 
-
+  // ── Blue Flag Driver Selector ──────────────────────────────────────────
   const DRIVERS = [
     { name: "SETH",     number: "01", callsign: "VAS-01"  },
     { name: "REN",      number: "02", callsign: "LTS-02"  },
@@ -1433,11 +1431,11 @@
 
   function selectBlueFlagDriver(name, callsign, number) {
     closeBlueFlagModal();
-
+    // Show construction popup — audio not yet implemented
     showToast(`🚧 Blue Flag for ${name} — coming soon!`, "error");
   }
 
-
+  // ── Custom Audio ─────────────────────────────────────────────────────────
   let _audioFile = null;
 
   function handleAudioDrop(e) {
@@ -1518,7 +1516,7 @@
     return `${Math.floor(s/3600)}h ${Math.floor((s%3600)/60)}m ago`;
   }
 
-
+  // ── Race Setup ───────────────────────────────────────────────────────────
   async function widgetStartRace() {
     const laps        = parseInt(document.getElementById("widget-race-laps")?.value) || 0;
     const pits        = parseInt(document.getElementById("widget-race-pits")?.value) || 0;
@@ -1644,7 +1642,7 @@
     bar.style.display = "block";
     fill.style.transition = "none";
     fill.style.width = "100%";
-
+    // Trigger reflow
     void fill.offsetWidth;
     fill.style.transition = "width 5s linear";
     fill.style.width = "0%";
