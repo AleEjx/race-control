@@ -31,7 +31,7 @@
       overflow-x: hidden;
     }
 
-    /* ── Screens ── */
+ 
     .screen {
       display: none;
       position: fixed;
@@ -132,14 +132,14 @@
     .error-text { font-size: 11px; color: var(--red); text-align: center; min-height: 16px; }
     .info-text  { font-size: 10px; color: var(--muted); text-align: center; line-height: 1.5; }
 
-    /* ── Driver Panel ── */
+  
     #driver-panel {
       display: none;
       flex-direction: column;
       min-height: 100vh;
     }
 
-    /* Header */
+   
     .panel-header {
       background: var(--surface);
       border-bottom: 1px solid var(--border);
@@ -186,10 +186,10 @@
     .race-status-pill.yellow { border-color: rgba(255,214,0,0.4); color: var(--yellow); background: rgba(255,214,0,0.08); }
     .race-status-pill.red    { border-color: rgba(255,23,68,0.4);  color: var(--red);    background: rgba(255,23,68,0.08); }
 
-    /* Panel body */
+
     .panel-body { padding: 12px; display: flex; flex-direction: column; gap: 12px; }
 
-    /* Leaderboard */
+
     .section-title {
       font-size: 9px;
       letter-spacing: 2px;
@@ -259,7 +259,7 @@
     .lb-gap  { font-size: 9px; color: var(--muted); }
     .lb-pits { font-size: 9px; color: var(--orange); font-weight: 700; }
 
-    /* Action buttons */
+
     .action-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -295,7 +295,7 @@
     .action-btn.active-state { animation: action-pop 0.3s ease; }
     @keyframes action-pop { 0%{transform:scale(1)} 40%{transform:scale(0.9)} 100%{transform:scale(1)} }
 
-    /* Keybind settings */
+
     .keybind-row {
       display: flex;
       align-items: center;
@@ -319,7 +319,7 @@
     }
     .keybind-key.listening { border-color: var(--blue); color: var(--yellow); }
 
-    /* Notifications */
+
     #notif-bar {
       position: fixed;
       top: 52px;
@@ -350,7 +350,7 @@
     .notif.flag-blue   { border-color: var(--blue);   color: var(--blue); }
     .notif.flag-orange { border-color: var(--orange); color: var(--orange); }
 
-    /* Toast */
+ 
     #dp-toast {
       position: fixed;
       bottom: 16px;
@@ -374,7 +374,7 @@
     #dp-toast.ok  { border-color: var(--green); color: var(--green); }
     #dp-toast.err { border-color: var(--red);   color: var(--red); }
 
-    /* Popout leaderboard */
+
     #lb-popout-btn {
       font-size: 9px;
       letter-spacing: 1px;
@@ -392,7 +392,7 @@
 </head>
 <body>
 
-<!-- ── Maintenance Screen ── -->
+
 <div class="screen" id="screen-maintenance">
   <div style="width:100%;max-width:340px;background:rgba(0,0,0,0.4);border:1.5px solid rgba(255,214,0,0.5);border-radius:10px;box-shadow:0 0 24px rgba(255,214,0,0.2),0 0 60px rgba(255,214,0,0.06);padding:28px 24px;display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;">
     <div style="font-size:32px;">🚧</div>
@@ -403,7 +403,7 @@
   </div>
 </div>
 
-<!-- ── Screen 1: Discord Login ── -->
+
 <div class="screen active" id="screen-login">
   <div style="position:fixed;top:14px;right:14px;">
     <a href="/marshal" style="font-family:'Oxanium',sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);background:var(--surface);border:1px solid var(--border);padding:6px 12px;border-radius:4px;text-decoration:none;transition:color 0.15s,border-color 0.15s;" onmouseover="this.style.color='var(--text)';this.style.borderColor='var(--blue)'" onmouseout="this.style.color='var(--muted)';this.style.borderColor='var(--border)'">Marshal Login →</a>
@@ -420,7 +420,7 @@
   </div>
 </div>
 
-<!-- ── Screen 2: Role Selection ── -->
+
 <div class="screen" id="screen-role">
   <div class="logo">Race<span>League</span></div>
   <div class="card">
@@ -448,7 +448,7 @@
   </div>
 </div>
 
-<!-- ── Screen 3: Engineer — enter driver username ── -->
+
 <div class="screen" id="screen-engineer">
   <div class="logo">Race<span>League</span></div>
   <div class="card">
@@ -461,7 +461,7 @@
   </div>
 </div>
 
-<!-- ── Screen 4: Driver — select their own username ── -->
+
 <div class="screen" id="screen-driver-select">
   <div class="logo">Race<span>League</span></div>
   <div class="card">
@@ -474,7 +474,7 @@
   </div>
 </div>
 
-<!-- ── Main Driver Panel ── -->
+
 <div id="driver-panel">
   <div class="panel-header">
     <div class="header-left">
@@ -496,7 +496,7 @@
 
   <div class="panel-body">
 
-    <!-- Leaderboard -->
+
     <div>
       <div class="section-title">
         <span>Leaderboard</span>
@@ -507,7 +507,7 @@
       </div>
     </div>
 
-    <!-- Actions -->
+ 
     <div>
       <div class="section-title">Quick Actions</div>
       <div id="action-notice" style="display:none;font-size:10px;color:var(--muted);text-align:center;padding:8px 10px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:5px;margin-bottom:6px;letter-spacing:0.5px;">⏳ Waiting for race to start...</div>
@@ -530,7 +530,7 @@
       </div>
     </div>
 
-    <!-- Keybind settings -->
+
     <div>
       <div class="section-title">Keybinds <span style="font-size:8px;color:var(--muted);">(click to change)</span></div>
       <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:10px 12px;">
@@ -601,7 +601,7 @@
   ].sort((a, b) => parseInt(a.number) - parseInt(b.number));
 
   let user       = null;
-  let driverInfo = null; // { name, number, callsign }
+  let driverInfo = null;
   let isEngineer = false;
   let toastTimer;
   let listeningFor = null;
@@ -808,8 +808,8 @@
     screen.className = "screen active";
     screen.innerHTML = `
       <div style="width:100%;max-width:340px;background:rgba(120,0,0,0.15);border:1.5px solid #ff1744;border-radius:10px;box-shadow:0 0 24px rgba(255,23,68,0.25),0 0 60px rgba(255,23,68,0.08);padding:24px 20px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;">
-        <div style="font-size:28px;">🚫</div>
-        <div style="font-family:'Oxanium',sans-serif;font-size:20px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#ff1744;">Blacklisted 🚫</div>
+        <div style="font-size:28px;"></div>
+        <div style="font-family:'Oxanium',sans-serif;font-size:20px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#ff1744;">🚫 Blacklisted 🚫</div>
         <div style="font-family:'Oxanium',sans-serif;font-size:12px;color:rgba(255,255,255,0.6);line-height:1.6;">
           Hello <strong style="color:#fff;">${driverInfo?.name || user?.username || "Driver"}</strong>, you have been blacklisted from the Race Control panel.
         </div>
