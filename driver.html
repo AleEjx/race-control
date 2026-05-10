@@ -512,29 +512,6 @@
       </div>
     </div>
 
-    <!-- Actions -->
-    <div>
-      
-      <div id="action-notice" style="display:none;font-size:10px;color:var(--muted);text-align:center;padding:8px 10px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:5px;margin-bottom:6px;letter-spacing:0.5px;">⏳ Waiting for race to start...</div>
-      <div class="action-grid" style="grid-template-columns:1fr 1fr 1fr;">
-        <button class="action-btn blue-flag" onclick="sendAction('blue_flag')" id="btn-blue-flag">
-          <span class="a-key" id="key-blue-flag">B</span>
-          <span class="a-icon">🔵</span>
-          <span class="a-name">Request Blue Flag</span>
-        </button>
-        <button class="action-btn next-lap" onclick="sendAction('next_lap')" id="btn-next-lap">
-          <span class="a-key" id="key-next-lap">L</span>
-          <span class="a-icon">🏁</span>
-          <span class="a-name">Next Lap</span>
-        </button>
-        <button class="action-btn pitting" onclick="togglePitting()" id="btn-pitting">
-          <span class="a-key" id="key-pitting">P</span>
-          <span class="a-icon" id="pit-icon">🔧</span>
-          <span class="a-name" id="pit-label">Pitting</span>
-        </button>
-      </div>
-    </div>
-
     <!-- Keybind settings -->
     <div>
       
@@ -561,7 +538,7 @@
 <div id="dp-toast"></div>
 
 <script>
-  const API_URL = "https://organ-reputation-fcc-hash.trycloudflare.com";
+  const API_URL      = "https://quote-terrorist-prayers-distance.trycloudflare.com";
   const CLIENT_ID    = "1467595519718195473";
   const REQUIRED_ROLE = "1464790972679454903";
   const REDIRECT_URI  = encodeURIComponent(window.location.origin + "/");
@@ -1131,7 +1108,7 @@
         <span style="font-size:36px;line-height:1;flex-shrink:0;">${def.emoji}</span>
         <div>
           <div style="font-size:18px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:${c.text};">${def.title}</div>
-          <div style="font-size:11px;margin-top:3px;color:${c.text};opacity:0.75;">${def.sub}</div>
+          
         </div>
       </div>`;
 
