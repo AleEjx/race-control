@@ -325,6 +325,33 @@
       <div id="admin-audit" style="display:flex;flex-direction:column;gap:4px;max-height:200px;overflow-y:auto;">Loading...</div>
     </div>
 
+    <!-- Race Setup -->
+    <div id="section-racesetup" style="background:#13131a;border:1px solid #1f1f2e;border-radius:6px;padding:10px 12px;">
+      <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#50506a;margin-bottom:8px;">🏁 Race Setup</div>
+
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <!-- Laps -->
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+          <span style="font-size:11px;color:#e8e8f0;">Total Laps</span>
+          <input type="number" id="race-laps" min="1" max="99" value="10" style="width:70px;background:#0c0c14;border:1px solid #1f1f2e;color:#e8e8f0;font-family:'Oxanium',sans-serif;font-size:12px;font-weight:700;padding:5px 8px;border-radius:4px;outline:none;text-align:center;" />
+        </div>
+
+        <!-- Mandatory Pits -->
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <span style="font-size:11px;color:#e8e8f0;">Mandatory Pit Stop</span>
+          <button id="pits-toggle" onclick="togglePits()" style="background:rgba(255,23,68,0.1);border:1px solid rgba(255,23,68,0.3);color:#ff1744;font-family:'Oxanium',sans-serif;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:4px 10px;border-radius:4px;cursor:pointer;">Off</button>
+        </div>
+
+        <!-- Start / Reset buttons -->
+        <div style="display:flex;gap:6px;margin-top:4px;">
+          <button onclick="startRace()" style="flex:1;background:rgba(0,230,118,0.15);border:1px solid rgba(0,230,118,0.4);color:#00e676;font-family:'Oxanium',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:8px;border-radius:4px;cursor:pointer;">🏁 Start Race</button>
+          <button onclick="resetRace()" style="background:#0c0c14;border:1px solid #1f1f2e;color:#50506a;font-family:'Oxanium',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:8px 12px;border-radius:4px;cursor:pointer;">Reset</button>
+        </div>
+
+        <div id="race-setup-status" style="font-size:10px;color:#50506a;text-align:center;min-height:14px;"></div>
+      </div>
+    </div>
+
     <!-- Custom Audio -->
     <div id="section-audio" style="background:#13131a;border:1px solid #1f1f2e;border-radius:6px;padding:10px 12px;">
       <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#50506a;margin-bottom:8px;">Play Custom Audio</div>
@@ -448,7 +475,7 @@
 
 <script>
   // ── CONFIG ────────────────────────────────────────────────────────────────
-  const API_URL = "https://pushing-narrow-crimes-impressed.trycloudflare.com";
+  const API_URL       = "https://quote-terrorist-prayers-distance.trycloudflare.com";
   const CLIENT_ID     = "1467595519718195473";
   const REDIRECT_URI  = encodeURIComponent("https://race-control-one.vercel.app/marshal");
   const DISCORD_OAUTH = `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=identify`;
@@ -486,7 +513,7 @@
       const res = await fetch(`${API_URL}/auth`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code, redirectUri: "https://race-control-one.vercel.app/marshal" }),
+        body: JSON.stringify({ code, redirectUri: "https://race-control-one.vercel.app/callback" }),
       });
 
       const data = await res.json();
@@ -1070,6 +1097,7 @@
     { id: "section-sessions",  label: "Active Sessions" },
     { id: "section-logins",    label: "Login History" },
     { id: "section-audit",     label: "Audit Log" },
+    { id: "section-racesetup", label: "Race Setup" },
     { id: "section-audio",     label: "Custom Audio Player" },
   ];
 
@@ -1288,6 +1316,67 @@
     if (s < 60)   return `${s}s ago`;
     if (s < 3600) return `${Math.floor(s/60)}m ${s%60}s ago`;
     return `${Math.floor(s/3600)}h ${Math.floor((s%3600)/60)}m ago`;
+  }
+
+  // ── Race Setup ───────────────────────────────────────────────────────────
+  let mandatoryPits = false;
+
+  function togglePits() {
+    mandatoryPits = !mandatoryPits;
+    const btn = document.getElementById("pits-toggle");
+    if (mandatoryPits) {
+      btn.textContent   = "On";
+      btn.style.background = "rgba(0,230,118,0.15)";
+      btn.style.borderColor = "rgba(0,230,118,0.4)";
+      btn.style.color   = "#00e676";
+    } else {
+      btn.textContent   = "Off";
+      btn.style.background = "rgba(255,23,68,0.1)";
+      btn.style.borderColor = "rgba(255,23,68,0.3)";
+      btn.style.color   = "#ff1744";
+    }
+  }
+
+  async function startRace() {
+    const laps = parseInt(document.getElementById("race-laps").value);
+    if (!laps || laps < 1) { showToast("✗ Enter valid lap count", "error"); return; }
+
+    const status = document.getElementById("race-setup-status");
+    status.textContent = "Starting race...";
+    status.style.color = "#50506a";
+
+    try {
+      const res  = await fetch(`${API_URL}/driver/setup`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-discord-id": user.id, "x-discord-token": user.token },
+        body: JSON.stringify({ totalLaps: laps, mandatoryPits }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        status.textContent = `✓ Race live — ${laps} laps${mandatoryPits ? ", mandatory pits" : ""}`;
+        status.style.color = "#00e676";
+        showToast("✓ Race started!", "success");
+      } else {
+        status.textContent = `✗ ${data.error}`;
+        status.style.color = "#ff1744";
+      }
+    } catch { showToast("✗ Bot unreachable", "error"); }
+  }
+
+  async function resetRace() {
+    try {
+      const res  = await fetch(`${API_URL}/driver/reset`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-discord-id": user.id, "x-discord-token": user.token },
+        body: JSON.stringify({}),
+      });
+      if (res.ok) {
+        const status = document.getElementById("race-setup-status");
+        status.textContent = "Race reset.";
+        status.style.color = "#50506a";
+        showToast("✓ Race reset", "success");
+      }
+    } catch { showToast("✗ Bot unreachable", "error"); }
   }
 
   async function stopAudio() {
