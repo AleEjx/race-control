@@ -559,7 +559,7 @@
 <div id="dp-toast"></div>
 
 <script>
-  const API_URL = "https://conclude-pledge-majority-prompt.trycloudflare.com";
+  const API_URL      = "https://quote-terrorist-prayers-distance.trycloudflare.com";
   const CLIENT_ID    = "1467595519718195473";
   const REQUIRED_ROLE = "1464790972679454903";
   const REDIRECT_URI  = encodeURIComponent(window.location.origin + "/");
@@ -602,6 +602,19 @@
     { name: "SWEATER",     number: "31", callsign: "APX-31"  },
     { name: "UNLIMITED",   number: "99", callsign: "UNL-99"  },
   ].sort((a, b) => parseInt(a.number) - parseInt(b.number));
+
+  const FLAG_NOTIFS = {
+    green:      { emoji:"🟢", title:"Green Flag",          sub:"Green flag — all clear, race on!",             color:"green",  sound:"GreenFlag.mp4" },
+    yellow:     { emoji:"🟡", title:"Yellow Flag",         sub:"Caution — no overtaking.",                     color:"yellow", sound:"YellowFlag.mp4" },
+    fcy:        { emoji:"🟡", title:"Full Course Yellow",  sub:"Full Course Yellow — slow down.",              color:"yellow", sound:"FullCourseYellow.mp4" },
+    red:        { emoji:"🔴", title:"Red Flag",            sub:"Red flag — stop immediately, return to pits.", color:"red",    sound:"RedFlag.mp4" },
+    blue:       { emoji:"🔵", title:"Blue Flag",           sub:"Blue flag — let the leaders past.",            color:"blue",   sound:"LappedCars.mp4" },
+    safety_car: { emoji:"🟠", title:"Safety Car",          sub:"Safety car deployed — hold position.",         color:"orange", sound:"SCDeployed.mp4" },
+    sc_ending:  { emoji:"🟠", title:"Safety Car Ending",   sub:"Safety car coming in — prepare for restart.", color:"orange", sound:"SCEnding.mp4" },
+    sc_speedup: { emoji:"🟠", title:"Speed Up",            sub:"Safety car speeding up — get ready.",         color:"orange", sound:"SCSpeedup.mp4" },
+    sfl:        { emoji:"🟠", title:"Single File",         sub:"Form single file behind the safety car.",     color:"orange", sound:"SFL.mp4" },
+    checkered:  { emoji:"🏁", title:"Checkered Flag",      sub:"Race over — cool down lap.",                  color:"white",  sound:null },
+  };
 
   let user       = null;
   let driverInfo = null; // { name, number, callsign }
@@ -1060,18 +1073,7 @@
   }
 
   // ── Flag definitions ─────────────────────────────────────────────────────
-  const FLAG_NOTIFS = {
-    green:      { emoji: "🟢", title: "Green Flag",          sub: "Green flag — all clear, race on!",               color: "green",  sound: "GreenFlag.mp4" },
-    yellow:     { emoji: "🟡", title: "Yellow Flag",         sub: "Caution — no overtaking.",                        color: "yellow", sound: "YellowFlag.mp4" },
-    fcy:        { emoji: "🟡", title: "Full Course Yellow",  sub: "Full Course Yellow — slow down, no overtaking.",  color: "yellow", sound: "FullCourseYellow.mp4" },
-    red:        { emoji: "🔴", title: "Red Flag",            sub: "Red flag — stop the race, return to pits.",       color: "red",    sound: "RedFlag.mp4" },
-    blue:       { emoji: "🔵", title: "Blue Flag",           sub: "Blue flag — lapped cars, let leaders past.",      color: "blue",   sound: "LappedCars.mp4" },
-    safety_car: { emoji: "🟠", title: "Safety Car Deployed", sub: "Safety car deployed — hold position.",            color: "orange", sound: "SCDeployed.mp4" },
-    sc_ending:  { emoji: "🟠", title: "Safety Car Ending",   sub: "Safety car coming in — prepare for restart.",     color: "orange", sound: "SCEnding.mp4" },
-    sc_speedup: { emoji: "🟠", title: "Speed Up",            sub: "Safety car speeding up — get ready.",             color: "orange", sound: "SCSpeedup.mp4" },
-    sfl:        { emoji: "🟠", title: "Single File",         sub: "Form single file behind the safety car.",         color: "orange", sound: "SFL.mp4" },
-    checkered:  { emoji: "🏁", title: "Checkered Flag",      sub: "Checkered flag — race over, cool down lap.",      color: "white",  sound: null },
-  };
+  
 
   // ── SSE Connection ────────────────────────────────────────────────────────
   let _sseSource = null;
@@ -1113,7 +1115,7 @@
 
     // Play audio through the browser
     if (def.sound) {
-      const audio = new Audio(`https://race-control-one.vercel.app/${def.sound}`);
+      const audio = new Audio(`${API_URL}/sounds/${def.sound}`);
       audio.volume = 1.0;
       audio.play().catch(() => {});
     }
