@@ -116,6 +116,14 @@
     .flag-btn.white:hover  { border-color: var(--white);  background: rgba(255,255,255,0.05); }
     .flag-btn.vc-join:hover  { border-color: var(--green); background: rgba(0,230,118,0.08); }
     .flag-btn.vc-leave:hover { border-color: var(--red);   background: rgba(255,23,68,0.08); }
+    .bf-notif { background: rgba(41,121,255,0.08); border: 1.5px solid rgba(41,121,255,0.5); border-radius:6px; padding:8px 10px; display:flex; align-items:center; justify-content:space-between; gap:8px; animation: bf-slide 0.3s ease; box-shadow: 0 0 12px rgba(41,121,255,0.15); }
+    @keyframes bf-slide { from { transform: translateY(-6px); opacity:0; } to { transform:translateY(0); opacity:1; } }
+    .bf-notif-icon { font-size:16px; flex-shrink:0; }
+    .bf-notif-text { flex:1; min-width:0; }
+    .bf-notif-title { font-size:11px; font-weight:700; color:#2979ff; letter-spacing:0.5px; }
+    .bf-notif-sub   { font-size:9px; color:rgba(255,255,255,0.5); margin-top:2px; }
+    .bf-dismiss { background: rgba(41,121,255,0.15); border: 1px solid rgba(41,121,255,0.3); color: #2979ff; font-family:'Barlow Condensed',sans-serif; font-size:9px; font-weight:700; letter-spacing:1px; text-transform:uppercase; padding:4px 8px; border-radius:4px; cursor:pointer; flex-shrink:0; }
+    .bf-dismiss:hover { background: rgba(41,121,255,0.25); }
     .flag-btn.firing { animation: pop 0.25s ease; }
     @keyframes pop { 0%{transform:scale(1)} 40%{transform:scale(0.88)} 100%{transform:scale(1)} }
 
@@ -221,8 +229,8 @@
 <!-- ── Blacklisted screen ── -->
 <div id="login-blacklisted" style="display:none;position:fixed;inset:0;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:24px;background:var(--bg);">
   <div style="width:100%;max-width:340px;background:rgba(120,0,0,0.15);border:1.5px solid #ff1744;border-radius:10px;box-shadow:0 0 24px rgba(255,23,68,0.25),0 0 60px rgba(255,23,68,0.08);padding:24px 20px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;">
-    <div style="font-size:28px;line-height:1;">🚫</div>
-    <div style="font-family:'Oxanium',sans-serif;font-size:20px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#ff1744;">Blacklisted 🚫</div>
+    <div style="font-size:28px;line-height:1;"></div>
+    <div style="font-family:'Oxanium',sans-serif;font-size:20px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#ff1744;">🚫 Blacklisted 🚫</div>
     <div style="font-family:'Oxanium',sans-serif;font-size:12px;color:rgba(255,255,255,0.6);line-height:1.6;">
       Hello <span id="blacklisted-username" style="color:#fff;font-weight:700;"></span>, you have been blacklisted from the Race Control panel.
     </div>
@@ -470,6 +478,9 @@
       </div>
     </div>
 
+    <!-- Blue Flag Notifications -->
+    <div id="blueflag-notifications" style="display:none;flex-direction:column;gap:6px;"></div>
+
     <!-- Race Setup — only shown to race directors -->
     <div id="widget-race-setup" style="display:none;">
       <div class="divider" style="margin:4px 0 8px;"></div>
@@ -513,7 +524,7 @@
 
 <script>
   // ── CONFIG ────────────────────────────────────────────────────────────────
-  const API_URL = "https://tile-suspension-vid-ict.trycloudflare.com";
+  const API_URL       = "https://quote-terrorist-prayers-distance.trycloudflare.com";
   const CLIENT_ID     = "1467595519718195473";
   const REDIRECT_URI  = encodeURIComponent("https://race-control-one.vercel.app/marshal");
   const DISCORD_OAUTH = `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=identify`;
@@ -670,6 +681,9 @@
     } catch { updateStatus(false, []); }
 
     pollStatus();
+    // Poll blue flag requests every 3 seconds
+    setInterval(pollBlueFlagRequests, 3000);
+    pollBlueFlagRequests();
   }
 
   function pollStatus() {
@@ -720,6 +734,65 @@
       else if (res.status === 403) showToast("✗ Web panel disabled", "error");
       else showToast(`✗ ${data.error}`, "error");
     } catch { showToast("✗ Bot unreachable", "error"); }
+  }
+
+  // ── Blue Flag Notifications (marshal panel) ──────────────────────────────
+  let _knownBlueFlagIds = new Set();
+
+  function playBlueFlagSound() {
+    try {
+      const ctx  = new (window.AudioContext || window.webkitAudioContext)();
+      const osc  = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.frequency.setValueAtTime(880, ctx.currentTime);
+      osc.frequency.setValueAtTime(660, ctx.currentTime + 0.15);
+      gain.gain.setValueAtTime(0.3, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+      osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.4);
+    } catch {}
+  }
+
+  async function pollBlueFlagRequests() {
+    if (!user?.token) return;
+    try {
+      const res  = await fetch(`${API_URL}/driver/blue-flags`, {
+        headers: { "x-discord-id": user.id, "x-discord-token": user.token }
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      const container = document.getElementById("blueflag-notifications");
+      if (!container) return;
+      const requests = data.requests || [];
+      let hasNew = false;
+      requests.forEach(r => { if (!_knownBlueFlagIds.has(r.id)) { hasNew = true; _knownBlueFlagIds.add(r.id); } });
+      if (hasNew) playBlueFlagSound();
+      if (requests.length === 0) { container.style.display = "none"; container.innerHTML = ""; return; }
+      container.style.display = "flex";
+      container.innerHTML = requests.map(r => `
+        <div class="bf-notif" id="bf-${r.id}">
+          <span class="bf-notif-icon">🔵</span>
+          <div class="bf-notif-text">
+            <div class="bf-notif-title">Blue Flag Request 🔵</div>
+            <div class="bf-notif-sub">${r.driver} #${r.number} has requested a blue flag</div>
+          </div>
+          <button class="bf-dismiss" onclick="dismissBlueFlagRequest(${r.id})">Dismiss</button>
+        </div>`).join("");
+    } catch {}
+  }
+
+  async function dismissBlueFlagRequest(id) {
+    const el = document.getElementById(`bf-${id}`);
+    if (el) { el.style.opacity = "0.4"; el.style.pointerEvents = "none"; }
+    try {
+      await fetch(`${API_URL}/driver/blue-flags/dismiss`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-discord-id": user.id, "x-discord-token": user.token },
+        body: JSON.stringify({ id }),
+      });
+      _knownBlueFlagIds.delete(id);
+      await pollBlueFlagRequests();
+    } catch {}
   }
 
   async function joinVCs(e) {
