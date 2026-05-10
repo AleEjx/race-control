@@ -229,8 +229,8 @@
 <!-- ── Blacklisted screen ── -->
 <div id="login-blacklisted" style="display:none;position:fixed;inset:0;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:24px;background:var(--bg);">
   <div style="width:100%;max-width:340px;background:rgba(120,0,0,0.15);border:1.5px solid #ff1744;border-radius:10px;box-shadow:0 0 24px rgba(255,23,68,0.25),0 0 60px rgba(255,23,68,0.08);padding:24px 20px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;">
-    <div style="font-size:28px;line-height:1;"></div>
-    <div style="font-family:'Oxanium',sans-serif;font-size:20px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#ff1744;">🚫 Blacklisted 🚫</div>
+    <div style="font-size:28px;line-height:1;">🚫</div>
+    <div style="font-family:'Oxanium',sans-serif;font-size:20px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#ff1744;">Blacklisted 🚫</div>
     <div style="font-family:'Oxanium',sans-serif;font-size:12px;color:rgba(255,255,255,0.6);line-height:1.6;">
       Hello <span id="blacklisted-username" style="color:#fff;font-weight:700;"></span>, you have been blacklisted from the Race Control panel.
     </div>
@@ -524,7 +524,7 @@
 
 <script>
   // ── CONFIG ────────────────────────────────────────────────────────────────
-  const API_URL = "https://services-removing-launch-sue.trycloudflare.com";
+  const API_URL       = "https://quote-terrorist-prayers-distance.trycloudflare.com";
   const CLIENT_ID     = "1467595519718195473";
   const REDIRECT_URI  = encodeURIComponent("https://race-control-one.vercel.app/marshal");
   const DISCORD_OAUTH = `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=identify`;
@@ -739,18 +739,39 @@
   // ── Blue Flag Notifications (marshal panel) ──────────────────────────────
   let _knownBlueFlagIds = new Set();
 
-  function playBlueFlagSound() {
+  let _bfAlertInterval = null;
+  let _bfAudioCtx      = null;
+
+  function playBlueFlagBeep() {
     try {
       const ctx  = new (window.AudioContext || window.webkitAudioContext)();
-      const osc  = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain); gain.connect(ctx.destination);
-      osc.frequency.setValueAtTime(880, ctx.currentTime);
-      osc.frequency.setValueAtTime(660, ctx.currentTime + 0.15);
-      gain.gain.setValueAtTime(0.3, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
-      osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.4);
+      _bfAudioCtx = ctx;
+      const now  = ctx.currentTime;
+
+      // Loud two-tone beep
+      [0, 0.22].forEach((offset, i) => {
+        const osc  = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.frequency.value = i === 0 ? 1047 : 784; // C6 → G5
+        gain.gain.setValueAtTime(0, now + offset);
+        gain.gain.linearRampToValueAtTime(0.8, now + offset + 0.02);
+        gain.gain.setValueAtTime(0.8, now + offset + 0.15);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + offset + 0.2);
+        osc.start(now + offset);
+        osc.stop(now + offset + 0.25);
+      });
     } catch {}
+  }
+
+  function startBlueFlagAlert() {
+    if (_bfAlertInterval) return; // already alerting
+    playBlueFlagBeep();
+    _bfAlertInterval = setInterval(playBlueFlagBeep, 1500);
+  }
+
+  function stopBlueFlagAlert() {
+    if (_bfAlertInterval) { clearInterval(_bfAlertInterval); _bfAlertInterval = null; }
   }
 
   async function pollBlueFlagRequests() {
@@ -766,8 +787,13 @@
       const requests = data.requests || [];
       let hasNew = false;
       requests.forEach(r => { if (!_knownBlueFlagIds.has(r.id)) { hasNew = true; _knownBlueFlagIds.add(r.id); } });
-      if (hasNew) playBlueFlagSound();
-      if (requests.length === 0) { container.style.display = "none"; container.innerHTML = ""; return; }
+      if (hasNew) startBlueFlagAlert();
+      if (requests.length === 0) {
+        stopBlueFlagAlert();
+        container.style.display = "none";
+        container.innerHTML = "";
+        return;
+      }
       container.style.display = "flex";
       container.innerHTML = requests.map(r => `
         <div class="bf-notif" id="bf-${r.id}">
@@ -792,6 +818,9 @@
       });
       _knownBlueFlagIds.delete(id);
       await pollBlueFlagRequests();
+      // Stop alert if no more requests
+      const remaining = document.querySelectorAll('[id^="bf-"]');
+      if (remaining.length === 0) stopBlueFlagAlert();
     } catch {}
   }
 
