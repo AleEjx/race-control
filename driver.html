@@ -499,6 +499,7 @@
     <!-- Actions -->
     <div>
       <div class="section-title">Quick Actions</div>
+      <div id="action-notice" style="display:none;font-size:10px;color:var(--muted);text-align:center;padding:8px 10px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:5px;margin-bottom:6px;letter-spacing:0.5px;">⏳ Waiting for race to start...</div>
       <div class="action-grid">
         <button class="action-btn blue-flag" onclick="sendAction('blue_flag')" id="btn-blue-flag">
           <span class="a-key" id="key-blue-flag">B</span>
@@ -553,7 +554,7 @@
 
 <script>
   // ── CONFIG ────────────────────────────────────────────────────────────────
-  const API_URL = "https://plymouth-taught-peer-ind.trycloudflare.com";
+  const API_URL      = "https://quote-terrorist-prayers-distance.trycloudflare.com";
   const CLIENT_ID    = "1467595519718195473";
   const REQUIRED_ROLE = "1464790972679454903";
   const REDIRECT_URI  = encodeURIComponent(window.location.origin + "/");
@@ -628,7 +629,11 @@
       const data = await res.json();
 
       if (res.status === 403) {
-        document.getElementById("login-error").textContent = "❌ " + (data.error || "Access denied.");
+        if (data.disabled) {
+          document.getElementById("login-error").textContent = "🚫 " + data.error;
+        } else {
+          document.getElementById("login-error").textContent = "❌ " + (data.error || "Access denied.");
+        }
         return;
       }
       if (!res.ok) throw new Error(data.error || "Auth failed");
@@ -747,11 +752,40 @@
     } catch {}
   }
 
+  function setButtonsDisabled(disabled, reason) {
+    const actions = ["blue_flag", "next_lap", "pitting", "in_race"];
+    actions.forEach(a => {
+      const btn = document.getElementById(`btn-${a.replace(/_/g, "-")}`);
+      if (!btn) return;
+      btn.disabled      = disabled;
+      btn.style.opacity = disabled ? "0.35" : "1";
+      btn.style.cursor  = disabled ? "not-allowed" : "pointer";
+    });
+    const notice = document.getElementById("action-notice");
+    if (notice) { notice.textContent = disabled ? reason : ""; notice.style.display = disabled ? "block" : "none"; }
+  }
+
   function renderRaceState(data) {
+    // Check if panel is disabled
+    if (data.webPanelEnabled === false) {
+      setButtonsDisabled(true, "⚫ Driver panel is currently disabled by a marshal.");
+      const pill = document.getElementById("race-status-pill");
+      pill.className   = "race-status-pill";
+      pill.textContent = "● Disabled";
+      return;
+    }
+
+    // Disable buttons if no race started
+    if (!data.raceStarted) {
+      setButtonsDisabled(true, "⏳ Waiting for marshal to start the race...");
+    } else {
+      setButtonsDisabled(false, "");
+    }
+
     // Race status pill
     const pill = document.getElementById("race-status-pill");
     pill.className = "race-status-pill";
-    if (data.status === "green")  { pill.classList.add("green");  pill.textContent = "🟢 Race Live"; }
+    if (data.status === "green")       { pill.classList.add("green");  pill.textContent = "🟢 Race Live"; }
     else if (data.status === "yellow") { pill.classList.add("yellow"); pill.textContent = "🟡 Yellow Flag"; }
     else if (data.status === "red")    { pill.classList.add("red");    pill.textContent = "🔴 Red Flag"; }
     else if (data.status === "sc")     { pill.classList.add("yellow"); pill.textContent = "🟠 Safety Car"; }
