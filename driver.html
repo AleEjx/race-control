@@ -392,6 +392,17 @@
 </head>
 <body>
 
+<!-- ── Maintenance Screen ── -->
+<div class="screen" id="screen-maintenance">
+  <div style="width:100%;max-width:340px;background:rgba(0,0,0,0.4);border:1.5px solid rgba(255,214,0,0.5);border-radius:10px;box-shadow:0 0 24px rgba(255,214,0,0.2),0 0 60px rgba(255,214,0,0.06);padding:28px 24px;display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;">
+    <div style="font-size:32px;">🚧</div>
+    <div style="font-family:'Oxanium',sans-serif;font-size:18px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--yellow);">Panel Offline</div>
+    <div style="font-family:'Oxanium',sans-serif;font-size:11px;color:rgba(255,255,255,0.5);line-height:1.7;">The driver panel is currently offline.<br>A marshal will bring it back online shortly.</div>
+    <div style="width:100%;height:1px;background:rgba(255,214,0,0.2);"></div>
+    <div style="font-size:9px;color:rgba(255,255,255,0.25);letter-spacing:1px;text-transform:uppercase;">RaceLeague · Race Control System</div>
+  </div>
+</div>
+
 <!-- ── Screen 1: Discord Login ── -->
 <div class="screen active" id="screen-login">
   <div style="position:fixed;top:14px;right:14px;">
@@ -546,7 +557,7 @@
 
 <script>
   // ── CONFIG ────────────────────────────────────────────────────────────────
-  const API_URL = "https://pope-sciences-silly-membership.trycloudflare.com";
+  const API_URL      = "https://quote-terrorist-prayers-distance.trycloudflare.com";
   const CLIENT_ID    = "1467595519718195473";
   const REQUIRED_ROLE = "1464790972679454903";
   const REDIRECT_URI  = encodeURIComponent(window.location.origin + "/");
@@ -592,17 +603,26 @@
   try { const saved = JSON.parse(localStorage.getItem("rc_keybinds")); if (saved) keybinds = { ...keybinds, ...saved }; } catch {}
 
   // ── OAuth ─────────────────────────────────────────────────────────────────
-  const params = new URLSearchParams(location.search);
-  const code   = params.get("code");
+  // Check if panel is enabled before showing anything
+  (async () => {
+    try {
+      const res  = await fetch(`${API_URL}/panel-status`);
+      const data = await res.json();
+      if (!data.driver) { showScreen("screen-maintenance"); return; }
+    } catch {}
+    initApp();
+  })();
 
-  if (code) {
-    window.history.replaceState({}, document.title, "/driver");
-    exchangeCode(code);
-  } else {
-    const saved = sessionStorage.getItem("rc_driver_user");
-    if (saved) {
-      user = JSON.parse(saved);
-      showRoleScreen();
+  function initApp() {
+    if (code) {
+      window.history.replaceState({}, document.title, "/driver");
+      exchangeCode(code);
+    } else {
+      const saved = sessionStorage.getItem("rc_driver_user");
+      if (saved) {
+        user = JSON.parse(saved);
+        showRoleScreen();
+      }
     }
   }
 
@@ -738,6 +758,11 @@
 
   async function pollRaceState() {
     try {
+      // Check if panel was disabled
+      const statusRes = await fetch(`${API_URL}/panel-status`);
+      const statusData = await statusRes.json();
+      if (!statusData.driver) { showScreen("screen-maintenance"); document.getElementById("driver-panel").style.display = "none"; return; }
+
       const headers = user ? { "x-discord-id": user.id } : {};
       const res  = await fetch(`${API_URL}/driver/state`, { headers });
       if (res.status === 403) {
