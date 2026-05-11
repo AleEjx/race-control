@@ -524,7 +524,7 @@
 <div id="dp-toast"></div>
 
 <script>
-  const API_URL = "https://union-root-heater-loading.trycloudflare.com";
+  const API_URL = "https://quote-terrorist-prayers-distance.trycloudflare.com";
   const CLIENT_ID    = "1467595519718195473";
   const REQUIRED_ROLE = "1464790972679454903";
   const REDIRECT_URI  = encodeURIComponent(window.location.origin + "/");
@@ -1020,20 +1020,31 @@
   let _sseSource = null;
 
   function connectSSE() {
-    if (_sseSource) _sseSource.close();
-    _sseSource = new EventSource(`${API_URL}/events`);
+    if (_sseSource) { _sseSource.close(); _sseSource = null; }
+    console.log("[SSE] Connecting to", API_URL + "/events");
 
-    _sseSource.onmessage = (e) => {
+    const src = new EventSource(`${API_URL}/events`);
+
+    src.addEventListener("message", (e) => {
+      console.log("[SSE] Message received:", e.data);
       try {
         const data = JSON.parse(e.data);
         if (data.type === "flag") showFlagNotification(data.flag);
-      } catch {}
-    };
+      } catch(err) { console.error("[SSE] Parse error:", err); }
+    });
 
-    _sseSource.onerror = () => {
-      // Reconnect after 3s
+    src.addEventListener("open", () => {
+      console.log("[SSE] Connected!");
+    });
+
+    src.addEventListener("error", (e) => {
+      console.warn("[SSE] Error, reconnecting in 3s...", e);
+      src.close();
+      _sseSource = null;
       setTimeout(connectSSE, 3000);
-    };
+    });
+
+    _sseSource = src;
   }
 
   // ── Flag notification ─────────────────────────────────────────────────────
