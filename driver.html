@@ -425,7 +425,7 @@
 <div id="dp-toast"></div>
 
 <script>
-  const API_URL = "https://comfort-visited-brothers-jump.trycloudflare.com";
+  const API_URL       = "https://joe-stem-comparison-korean.trycloudflare.com";
   const CLIENT_ID     = "1467595519718195473";
   const REDIRECT_URI  = encodeURIComponent(window.location.origin + "/");
   const DISCORD_OAUTH = `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=identify`;
@@ -657,7 +657,7 @@
       // ── Flag detection via polling ──────────────────────────────────
       if (data.currentFlag && data.currentFlag.timestamp !== _lastFlagTimestamp) {
         _lastFlagTimestamp = data.currentFlag.timestamp;
-        showFlagNotification(data.currentFlag.flag);
+        showFlagNotification(data.currentFlag.flag, data.currentFlag);
       }
 
     } catch {}
@@ -745,7 +745,12 @@
   }
 
   // ── Flag notification ──────────────────────────────────────────────────
-  function showFlagNotification(flag) {
+  function showFlagNotification(flag, customData) {
+    // Handle custom flags pushed from dev panel
+    if (flag === "__custom__" && customData) {
+      showCustomFlagNotification(customData);
+      return;
+    }
     const def = FLAG_NOTIFS[flag];
     if (!def) return;
 
@@ -881,6 +886,30 @@
     window.open(location.href + "?leaderboard", "Leaderboard", "width=300,height=500,resizable=yes");
   }
 
+  // ── Custom flag notification ───────────────────────────────────────────
+  function showCustomFlagNotification(data) {
+    const colors = {
+      green:  { bg:"rgba(0,230,118,0.08)",  border:"rgba(0,230,118,0.6)",  text:"#00e676", glow:"rgba(0,230,118,0.2)" },
+      yellow: { bg:"rgba(255,214,0,0.08)",  border:"rgba(255,214,0,0.6)",  text:"#ffd600", glow:"rgba(255,214,0,0.2)" },
+      red:    { bg:"rgba(255,23,68,0.08)",   border:"rgba(255,23,68,0.6)",  text:"#ff1744", glow:"rgba(255,23,68,0.2)" },
+      blue:   { bg:"rgba(41,121,255,0.08)",  border:"rgba(41,121,255,0.6)", text:"#2979ff", glow:"rgba(41,121,255,0.2)" },
+      orange: { bg:"rgba(255,109,0,0.08)",   border:"rgba(255,109,0,0.6)",  text:"#ff6d00", glow:"rgba(255,109,0,0.2)" },
+      white:  { bg:"rgba(255,255,255,0.05)", border:"rgba(255,255,255,0.5)",text:"#ffffff", glow:"rgba(255,255,255,0.1)" },
+    };
+    const c = colors[data.color] || colors.white;
+    const section   = document.getElementById("flag-notif-section");
+    const container = document.getElementById("flag-notification");
+    if (!section || !container) return;
+    section.style.display = "block";
+    container.innerHTML = `
+      <div style="display:flex;align-items:center;gap:14px;padding:14px 16px;background:${c.bg};border:1.5px solid ${c.border};border-radius:10px;box-shadow:0 0 30px ${c.glow};animation:flagSlideIn 0.4s cubic-bezier(0.34,1.56,0.64,1);">
+        <span style="font-size:36px;line-height:1;flex-shrink:0;">${data.emoji || "🏴"}</span>
+        <div>
+          <div style="font-size:18px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:${c.text};">${data.text || data.label || "Custom Flag"}</div>
+        </div>
+      </div>`;
+  }
+
   function dpToast(msg, type = "") {
     const t = document.getElementById("dp-toast");
     t.textContent = msg;
@@ -910,7 +939,7 @@
     label.style.letterSpacing = "3px";
 
     // Light up one by one, ~1s apart
-    let delay = 1500;
+    let delay = 4500;
     for (let i = 1; i <= 5; i++) {
       setTimeout(() => {
         document.getElementById(`light-${i}`).classList.add("lit");
