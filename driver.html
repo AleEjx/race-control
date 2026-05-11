@@ -1011,13 +1011,13 @@
 
     const src = new EventSource(`${API_URL}/events`);
 
-    src.addEventListener("message", (e) => {
-      console.log("[SSE] Message received:", e.data);
-      try {
-        const data = JSON.parse(e.data);
-        if (data.type === "flag") showFlagNotification(data.flag);
-      } catch(err) { console.error("[SSE] Parse error:", err); }
-    });
+src.addEventListener("flag", (e) => {   // ← was "message"
+  console.log("[SSE] Flag received:", e.data);
+  try {
+    const data = JSON.parse(e.data);
+    if (data.type === "flag") showFlagNotification(data.flag);
+  } catch(err) { console.error("[SSE] Parse error:", err); }
+});
 
     src.addEventListener("open", () => {
       console.log("[SSE] Connected!");
