@@ -425,7 +425,7 @@
 <div id="dp-toast"></div>
 
 <script>
-  const API_URL = "https://comfort-visited-brothers-jump.trycloudflare.com";
+  const API_URL       = "https://joe-stem-comparison-korean.trycloudflare.com";
   const CLIENT_ID     = "1467595519718195473";
   const REDIRECT_URI  = encodeURIComponent(window.location.origin + "/");
   const DISCORD_OAUTH = `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=identify`;
@@ -643,6 +643,10 @@
       if (!res.ok) return;
 
       // ── Lights out on race start ─────────────────────────────────
+      if (_raceState?.raceStarted && !data.raceStarted) {
+        // Race was reset — allow lights-out to trigger again next start
+        _lightsOutShown = false;
+      }
       if (!_raceState?.raceStarted && data.raceStarted) {
         triggerLightsOut();
       }
@@ -906,7 +910,7 @@
     label.style.letterSpacing = "3px";
 
     // Light up one by one, ~1s apart
-    let delay = 600;
+    let delay = 4500;
     for (let i = 1; i <= 5; i++) {
       setTimeout(() => {
         document.getElementById(`light-${i}`).classList.add("lit");
