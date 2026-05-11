@@ -338,6 +338,12 @@
       <div id="admin-logins" style="display:flex;flex-direction:column;gap:4px;max-height:180px;overflow-y:auto;">Loading...</div>
     </div>
 
+    <!-- Driver Panel Logins -->
+    <div style="background:#13131a;border:1px solid #1f1f2e;border-radius:8px;padding:12px;">
+      <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#50506a;margin-bottom:8px;">🏎️ Driver Panel Logins</div>
+      <div id="admin-driver-logins" style="display:flex;flex-direction:column;gap:4px;max-height:180px;overflow-y:auto;">Loading...</div>
+    </div>
+
     <!-- Audit Log -->
     <div id="section-audit" style="background:#13131a;border:1px solid #1f1f2e;border-radius:6px;padding:10px 12px;">
       <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#50506a;margin-bottom:8px;">Audit Log</div>
@@ -530,7 +536,7 @@
 
 <script>
   // ── CONFIG ────────────────────────────────────────────────────────────────
-  const API_URL = "https://organ-reputation-fcc-hash.trycloudflare.com";
+  const API_URL       = "https://quote-terrorist-prayers-distance.trycloudflare.com";
   const CLIENT_ID     = "1467595519718195473";
   const REDIRECT_URI  = encodeURIComponent("https://race-control-one.vercel.app/marshal");
   const DISCORD_OAUTH = `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=identify`;
@@ -1224,6 +1230,28 @@
                   </div>
                 </div>`;
             }).join("");
+          }
+        }
+      } catch {}
+
+      // Driver panel logins
+      try {
+        const dlr  = await fetch(`${API_URL}/admin/driver-logins`, { headers: { "x-discord-id": user.id, "x-discord-token": user.token } });
+        if (dlr.ok) {
+          const dld  = await dlr.json();
+          const dlEl = document.getElementById("admin-driver-logins");
+          if (dlEl) {
+            const dl = dld?.logins || [];
+            dlEl.innerHTML = dl.length === 0
+              ? '<div style="color:#50506a;font-size:11px;">No driver logins yet</div>'
+              : dl.slice(0,20).map(l => {
+                  const ago = Math.floor((Date.now()-l.timestamp)/1000);
+                  const t   = ago < 60 ? ago+"s ago" : ago < 3600 ? Math.floor(ago/60)+"m ago" : Math.floor(ago/3600)+"h ago";
+                  return `<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid #1f1f2e;">
+                    <img src="${l.avatar?`https://cdn.discordapp.com/avatars/${l.id}/${l.avatar}.png?size=32`:`https://cdn.discordapp.com/embed/avatars/0.png`}" style="width:22px;height:22px;border-radius:50%;"/>
+                    <div><div style="font-size:11px;font-weight:700;color:#e8e8f0;">${l.username}</div><div style="font-size:9px;color:#50506a;">${l.ip} · ${t}</div></div>
+                  </div>`;
+                }).join('');
           }
         }
       } catch {}
