@@ -497,9 +497,12 @@
   </div>
 
   <!-- Flag Notification Center -->
-  <div id="flag-notification" style="padding:10px 12px 0;"></div>
-
   <div class="panel-body">
+
+    <!-- Flag Notification Center -->
+    <div id="flag-notif-section" style="display:none;">
+      <div id="flag-notification" style="margin-bottom:4px;"></div>
+    </div>
 
     <!-- Leaderboard -->
     <div>
@@ -524,7 +527,7 @@
 <div id="dp-toast"></div>
 
 <script>
-  const API_URL = "https://crops-enforcement-mortgages-wife.trycloudflare.com";
+  const API_URL = "https://quote-terrorist-prayers-distance.trycloudflare.com";
   const CLIENT_ID    = "1467595519718195473";
   const REQUIRED_ROLE = "1464790972679454903";
   const REDIRECT_URI  = encodeURIComponent(window.location.origin + "/");
@@ -1048,7 +1051,10 @@
     };
     const c = colors[def.color] || colors.white;
 
-    container.style.display = "block";
+    // Show the section
+    const section = document.getElementById("flag-notif-section");
+    if (section) section.style.display = "block";
+
     container.innerHTML = `
       <div style="
         display:flex;align-items:center;gap:14px;
