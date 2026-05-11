@@ -524,7 +524,7 @@
 <div id="dp-toast"></div>
 
 <script>
-  const API_URL = "https://union-root-heater-loading.trycloudflare.com";
+  const API_URL = "https://quote-terrorist-prayers-distance.trycloudflare.com";
   const CLIENT_ID    = "1467595519718195473";
   const REQUIRED_ROLE = "1464790972679454903";
   const REDIRECT_URI  = encodeURIComponent(window.location.origin + "/");
@@ -587,10 +587,10 @@
   let driverInfo = null; // { name, number, callsign }
   let isEngineer = false;
   let toastTimer;
-  let listeningFor = null;
 
 
-  try { const saved = JSON.parse(localStorage.getItem("rc_keybinds")); if (saved) keybinds = { ...keybinds, ...saved }; } catch {}
+
+
 
   const _params = new URLSearchParams(location.search);
   const _code   = _params.get("code");
@@ -743,13 +743,6 @@
     document.getElementById("dp-drivername").textContent = driverInfo.name;
     document.getElementById("dp-drivernum").textContent  = `#${driverInfo.number}`;
     if (isEngineer) document.getElementById("dp-engineer-badge").style.display = "block";
-
-    for (const [action, key] of Object.entries(keybinds)) {
-      const el = document.getElementById(`kb-${action}`);
-      if (el) el.textContent = key.toUpperCase();
-      const btn = document.getElementById(`key-${action.replace("_", "-")}`);
-      if (btn) btn.textContent = key.toUpperCase();
-    }
 
     pollRaceState();
     setInterval(pollRaceState, 5000);
@@ -993,19 +986,9 @@
     return { blue_flag:"Blue Flag Request", next_lap:"Next Lap", pitting:"Pitting", in_race:"Back on Track" }[a] || a;
   }
 
-  function startListening(action) {
-    if (listeningFor) stopListening();
-    listeningFor = action;
-    const el = document.getElementById(`kb-${action}`);
-    if (el) { el.classList.add("listening"); el.textContent = "…"; }
-  }
+  
 
-  function stopListening() {
-    if (!listeningFor) return;
-    const el = document.getElementById(`kb-${listeningFor}`);
-    if (el) { el.classList.remove("listening"); el.textContent = (keybinds[listeningFor] || "?").toUpperCase(); }
-    listeningFor = null;
-  }
+  
 
   
 
