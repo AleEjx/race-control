@@ -538,7 +538,7 @@
 <div id="dp-toast"></div>
 
 <script>
-  const API_URL = "https://organ-reputation-fcc-hash.trycloudflare.com";
+  const API_URL      = "https://quote-terrorist-prayers-distance.trycloudflare.com";
   const CLIENT_ID    = "1467595519718195473";
   const REQUIRED_ROLE = "1464790972679454903";
   const REDIRECT_URI  = encodeURIComponent(window.location.origin + "/");
@@ -603,7 +603,7 @@
   let toastTimer;
   let listeningFor = null;
 
-  let keybinds = { blue_flag: "b", next_lap: "l", pitting: "p" };
+
   try { const saved = JSON.parse(localStorage.getItem("rc_keybinds")); if (saved) keybinds = { ...keybinds, ...saved }; } catch {}
 
   const _params = new URLSearchParams(location.search);
@@ -1021,33 +1021,7 @@
     listeningFor = null;
   }
 
-  document.addEventListener("keydown", (e) => {
-    if (listeningFor) {
-      e.preventDefault();
-      const key = e.key.toUpperCase();
-      keybinds[listeningFor] = e.key.toLowerCase();
-      const el  = document.getElementById(`kb-${listeningFor}`);
-      const btn = document.getElementById(`key-${listeningFor.replace("_","-")}`);
-      if (el)  el.textContent  = key;
-      if (btn) btn.textContent = key;
-      localStorage.setItem("rc_keybinds", JSON.stringify(keybinds));
-      stopListening();
-      return;
-    }
-
-    if (document.activeElement.tagName === "INPUT") return;
-    if (document.getElementById("driver-panel").style.display === "none") return;
-
-    const pressed = e.key.toLowerCase();
-    for (const [action, key] of Object.entries(keybinds)) {
-      if (pressed === key) {
-        e.preventDefault();
-        if (action === "pitting") togglePitting();
-        else sendAction(action);
-        break;
-      }
-    }
-  });
+  
 
   function popoutLeaderboard() {
     window.open(location.href + "?leaderboard", "Leaderboard", "width=300,height=500,resizable=yes");
