@@ -323,7 +323,7 @@
 
     /* Flag Notification Center */
     #flag-notification {
-      display: none;
+      display: block;
       position: fixed;
       top: 52px;
       left: 0; right: 0;
@@ -497,7 +497,7 @@
   </div>
 
   <!-- Flag Notification Center -->
-  <div id="flag-notification"></div>
+  <div id="flag-notification" style="padding:10px 12px 0;"></div>
 
   <div class="panel-body">
 
@@ -515,21 +515,7 @@
     <!-- Keybind settings -->
     <div>
       
-      <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:10px 12px;">
-        <div class="keybind-row">
-          <span class="keybind-label">🔵 Request Blue Flag</span>
-          <div class="keybind-key" id="kb-blue_flag" onclick="startListening('blue_flag')">B</div>
-        </div>
-        <div class="keybind-row">
-          <span class="keybind-label">🏁 Next Lap</span>
-          <div class="keybind-key" id="kb-next_lap" onclick="startListening('next_lap')">L</div>
-        </div>
-        <div class="keybind-row">
-          <span class="keybind-label">🔧 Pitting</span>
-          <div class="keybind-key" id="kb-pitting" onclick="startListening('pitting')">P</div>
-        </div>
-
-      </div>
+      
     </div>
 
   </div>
@@ -538,7 +524,9 @@
 <div id="dp-toast"></div>
 
 <script>
-  const API_URL = "https://pen-birth-honey-heading.trycloudflare.com";
+  // API_URL — updated by -pushgit, also stored in localStorage for persistence
+  const _HARDCODED_URL = "https://quote-terrorist-prayers-distance.trycloudflare.com";
+  const API_URL = localStorage.getItem("rc_api_url") || _HARDCODED_URL;
   const CLIENT_ID    = "1467595519718195473";
   const REQUIRED_ROLE = "1464790972679454903";
   const REDIRECT_URI  = encodeURIComponent(window.location.origin + "/");
