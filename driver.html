@@ -31,7 +31,6 @@
       overflow-x: hidden;
     }
 
-    /* ── Screens ── */
     .screen {
       display: none;
       position: fixed;
@@ -132,14 +131,12 @@
     .error-text { font-size: 11px; color: var(--red); text-align: center; min-height: 16px; }
     .info-text  { font-size: 10px; color: var(--muted); text-align: center; line-height: 1.5; }
 
-    /* ── Driver Panel ── */
     #driver-panel {
       display: none;
       flex-direction: column;
       min-height: 100vh;
     }
 
-    /* Header */
     .panel-header {
       background: var(--surface);
       border-bottom: 1px solid var(--border);
@@ -186,10 +183,8 @@
     .race-status-pill.yellow { border-color: rgba(255,214,0,0.4); color: var(--yellow); background: rgba(255,214,0,0.08); }
     .race-status-pill.red    { border-color: rgba(255,23,68,0.4);  color: var(--red);    background: rgba(255,23,68,0.08); }
 
-    /* Panel body */
     .panel-body { padding: 12px; display: flex; flex-direction: column; gap: 12px; }
 
-    /* Leaderboard */
     .section-title {
       font-size: 9px;
       letter-spacing: 2px;
@@ -201,11 +196,7 @@
       justify-content: space-between;
     }
 
-    .leaderboard {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
+    .leaderboard { display: flex; flex-direction: column; gap: 4px; }
 
     .lb-row {
       display: flex;
@@ -217,37 +208,18 @@
       border-radius: 6px;
       transition: border-color 0.2s;
     }
-    .lb-row.is-me {
-      border-color: rgba(41,121,255,0.4);
-      background: rgba(41,121,255,0.06);
-    }
-    .lb-row.in-pits { opacity: 0.5; }
+    .lb-row.is-me { border-color: rgba(41,121,255,0.4); background: rgba(41,121,255,0.06); }
 
-    .lb-pos {
-      font-size: 13px;
-      font-weight: 800;
-      color: var(--muted);
-      width: 22px;
-      text-align: center;
-      flex-shrink: 0;
-    }
+    .lb-pos { font-size: 13px; font-weight: 800; color: var(--muted); width: 22px; text-align: center; flex-shrink: 0; }
     .lb-pos.p1 { color: var(--yellow); }
     .lb-pos.p2 { color: #c0c0c0; }
     .lb-pos.p3 { color: #cd7f32; }
 
     .lb-num {
-      width: 28px;
-      height: 28px;
-      border-radius: 4px;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 10px;
-      font-weight: 800;
-      color: var(--text);
-      flex-shrink: 0;
+      width: 28px; height: 28px; border-radius: 4px;
+      background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 800; color: var(--text); flex-shrink: 0;
     }
 
     .lb-info { flex: 1; min-width: 0; }
@@ -259,26 +231,13 @@
     .lb-gap  { font-size: 9px; color: var(--muted); }
     .lb-pits { font-size: 9px; color: var(--orange); font-weight: 700; }
 
-    /* Action buttons */
-    .action-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-    }
+    .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 
     .action-btn {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 5px;
-      padding: 14px 8px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      cursor: pointer;
-      font-family: 'Oxanium', sans-serif;
-      color: var(--text);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 5px; padding: 14px 8px;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+      cursor: pointer; font-family: 'Oxanium', sans-serif; color: var(--text);
       transition: transform 0.1s, border-color 0.15s, background 0.15s;
       position: relative;
     }
@@ -287,118 +246,41 @@
     .action-btn .a-name { font-size: 10px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; text-align: center; }
     .action-btn .a-key  { position: absolute; top: 6px; right: 8px; font-size: 9px; color: var(--muted); background: var(--border); padding: 1px 5px; border-radius: 3px; }
 
-    .action-btn.blue-flag:hover  { border-color: var(--blue);   background: rgba(41,121,255,0.08); }
-    .action-btn.next-lap:hover   { border-color: var(--green);  background: rgba(0,230,118,0.08); }
-    .action-btn.pitting:hover    { border-color: var(--orange); background: rgba(255,109,0,0.08); }
-    .action-btn.in-race:hover    { border-color: var(--yellow); background: rgba(255,214,0,0.08); }
+    .action-btn.blue-flag:hover { border-color: var(--blue);   background: rgba(41,121,255,0.08); }
+    .action-btn.next-lap:hover  { border-color: var(--green);  background: rgba(0,230,118,0.08); }
+    .action-btn.pitting:hover   { border-color: var(--orange); background: rgba(255,109,0,0.08); }
 
     .action-btn.active-state { animation: action-pop 0.3s ease; }
     @keyframes action-pop { 0%{transform:scale(1)} 40%{transform:scale(0.9)} 100%{transform:scale(1)} }
 
-    /* Keybind settings */
-    .keybind-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 6px 0;
-      border-bottom: 1px solid var(--border);
-    }
-    .keybind-label { font-size: 11px; color: var(--text); }
-    .keybind-key {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: 3px 10px;
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--blue);
-      cursor: pointer;
-      min-width: 40px;
-      text-align: center;
-      transition: border-color 0.15s;
-    }
-    .keybind-key.listening { border-color: var(--blue); color: var(--yellow); }
-
     @keyframes flagSlideIn { from { transform:translateY(-12px); opacity:0; } to { transform:translateY(0); opacity:1; } }
 
-    /* Flag Notification Center */
-    #flag-notification {
-      display: block;
-      position: fixed;
-      top: 52px;
-      left: 0; right: 0;
-      z-index: 50;
-      padding: 0 12px;
-      animation: slideIn 0.4s cubic-bezier(0.34,1.56,0.64,1);
-    }
-    @keyframes slideIn { from { transform: translateY(-20px); opacity:0; } to { transform:translateY(0); opacity:1; } }
-
-    .flag-notif-card {
-      border-radius: 8px;
-      padding: 14px 16px;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      border: 1.5px solid;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.4);
-    }
-    .flag-notif-emoji { font-size: 32px; flex-shrink: 0; line-height: 1; }
-    .flag-notif-body  { flex: 1; min-width: 0; }
-    .flag-notif-title { font-size: 16px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; }
-    .flag-notif-sub   { font-size: 11px; margin-top: 3px; opacity: 0.7; font-weight: 500; }
-
-    .flag-notif-card.green  { background:rgba(0,230,118,0.08);  border-color:rgba(0,230,118,0.6);  color:var(--green);  box-shadow: 0 0 30px rgba(0,230,118,0.15); }
-    .flag-notif-card.yellow { background:rgba(255,214,0,0.08);  border-color:rgba(255,214,0,0.6);  color:var(--yellow); box-shadow: 0 0 30px rgba(255,214,0,0.15); }
-    .flag-notif-card.red    { background:rgba(255,23,68,0.08);   border-color:rgba(255,23,68,0.6);  color:var(--red);    box-shadow: 0 0 30px rgba(255,23,68,0.15); }
-    .flag-notif-card.blue   { background:rgba(41,121,255,0.08);  border-color:rgba(41,121,255,0.6); color:var(--blue);   box-shadow: 0 0 30px rgba(41,121,255,0.15); }
-    .flag-notif-card.orange { background:rgba(255,109,0,0.08);   border-color:rgba(255,109,0,0.6);  color:var(--orange); box-shadow: 0 0 30px rgba(255,109,0,0.15); }
-    .flag-notif-card.white  { background:rgba(255,255,255,0.05); border-color:rgba(255,255,255,0.4);color:#fff;          box-shadow: 0 0 30px rgba(255,255,255,0.1); }
-
-    /* Toast */
     #dp-toast {
-      position: fixed;
-      bottom: 16px;
-      left: 50%;
+      position: fixed; bottom: 16px; left: 50%;
       transform: translateX(-50%) translateY(40px);
-      background: var(--surface);
-      border: 1px solid var(--border);
-      color: var(--text);
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 1px;
-      padding: 8px 16px;
-      border-radius: 20px;
-      opacity: 0;
-      transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1), opacity 0.25s;
-      white-space: nowrap;
-      pointer-events: none;
-      z-index: 999;
+      background: var(--surface); border: 1px solid var(--border);
+      color: var(--text); font-size: 11px; font-weight: 700;
+      letter-spacing: 1px; padding: 8px 16px; border-radius: 20px;
+      opacity: 0; transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1), opacity 0.25s;
+      white-space: nowrap; pointer-events: none; z-index: 999;
     }
     #dp-toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
     #dp-toast.ok  { border-color: var(--green); color: var(--green); }
     #dp-toast.err { border-color: var(--red);   color: var(--red); }
 
-    /* Popout leaderboard */
     #lb-popout-btn {
-      font-size: 9px;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      color: var(--muted);
-      background: none;
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: 2px 7px;
-      cursor: pointer;
-      font-family: 'Oxanium', sans-serif;
+      font-size: 9px; letter-spacing: 1px; text-transform: uppercase;
+      color: var(--muted); background: none; border: 1px solid var(--border);
+      border-radius: 4px; padding: 2px 7px; cursor: pointer; font-family: 'Oxanium', sans-serif;
     }
     #lb-popout-btn:hover { color: var(--text); }
   </style>
 </head>
 <body>
 
-<!-- ── Maintenance Screen ── -->
+<!-- Maintenance Screen -->
 <div class="screen" id="screen-maintenance">
-  <div style="width:100%;max-width:340px;background:rgba(0,0,0,0.4);border:1.5px solid rgba(255,214,0,0.5);border-radius:10px;box-shadow:0 0 24px rgba(255,214,0,0.2),0 0 60px rgba(255,214,0,0.06);padding:28px 24px;display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;">
+  <div style="width:100%;max-width:340px;background:rgba(0,0,0,0.4);border:1.5px solid rgba(255,214,0,0.5);border-radius:10px;box-shadow:0 0 24px rgba(255,214,0,0.2);padding:28px 24px;display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;">
     <div style="font-size:32px;">🚧</div>
     <div style="font-family:'Oxanium',sans-serif;font-size:18px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--yellow);">Panel Offline</div>
     <div style="font-family:'Oxanium',sans-serif;font-size:11px;color:rgba(255,255,255,0.5);line-height:1.7;">The driver panel is currently offline.<br>A marshal will bring it back online shortly.</div>
@@ -407,10 +289,10 @@
   </div>
 </div>
 
-<!-- ── Screen 1: Discord Login ── -->
+<!-- Screen 1: Discord Login -->
 <div class="screen active" id="screen-login">
   <div style="position:fixed;top:14px;right:14px;">
-    <a href="/marshal" style="font-family:'Oxanium',sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);background:var(--surface);border:1px solid var(--border);padding:6px 12px;border-radius:4px;text-decoration:none;transition:color 0.15s,border-color 0.15s;" onmouseover="this.style.color='var(--text)';this.style.borderColor='var(--blue)'" onmouseout="this.style.color='var(--muted)';this.style.borderColor='var(--border)'">Marshal Login →</a>
+    <a href="/marshal" style="font-family:'Oxanium',sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);background:var(--surface);border:1px solid var(--border);padding:6px 12px;border-radius:4px;text-decoration:none;" onmouseover="this.style.color='var(--text)';this.style.borderColor='var(--blue)'" onmouseout="this.style.color='var(--muted)';this.style.borderColor='var(--border)'">Marshal Login →</a>
   </div>
   <div class="logo">Race<span>League</span></div>
   <div class="sub">Driver Panel</div>
@@ -424,7 +306,7 @@
   </div>
 </div>
 
-<!-- ── Screen 2: Role Selection ── -->
+<!-- Screen 2: Role Selection -->
 <div class="screen" id="screen-role">
   <div class="logo">Race<span>League</span></div>
   <div class="card">
@@ -452,7 +334,7 @@
   </div>
 </div>
 
-<!-- ── Screen 3: Engineer — enter driver username ── -->
+<!-- Screen 3: Engineer setup -->
 <div class="screen" id="screen-engineer">
   <div class="logo">Race<span>League</span></div>
   <div class="card">
@@ -465,7 +347,7 @@
   </div>
 </div>
 
-<!-- ── Screen 4: Driver — select their own username ── -->
+<!-- Screen 4: Driver select -->
 <div class="screen" id="screen-driver-select">
   <div class="logo">Race<span>League</span></div>
   <div class="card">
@@ -478,7 +360,7 @@
   </div>
 </div>
 
-<!-- ── Main Driver Panel ── -->
+<!-- Main Driver Panel -->
 <div id="driver-panel">
   <div class="panel-header">
     <div class="header-left">
@@ -496,7 +378,6 @@
     </div>
   </div>
 
-  <!-- Flag Notification Center -->
   <div class="panel-body">
 
     <!-- Flag Notification Center -->
@@ -515,10 +396,27 @@
       </div>
     </div>
 
-    <!-- Keybind settings -->
+    <!-- Action buttons -->
     <div>
-      
-      
+      <div class="section-title"><span>Actions</span></div>
+      <div class="action-grid">
+        <button class="action-btn blue-flag" onclick="sendAction('blue_flag')" id="btn-blue-flag">
+          <span class="a-key" id="key-blue-flag">F1</span>
+          <span class="a-icon">🔵</span>
+          <span class="a-name">Blue Flag</span>
+        </button>
+        <button class="action-btn next-lap" onclick="sendAction('next_lap')" id="btn-next-lap">
+          <span class="a-key" id="key-next-lap">F2</span>
+          <span class="a-icon">🏁</span>
+          <span class="a-name">Next Lap</span>
+        </button>
+        <button class="action-btn pitting" onclick="togglePitting()" id="btn-pitting">
+          <span class="a-key" id="key-pitting">F3</span>
+          <span class="a-icon" id="pit-icon">🔧</span>
+          <span class="a-name" id="pit-label">Pitting</span>
+        </button>
+      </div>
+      <div id="action-notice" style="display:none;font-size:10px;color:var(--muted);text-align:center;margin-top:8px;padding:6px;background:var(--surface);border:1px solid var(--border);border-radius:4px;"></div>
     </div>
 
   </div>
@@ -527,9 +425,8 @@
 <div id="dp-toast"></div>
 
 <script>
-  const API_URL = "https://joe-stem-comparison-korean.trycloudflare.com";
-  const CLIENT_ID    = "1467595519718195473";
-  const REQUIRED_ROLE = "1464790972679454903";
+  const API_URL       = "https://joe-stem-comparison-korean.trycloudflare.com";
+  const CLIENT_ID     = "1467595519718195473";
   const REDIRECT_URI  = encodeURIComponent(window.location.origin + "/");
   const DISCORD_OAUTH = `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=identify`;
 
@@ -555,45 +452,44 @@
 
   const DRIVERS = [
     { name: "SANDRIK",     number: "109", callsign: "ES-109"  },
-    { name: "ACHILLES",    number: "15", callsign: "NC-15"   },
-    { name: "AUBRN",       number: "18", callsign: "VAS-18"  },
-    { name: "BRYAN",       number: "87", callsign: "VSE-87"  },
-    { name: "CHASE",       number: "09", callsign: "CH-09"   },
-    { name: "CODA",        number: "07", callsign: "MPS-56"  },
-    { name: "CONTRAPTION", number: "33", callsign: "CON-33"  },
-    { name: "LAMAR",       number: "44", callsign: "LMR-44"  },
-    { name: "NBOUCH",      number: "12", callsign: "RB-12"   },
-    { name: "NOJO",        number: "55", callsign: "NJ-55"   },
-    { name: "PETER",       number: "86", callsign: "NC-86"   },
-    { name: "QUAH",        number: "28", callsign: "LTS-28"  },
-    { name: "SETH",        number: "01", callsign: "VAS-01"  },
-    { name: "SHADOW",      number: "48", callsign: "ST-48"   },
-    { name: "SUPA",        number: "66", callsign: "SUP-66"  },
-    { name: "SWEATER",     number: "31", callsign: "APX-31"  },
-    { name: "UNLIMITED",   number: "99", callsign: "UNL-99"  },
+    { name: "ACHILLES",    number: "15",  callsign: "NC-15"   },
+    { name: "AUBRN",       number: "18",  callsign: "VAS-18"  },
+    { name: "BRYAN",       number: "87",  callsign: "VSE-87"  },
+    { name: "CHASE",       number: "09",  callsign: "CH-09"   },
+    { name: "CODA",        number: "07",  callsign: "MPS-56"  },
+    { name: "CONTRAPTION", number: "33",  callsign: "CON-33"  },
+    { name: "LAMAR",       number: "44",  callsign: "LMR-44"  },
+    { name: "NBOUCH",      number: "12",  callsign: "RB-12"   },
+    { name: "NOJO",        number: "55",  callsign: "NJ-55"   },
+    { name: "PETER",       number: "86",  callsign: "NC-86"   },
+    { name: "QUAH",        number: "28",  callsign: "LTS-28"  },
+    { name: "SETH",        number: "01",  callsign: "VAS-01"  },
+    { name: "SHADOW",      number: "48",  callsign: "ST-48"   },
+    { name: "SUPA",        number: "66",  callsign: "SUP-66"  },
+    { name: "SWEATER",     number: "31",  callsign: "APX-31"  },
+    { name: "UNLIMITED",   number: "99",  callsign: "UNL-99"  },
   ].sort((a, b) => parseInt(a.number) - parseInt(b.number));
 
   const FLAG_NOTIFS = {
-    green:      { emoji:"🟢", title:"Green Flag",          sub:"Green flag — all clear, race on!",             color:"green",  sound:"GreenFlag.mp4" },
-    yellow:     { emoji:"🟡", title:"Yellow Flag",         sub:"Caution — no overtaking.",                     color:"yellow", sound:"YellowFlag.mp4" },
-    fcy:        { emoji:"🟡", title:"Full Course Yellow",  sub:"Full Course Yellow — slow down.",              color:"yellow", sound:"FullCourseYellow.mp4" },
-    red:        { emoji:"🔴", title:"Red Flag",            sub:"Red flag — stop immediately, return to pits.", color:"red",    sound:"RedFlag.mp4" },
-    blue:       { emoji:"🔵", title:"Blue Flag",           sub:"Blue flag — let the leaders past.",            color:"blue",   sound:"LappedCars.mp4" },
-    safety_car: { emoji:"🟠", title:"Safety Car",          sub:"Safety car deployed — hold position.",         color:"orange", sound:"SCDeployed.mp4" },
-    sc_ending:  { emoji:"🟠", title:"Safety Car Ending",   sub:"Safety car coming in — prepare for restart.", color:"orange", sound:"SCEnding.mp4" },
-    sc_speedup: { emoji:"🟠", title:"Speed Up",            sub:"Safety car speeding up — get ready.",         color:"orange", sound:"SCSpeedup.mp4" },
-    sfl:        { emoji:"🟠", title:"Single File",         sub:"Form single file behind the safety car.",     color:"orange", sound:"SFL.mp4" },
-    checkered:  { emoji:"🏁", title:"Checkered Flag",      sub:"Race over — cool down lap.",                  color:"white",  sound:null },
+    green:      { emoji:"🟢", title:"Green Flag",         color:"green",  sound:"GreenFlag.mp4" },
+    yellow:     { emoji:"🟡", title:"Yellow Flag",        color:"yellow", sound:"YellowFlag.mp4" },
+    fcy:        { emoji:"🟡", title:"Full Course Yellow", color:"yellow", sound:"FullCourseYellow.mp4" },
+    red:        { emoji:"🔴", title:"Red Flag",           color:"red",    sound:"RedFlag.mp4" },
+    blue:       { emoji:"🔵", title:"Blue Flag",          color:"blue",   sound:"LappedCars.mp4" },
+    safety_car: { emoji:"🟠", title:"Safety Car",         color:"orange", sound:"SCDeployed.mp4" },
+    sc_ending:  { emoji:"🟠", title:"Safety Car Ending",  color:"orange", sound:"SCEnding.mp4" },
+    sc_speedup: { emoji:"🟠", title:"Speed Up",           color:"orange", sound:"SCSpeedup.mp4" },
+    sfl:        { emoji:"🟠", title:"Single File",        color:"orange", sound:"SFL.mp4" },
+    checkered:  { emoji:"🏁", title:"Checkered Flag",     color:"white",  sound:"CheckeredFlag.mp4" },
   };
 
   let user       = null;
-  let driverInfo = null; // { name, number, callsign }
+  let driverInfo = null;
   let isEngineer = false;
   let toastTimer;
 
-
-
-
+  // ── Flag polling state ──────────────────────────────────────────────────
+  let _lastFlagTimestamp = null;
 
   const _params = new URLSearchParams(location.search);
   const _code   = _params.get("code");
@@ -617,9 +513,7 @@
     }
   })();
 
-  function loginWithDiscord() {
-    window.location.href = DISCORD_OAUTH;
-  }
+  function loginWithDiscord() { window.location.href = DISCORD_OAUTH; }
 
   async function exchangeCode(code) {
     document.getElementById("login-error").textContent = "Verifying...";
@@ -630,17 +524,11 @@
         body: JSON.stringify({ code, redirectUri: window.location.origin + "/" }),
       });
       const data = await res.json();
-
       if (res.status === 403) {
-        if (data.disabled) {
-          document.getElementById("login-error").textContent = "🚫 " + data.error;
-        } else {
-          document.getElementById("login-error").textContent = "❌ " + (data.error || "Access denied.");
-        }
+        document.getElementById("login-error").textContent = "🚫 " + (data.error || "Access denied.");
         return;
       }
       if (!res.ok) throw new Error(data.error || "Auth failed");
-
       user = data.user;
       sessionStorage.setItem("rc_driver_user", JSON.stringify(user));
       showRoleScreen();
@@ -661,12 +549,7 @@
     const autoDriver = DRIVER_DISCORD_IDS[user.id];
     if (autoDriver) {
       const driver = DRIVERS.find(d => d.name === autoDriver);
-      if (driver) {
-        isEngineer = false;
-        driverInfo = driver;
-        launchPanel();
-        return;
-      }
+      if (driver) { isEngineer = false; driverInfo = driver; launchPanel(); return; }
     }
 
     document.getElementById("role-avatar").src = user.avatar
@@ -675,45 +558,30 @@
     document.getElementById("role-username").textContent = user.username;
 
     document.querySelectorAll(".role-btn").forEach(btn => {
-      if (btn.getAttribute("onclick") && btn.getAttribute("onclick").includes("racer")) {
-        btn.style.display = "none";
-      }
+      if (btn.getAttribute("onclick")?.includes("racer")) btn.style.display = "none";
     });
-
     const title = document.querySelector("#screen-role .card-title");
     if (title) title.textContent = "You are joining as an Engineer";
-
     showScreen("screen-role");
   }
 
   function selectRole(role) {
     document.getElementById("role-error").textContent = "";
-    if (role === "engineer") {
-      isEngineer = true;
-      showScreen("screen-engineer");
-    } else {
-      isEngineer = false;
-      renderDriverSelectList(DRIVERS);
-      showScreen("screen-driver-select");
-    }
+    if (role === "engineer") { isEngineer = true; showScreen("screen-engineer"); }
+    else { isEngineer = false; renderDriverSelectList(DRIVERS); showScreen("screen-driver-select"); }
   }
 
   function confirmEngineer() {
     const input = document.getElementById("engineer-driver-input").value.trim().toUpperCase();
     const driver = DRIVERS.find(d => d.name === input);
-    if (!driver) {
-      document.getElementById("engineer-error").textContent = `❌ Driver "${input}" not found.`;
-      return;
-    }
+    if (!driver) { document.getElementById("engineer-error").textContent = `❌ Driver "${input}" not found.`; return; }
     driverInfo = driver;
     launchPanel();
   }
 
   function filterDriverSelect() {
     const q = document.getElementById("driver-search-input").value.toLowerCase();
-    renderDriverSelectList(DRIVERS.filter(d =>
-      d.name.toLowerCase().includes(q) || d.callsign.toLowerCase().includes(q)
-    ));
+    renderDriverSelectList(DRIVERS.filter(d => d.name.toLowerCase().includes(q) || d.callsign.toLowerCase().includes(q)));
   }
 
   function renderDriverSelectList(drivers) {
@@ -730,10 +598,7 @@
     `).join("");
   }
 
-  function selectDriver(name) {
-    driverInfo = DRIVERS.find(d => d.name === name);
-    launchPanel();
-  }
+  function selectDriver(name) { driverInfo = DRIVERS.find(d => d.name === name); launchPanel(); }
 
   function launchPanel() {
     document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
@@ -747,38 +612,46 @@
     document.getElementById("dp-drivernum").textContent  = `#${driverInfo.number}`;
     if (isEngineer) document.getElementById("dp-engineer-badge").style.display = "block";
 
+    // Poll race state every 3 seconds (flag detection included)
     pollRaceState();
-    setInterval(pollRaceState, 5000);
-
-    // Connect SSE for real-time flag notifications and audio
-    connectSSE();
+    setInterval(pollRaceState, 3000);
   }
 
   let _raceState = null;
 
   async function pollRaceState() {
     try {
-      const statusRes = await fetch(`${API_URL}/panel-status`);
+      const statusRes  = await fetch(`${API_URL}/panel-status`);
       const statusData = await statusRes.json();
-      if (!statusData.driver) { showScreen("screen-maintenance"); document.getElementById("driver-panel").style.display = "none"; return; }
+      if (!statusData.driver) {
+        showScreen("screen-maintenance");
+        document.getElementById("driver-panel").style.display = "none";
+        return;
+      }
 
       const headers = user ? { "x-discord-id": user.id } : {};
       const res  = await fetch(`${API_URL}/driver/state`, { headers });
       if (res.status === 403) {
         const data = await res.json();
-        if (data.blacklisted) {
-          kickToBlacklisted();
-          return;
-        }
+        if (data.blacklisted) { kickToBlacklisted(); return; }
       }
       const data = await res.json();
-      if (res.ok) { _raceState = data; renderRaceState(data); }
+      if (!res.ok) return;
+
+      _raceState = data;
+      renderRaceState(data);
+
+      // ── Flag detection via polling ──────────────────────────────────
+      if (data.currentFlag && data.currentFlag.timestamp !== _lastFlagTimestamp) {
+        _lastFlagTimestamp = data.currentFlag.timestamp;
+        showFlagNotification(data.currentFlag.flag);
+      }
+
     } catch {}
   }
 
   function kickToBlacklisted() {
     sessionStorage.removeItem("rc_driver_user");
-
     document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
     document.getElementById("driver-panel").style.display = "none";
 
@@ -789,25 +662,17 @@
     screen.id        = "screen-blacklisted";
     screen.className = "screen active";
     screen.innerHTML = `
-      <div style="width:100%;max-width:340px;background:rgba(120,0,0,0.15);border:1.5px solid #ff1744;border-radius:10px;box-shadow:0 0 24px rgba(255,23,68,0.25),0 0 60px rgba(255,23,68,0.08);padding:24px 20px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;">
+      <div style="width:100%;max-width:340px;background:rgba(120,0,0,0.15);border:1.5px solid #ff1744;border-radius:10px;padding:24px 20px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;">
         <div style="font-size:28px;">🚫</div>
-        <div style="font-family:'Oxanium',sans-serif;font-size:20px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#ff1744;">Blacklisted 🚫</div>
-        <div style="font-family:'Oxanium',sans-serif;font-size:12px;color:rgba(255,255,255,0.6);line-height:1.6;">
-          Hello <strong style="color:#fff;">${driverInfo?.name || user?.username || "Driver"}</strong>, you have been blacklisted from the Race Control panel.
-        </div>
-        <div style="width:100%;height:1px;background:rgba(255,23,68,0.25);"></div>
-        <a href="https://discord.com/channels/1464788232263700687/1464969879332454551/1501393292313624586" target="_blank" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;background:#5865F2;color:#fff;font-family:'Oxanium',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;text-decoration:none;padding:11px 16px;border-radius:5px;">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
-          Appeal here
-        </a>
+        <div style="font-size:20px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#ff1744;">Blacklisted</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.6);line-height:1.6;">You have been blacklisted from the Race Control panel.</div>
       </div>`;
     document.body.appendChild(screen);
   }
 
   function setButtonsDisabled(disabled, reason) {
-    const actions = ["blue_flag", "next_lap", "pitting", "in_race"];
-    actions.forEach(a => {
-      const btn = document.getElementById(`btn-${a.replace(/_/g, "-")}`);
+    ["blue-flag", "next-lap", "pitting"].forEach(id => {
+      const btn = document.getElementById(`btn-${id}`);
       if (!btn) return;
       btn.disabled      = disabled;
       btn.style.opacity = disabled ? "0.35" : "1";
@@ -826,11 +691,8 @@
       return;
     }
 
-    if (!data.raceStarted) {
-      setButtonsDisabled(true, "⏳ Waiting for marshal to start the race...");
-    } else {
-      setButtonsDisabled(false, "");
-    }
+    if (!data.raceStarted) setButtonsDisabled(true, "⏳ Waiting for marshal to start the race...");
+    else setButtonsDisabled(false, "");
 
     const pill = document.getElementById("race-status-pill");
     pill.className = "race-status-pill";
@@ -847,8 +709,8 @@
     }
 
     lb.innerHTML = data.drivers.map((d, i) => {
-      const pos   = i + 1;
-      const isMe  = d.name === driverInfo?.name;
+      const pos = i + 1;
+      const isMe = d.name === driverInfo?.name;
       const posClass = pos === 1 ? "p1" : pos === 2 ? "p2" : pos === 3 ? "p3" : "";
       return `
         <div class="lb-row ${isMe ? "is-me" : ""}" style="${d.inPits ? "border-color:rgba(255,214,0,0.5);background:rgba(255,214,0,0.06);box-shadow:0 0 8px rgba(255,214,0,0.1);" : ""}">
@@ -864,17 +726,47 @@
               ? `<div class="lb-pits">PIT${data.mandatoryPits > 0 ? ` (${d.pitCount||0}/${data.mandatoryPits})` : ""}</div>`
               : `<div class="lb-gap">${pos === 1 ? "Leader" : d.gap || "–"}</div>`
             }
-            ${data.mandatoryPits > 0 && !d.inPits && (d.pitCount||0) >= data.mandatoryPits
-              ? `<div style="font-size:8px;color:#00e676;">✓ Pitted</div>`
-              : data.mandatoryPits > 0 && !d.inPits
-              ? `<div style="font-size:8px;color:#ff6d00;">${d.pitCount||0}/${data.mandatoryPits} pits</div>`
-              : ""
-            }
           </div>
         </div>`;
     }).join("");
   }
 
+  // ── Flag notification ──────────────────────────────────────────────────
+  function showFlagNotification(flag) {
+    const def = FLAG_NOTIFS[flag];
+    if (!def) return;
+
+    const colors = {
+      green:  { bg:"rgba(0,230,118,0.08)",  border:"rgba(0,230,118,0.6)",  text:"#00e676", glow:"rgba(0,230,118,0.2)" },
+      yellow: { bg:"rgba(255,214,0,0.08)",  border:"rgba(255,214,0,0.6)",  text:"#ffd600", glow:"rgba(255,214,0,0.2)" },
+      red:    { bg:"rgba(255,23,68,0.08)",   border:"rgba(255,23,68,0.6)",  text:"#ff1744", glow:"rgba(255,23,68,0.2)" },
+      blue:   { bg:"rgba(41,121,255,0.08)",  border:"rgba(41,121,255,0.6)", text:"#2979ff", glow:"rgba(41,121,255,0.2)" },
+      orange: { bg:"rgba(255,109,0,0.08)",   border:"rgba(255,109,0,0.6)",  text:"#ff6d00", glow:"rgba(255,109,0,0.2)" },
+      white:  { bg:"rgba(255,255,255,0.05)", border:"rgba(255,255,255,0.5)",text:"#ffffff", glow:"rgba(255,255,255,0.1)" },
+    };
+    const c = colors[def.color] || colors.white;
+
+    const section   = document.getElementById("flag-notif-section");
+    const container = document.getElementById("flag-notification");
+    if (!section || !container) return;
+
+    section.style.display = "block";
+    container.innerHTML = `
+      <div style="display:flex;align-items:center;gap:14px;padding:14px 16px;background:${c.bg};border:1.5px solid ${c.border};border-radius:10px;box-shadow:0 0 30px ${c.glow};animation:flagSlideIn 0.4s cubic-bezier(0.34,1.56,0.64,1);">
+        <span style="font-size:36px;line-height:1;flex-shrink:0;">${def.emoji}</span>
+        <div>
+          <div style="font-size:18px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:${c.text};">${def.title}</div>
+        </div>
+      </div>`;
+
+    if (def.sound) {
+      const audio = new Audio(`${API_URL}/sounds/${def.sound}`);
+      audio.volume = 1.0;
+      audio.play().catch(() => {});
+    }
+  }
+
+  // ── Action buttons ──────────────────────────────────────────────────────
   let inPits = false;
 
   function togglePitting() {
@@ -884,15 +776,15 @@
     const label = document.getElementById("pit-label");
 
     if (inPits) {
-      icon.textContent  = "🔧";
-      label.textContent = "In Pits";
+      icon.textContent       = "🔧";
+      label.textContent      = "In Pits";
       btn.style.borderColor  = "rgba(255,214,0,0.6)";
       btn.style.background   = "rgba(255,214,0,0.12)";
       btn.style.color        = "#ffd600";
       sendAction("pitting");
     } else {
-      icon.textContent  = "🔧";
-      label.textContent = "Pitting";
+      icon.textContent       = "🔧";
+      label.textContent      = "Pitting";
       btn.style.borderColor  = "";
       btn.style.background   = "";
       btn.style.color        = "";
@@ -909,14 +801,11 @@
     const btnId = `btn-${action.replace(/_/g, "-")}`;
     const btn   = document.getElementById(btnId);
     if (!btn) return;
-
     btn.disabled = true;
-    const original = btn.querySelector(".a-name")?.textContent || action;
     const nameEl   = btn.querySelector(".a-name");
-
+    const original = nameEl?.textContent || action;
     clearInterval(cooldownTimers[action]);
     const end = Date.now() + ms;
-
     cooldownTimers[action] = setInterval(() => {
       const remaining = Math.ceil((end - Date.now()) / 1000);
       if (remaining <= 0) {
@@ -932,23 +821,13 @@
   }
 
   function startAllButtonsCooldown(ms) {
-    ["blue_flag", "next_lap", "pitting", "in_race"].forEach(a => startButtonCooldown(a, ms));
+    ["blue_flag", "next_lap", "pitting"].forEach(a => startButtonCooldown(a, ms));
   }
 
   async function sendAction(action) {
     const now = Date.now();
-
-    if (now < globalCooldownUntil) {
-      const rem = Math.ceil((globalCooldownUntil - now) / 1000);
-      dpToast(`⏳ Wait ${rem}s`, "err");
-      return;
-    }
-
-    if (action === "next_lap" && lapCooldownUntil > now) {
-      const rem = Math.ceil((lapCooldownUntil - now) / 1000);
-      dpToast(`⏳ Next lap available in ${rem}s`, "err");
-      return;
-    }
+    if (now < globalCooldownUntil) { dpToast(`⏳ Wait ${Math.ceil((globalCooldownUntil - now) / 1000)}s`, "err"); return; }
+    if (action === "next_lap" && lapCooldownUntil > now) { dpToast(`⏳ Next lap in ${Math.ceil((lapCooldownUntil - now) / 1000)}s`, "err"); return; }
 
     const btn = document.getElementById(`btn-${action.replace(/_/g, "-")}`);
     if (btn) { btn.classList.add("active-state"); setTimeout(() => btn.classList.remove("active-state"), 300); }
@@ -970,18 +849,14 @@
       const data = await res.json();
       if (res.ok) {
         dpToast(`✓ ${actionLabel(action)} sent`, "ok");
-
         globalCooldownUntil = now + GLOBAL_COOLDOWN_MS;
         startAllButtonsCooldown(GLOBAL_COOLDOWN_MS);
-
         if (action === "next_lap" && _raceState?.lapIntervalSeconds > 0) {
           const lapMs = _raceState.lapIntervalSeconds * 1000;
           lapCooldownUntil = now + lapMs;
           if (lapMs > GLOBAL_COOLDOWN_MS) startButtonCooldown("next_lap", lapMs);
         }
-      } else {
-        dpToast(`✗ ${data.error}`, "err");
-      }
+      } else { dpToast(`✗ ${data.error}`, "err"); }
     } catch { dpToast("✗ Bot unreachable", "err"); }
   }
 
@@ -989,94 +864,8 @@
     return { blue_flag:"Blue Flag Request", next_lap:"Next Lap", pitting:"Pitting", in_race:"Back on Track" }[a] || a;
   }
 
-  
-
-  
-
-  
-
   function popoutLeaderboard() {
     window.open(location.href + "?leaderboard", "Leaderboard", "width=300,height=500,resizable=yes");
-  }
-
-  // ── Flag definitions ─────────────────────────────────────────────────────
-  
-
-  // ── SSE Connection ────────────────────────────────────────────────────────
-  let _sseSource = null;
-
-  function connectSSE() {
-    if (_sseSource) { _sseSource.close(); _sseSource = null; }
-    console.log("[SSE] Connecting to", API_URL + "/events");
-
-    const src = new EventSource(`${API_URL}/events`);
-
-src.addEventListener("flag", (e) => {   // ← was "message"
-  console.log("[SSE] Flag received:", e.data);
-  try {
-    const data = JSON.parse(e.data);
-    if (data.type === "flag") showFlagNotification(data.flag);
-  } catch(err) { console.error("[SSE] Parse error:", err); }
-});
-
-    src.addEventListener("open", () => {
-      console.log("[SSE] Connected!");
-    });
-
-    src.addEventListener("error", (e) => {
-      console.warn("[SSE] Error, reconnecting in 3s...", e);
-      src.close();
-      _sseSource = null;
-      setTimeout(connectSSE, 3000);
-    });
-
-    _sseSource = src;
-  }
-
-  // ── Flag notification ─────────────────────────────────────────────────────
-  function showFlagNotification(flag) {
-    const def = FLAG_NOTIFS[flag];
-    if (!def) return;
-
-    const container = document.getElementById("flag-notification");
-    if (!container) return;
-
-    const colors = {
-      green:  { bg:"rgba(0,230,118,0.08)",  border:"rgba(0,230,118,0.6)",  text:"#00e676", glow:"rgba(0,230,118,0.2)" },
-      yellow: { bg:"rgba(255,214,0,0.08)",  border:"rgba(255,214,0,0.6)",  text:"#ffd600", glow:"rgba(255,214,0,0.2)" },
-      red:    { bg:"rgba(255,23,68,0.08)",   border:"rgba(255,23,68,0.6)",  text:"#ff1744", glow:"rgba(255,23,68,0.2)" },
-      blue:   { bg:"rgba(41,121,255,0.08)",  border:"rgba(41,121,255,0.6)", text:"#2979ff", glow:"rgba(41,121,255,0.2)" },
-      orange: { bg:"rgba(255,109,0,0.08)",   border:"rgba(255,109,0,0.6)",  text:"#ff6d00", glow:"rgba(255,109,0,0.2)" },
-      white:  { bg:"rgba(255,255,255,0.05)", border:"rgba(255,255,255,0.5)",text:"#ffffff", glow:"rgba(255,255,255,0.1)" },
-    };
-    const c = colors[def.color] || colors.white;
-
-    // Show the section
-    const section = document.getElementById("flag-notif-section");
-    if (section) section.style.display = "block";
-
-    container.innerHTML = `
-      <div style="
-        display:flex;align-items:center;gap:14px;
-        padding:14px 16px;
-        background:${c.bg};
-        border:1.5px solid ${c.border};
-        border-radius:10px;
-        box-shadow:0 0 30px ${c.glow};
-        animation:flagSlideIn 0.4s cubic-bezier(0.34,1.56,0.64,1);
-      ">
-        <span style="font-size:36px;line-height:1;flex-shrink:0;">${def.emoji}</span>
-        <div>
-          <div style="font-size:18px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:${c.text};">${def.title}</div>
-          
-        </div>
-      </div>`;
-
-    if (def.sound) {
-      const audio = new Audio(`${API_URL}/sounds/${def.sound}`);
-      audio.volume = 1.0;
-      audio.play().catch(() => {});
-    }
   }
 
   function dpToast(msg, type = "") {
