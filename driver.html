@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>RaceLeague — Driver Panel</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏁</text></svg>" />
-  <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -40,6 +40,7 @@
       justify-content: center;
       padding: 24px;
       gap: 14px;
+      overflow-y: auto;
     }
     .screen.active { display: flex; }
 
@@ -131,6 +132,14 @@
     .error-text { font-size: 11px; color: var(--red); text-align: center; min-height: 16px; }
     .info-text  { font-size: 10px; color: var(--muted); text-align: center; line-height: 1.5; }
 
+    .quiet-link {
+      font-family: 'Oxanium', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1px;
+      text-transform: uppercase; color: var(--muted); background: var(--surface);
+      border: 1px solid var(--border); padding: 6px 12px; border-radius: 4px; text-decoration: none;
+      cursor: pointer;
+    }
+    .quiet-link:hover { color: var(--text); border-color: var(--blue); }
+
     #driver-panel {
       display: none;
       flex-direction: column;
@@ -147,6 +156,8 @@
       position: sticky;
       top: 0;
       z-index: 10;
+      gap: 10px;
+      flex-wrap: wrap;
     }
 
     .header-left { display: flex; align-items: center; gap: 10px; }
@@ -183,7 +194,15 @@
     .race-status-pill.yellow { border-color: rgba(255,214,0,0.4); color: var(--yellow); background: rgba(255,214,0,0.08); }
     .race-status-pill.red    { border-color: rgba(255,23,68,0.4);  color: var(--red);    background: rgba(255,23,68,0.08); }
 
-    .panel-body { padding: 12px; display: flex; flex-direction: column; gap: 12px; }
+    .style-toggle {
+      display: flex; align-items: center; gap: 6px; font-size: 9px; letter-spacing: 1px;
+      text-transform: uppercase; color: var(--muted); background: var(--bg); border: 1px solid var(--border);
+      border-radius: 20px; padding: 3px 4px; cursor: pointer; font-family: 'Oxanium', sans-serif; user-select: none;
+    }
+    .style-toggle span { padding: 3px 8px; border-radius: 16px; transition: background .15s, color .15s; }
+    .style-toggle span.active { background: rgba(41,121,255,0.18); color: var(--text); }
+
+    .panel-body { padding: 12px; display: flex; flex-direction: column; gap: 12px; max-width: 480px; margin: 0 auto; width: 100%; }
 
     .section-title {
       font-size: 9px;
@@ -196,6 +215,7 @@
       justify-content: space-between;
     }
 
+    /* ── Legacy leaderboard ─────────────────────────────────────────── */
     .leaderboard { display: flex; flex-direction: column; gap: 4px; }
 
     .lb-row {
@@ -231,6 +251,7 @@
     .lb-gap  { font-size: 9px; color: var(--muted); }
     .lb-pits { font-size: 9px; color: var(--orange); font-weight: 700; }
 
+    /* ── Legacy actions ──────────────────────────────────────────────── */
     .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 
     .action-btn {
@@ -244,7 +265,6 @@
     .action-btn:active { transform: scale(0.95); }
     .action-btn .a-icon { font-size: 20px; line-height: 1; }
     .action-btn .a-name { font-size: 10px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; text-align: center; }
-    .action-btn .a-key  { position: absolute; top: 6px; right: 8px; font-size: 9px; color: var(--muted); background: var(--border); padding: 1px 5px; border-radius: 3px; }
 
     .action-btn.blue-flag:hover { border-color: var(--blue);   background: rgba(41,121,255,0.08); }
     .action-btn.next-lap:hover  { border-color: var(--green);  background: rgba(0,230,118,0.08); }
@@ -254,6 +274,105 @@
     @keyframes action-pop { 0%{transform:scale(1)} 40%{transform:scale(0.9)} 100%{transform:scale(1)} }
 
     @keyframes flagSlideIn { from { transform:translateY(-12px); opacity:0; } to { transform:translateY(0); opacity:1; } }
+
+    /* ── Modern components (ported from the desktop app) ───────────── */
+    .rc-chev-nav { display:flex; gap:0; margin-bottom:10px; }
+    .rc-chev-nav button {
+      flex:1; padding:8px; border:none; background:var(--surface); color:var(--muted);
+      font-family:'Oxanium',sans-serif; font-size:10px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase;
+      cursor:pointer; border-bottom:2px solid var(--border);
+    }
+    .rc-chev-nav button.active { color:var(--text); border-bottom-color:var(--red); background:rgba(255,23,68,0.06); }
+
+    .d-tab-panel { display:none; }
+    .d-tab-panel.active { display:block; }
+
+    .rc-block-title { font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin:12px 0 8px; }
+    .rc-block-title:first-child { margin-top: 0; }
+    .rc-block-grid { display:grid; grid-template-columns:1fr 1fr; gap:7px; margin-bottom:7px; }
+    .rc-action-block {
+      position:relative; overflow:hidden;
+      display:flex; align-items:center; gap:9px; padding:12px;
+      background:var(--surface); border:2px solid var(--border); cursor:pointer;
+      clip-path: polygon(0 0, 100% 0, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+      transition:.12s; color:var(--text); font-family:'Oxanium',sans-serif;
+    }
+    .rc-action-block:active { transform:scale(.97); }
+    .rc-action-block.primary { grid-column:span 2; border-color:var(--blue); background:rgba(41,121,255,.07); }
+    .rc-action-block .ai { font-size:18px; }
+    .rc-action-block .al { font-size:10px; font-weight:800; letter-spacing:.5px; text-transform:uppercase; }
+    .rc-action-block.pit-active { border-color:var(--yellow); background:rgba(255,214,0,.08); }
+    .rc-action-block.fired { animation: btnPop 0.25s ease; }
+    .rc-action-block:disabled { opacity:.35; cursor:not-allowed; pointer-events:none; }
+    @keyframes btnPop { 0%{transform:scale(1)} 40%{transform:scale(0.9)} 100%{transform:scale(1)} }
+
+    .rc-nearby-row { display:flex; align-items:center; gap:9px; padding:8px 10px; background:var(--surface); border:2px solid var(--border); margin-bottom:6px;
+      clip-path: polygon(0 0, 100% 0, 100% 100%, 10px 100%, 0 calc(100% - 10px)); }
+    .rc-nearby-row.ahead { border-color:rgba(0,230,118,.4); }
+    .rc-nearby-row.behind { border-color:rgba(255,23,68,.4); }
+    .rc-nearby-row.you { border-color:var(--blue); background:rgba(41,121,255,.08); }
+    .rc-nr-arrow { font-size:12px; width:16px; text-align:center; flex-shrink:0; }
+    .rc-nearby-row.ahead .rc-nr-arrow { color:var(--green); }
+    .rc-nearby-row.behind .rc-nr-arrow { color:var(--red); }
+    .rc-nearby-row.you .rc-nr-arrow { color:var(--blue); }
+    .rc-nr-pos { font-weight:900; width:18px; text-align:center; color:var(--muted); font-size:12px; }
+    .rc-nr-num { width:24px; height:24px; background:rgba(255,255,255,.05); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:8px; font-weight:900; flex-shrink:0; }
+    .rc-nr-body { flex:1; min-width:0; }
+    .rc-nr-name { font-size:10px; font-weight:800; letter-spacing:.3px; }
+    .rc-nr-call { font-size:8px; color:var(--muted); }
+    .rc-nr-gap { font-size:10px; font-weight:800; text-align:right; }
+    .rc-nearby-row.pitting { border-color: rgba(255,214,0,0.5); background: rgba(255,214,0,0.06); }
+    .rc-nr-num.pitting { background: rgba(255,214,0,0.15); border-color: rgba(255,214,0,0.6); color: var(--yellow); }
+    .rc-nr-pit-badge {
+      font-size: 7px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase;
+      padding: 1px 5px; border-radius: 3px; background: rgba(255,214,0,0.12);
+      border: 1px solid rgba(255,214,0,0.35); color: var(--yellow); margin-top: 2px; display: inline-block;
+    }
+
+    .rc-field-divider { display:flex; align-items:center; gap:8px; margin:10px 0 8px; }
+    .rc-field-divider .ln { flex:1; height:1px; background:var(--border); }
+    .rc-field-divider span { font-size:8px; letter-spacing:2px; color:var(--muted); text-transform:uppercase; }
+
+    .f-row {
+      display:flex; align-items:center; gap:9px;
+      padding:8px 10px; margin-bottom:6px;
+      background:var(--surface); border:2px solid var(--border);
+      clip-path: polygon(0 0, 100% 0, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+    }
+    .f-row:last-child { margin-bottom:0; }
+    .f-row.you { border-color:var(--blue); background:rgba(41,121,255,.06); }
+    .f-row.dnf { opacity:.4; filter:grayscale(.6); }
+    .f-row.pitting { border-color: rgba(255,214,0,0.5); background: rgba(255,214,0,0.05); }
+
+    .f-pos { font-weight:900; width:20px; text-align:center; color:var(--muted); font-size:13px; }
+    .f-pos.p1 { color:var(--yellow); }
+    .f-pos.p2 { color:#c0c0c0; }
+    .f-pos.p3 { color:#cd7f32; }
+
+    .f-num {
+      width:26px; height:26px; flex-shrink:0;
+      background:rgba(255,255,255,.05); border:1px solid var(--border);
+      display:flex; align-items:center; justify-content:center;
+      font-size:9px; font-weight:900;
+    }
+    .f-num.pitting { background: rgba(255,214,0,0.15); border-color: rgba(255,214,0,0.6); color: var(--yellow); }
+
+    .f-body { flex:1; min-width:0; }
+    .f-name { font-size:11px; font-weight:800; letter-spacing:.3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .f-call { font-size:8px; color:var(--muted); letter-spacing:.5px; margin-top:1px; }
+
+    .f-lap { font-size:10px; font-weight:800; text-align:right; }
+    .f-lap.finished { color:var(--green); }
+    .f-lap.dnf-text { color:var(--red); }
+    .f-gap { font-size:8px; color:var(--muted); text-align:right; margin-top:1px; }
+
+    .f-pit-badge {
+      font-size: 7px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase;
+      padding: 1px 5px; border-radius: 3px; background: rgba(255,214,0,0.12);
+      border: 1px solid rgba(255,214,0,0.35); color: var(--yellow); margin-top: 2px; display: inline-block;
+    }
+
+    .rc-you-pin { position: sticky; top: 0; z-index: 5; background: var(--bg); padding-bottom: 6px; }
 
     #dp-toast {
       position: fixed; bottom: 16px; left: 50%;
@@ -274,6 +393,33 @@
       border-radius: 4px; padding: 2px 7px; cursor: pointer; font-family: 'Oxanium', sans-serif;
     }
     #lb-popout-btn:hover { color: var(--text); }
+
+    /* ── Spectate screen ─────────────────────────────────────────────── */
+    #screen-spectate .scroll-body { width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 12px; }
+    .status-row { display:flex; align-items:center; justify-content:space-between; }
+    .flex-row-gap-6 { display:flex; align-items:center; gap:6px; }
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); }
+    .status-dot.live { background: var(--green); box-shadow: 0 0 6px var(--green); }
+    .text-muted-sm { font-size: 10px; color: var(--muted); }
+
+    .sp-row {
+      display: flex; flex-direction: column;
+      border: 1px solid var(--border); border-radius: var(--radius);
+      margin-bottom: 6px; overflow: hidden; cursor: pointer; transition: border-color .15s;
+      background: var(--surface);
+    }
+    .sp-row.expanded { border-color: var(--blue); }
+    .sp-row-head { display: flex; align-items: center; gap: 8px; padding: 8px 10px; }
+    .sp-chevron { font-size: 9px; color: var(--muted); transition: transform .2s; flex-shrink: 0; }
+    .sp-row.expanded .sp-chevron { transform: rotate(180deg); color: var(--blue); }
+    .sp-details { display: none; flex-direction: column; gap: 6px; padding: 10px 12px 12px; background: var(--bg); border-top: 1px solid var(--border); font-size: 10px; }
+    .sp-row.expanded .sp-details { display: flex; }
+    .sp-detail-line { display: flex; align-items: center; gap: 6px; }
+    .sp-detail-icon { font-size: 12px; flex-shrink: 0; }
+    .sp-detail-text { color: var(--text); }
+    .sp-detail-sub { color: var(--muted); font-size: 9px; }
+    .sp-bestlap { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 6px; background: rgba(255,214,0,0.08); border: 1px solid rgba(255,214,0,0.3); }
+    .sp-bestlap-badge { width: 22px; height: 22px; border-radius: 50%; background: rgba(255,214,0,0.15); border: 1px solid var(--yellow); display: flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0; }
   </style>
 </head>
 <body>
@@ -291,8 +437,9 @@
 
 <!-- Screen 1: Discord Login -->
 <div class="screen active" id="screen-login">
-  <div style="position:fixed;top:14px;right:14px;">
-    <a href="/marshal" style="font-family:'Oxanium',sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);background:var(--surface);border:1px solid var(--border);padding:6px 12px;border-radius:4px;text-decoration:none;" onmouseover="this.style.color='var(--text)';this.style.borderColor='var(--blue)'" onmouseout="this.style.color='var(--muted)';this.style.borderColor='var(--border)'">Marshal Login →</a>
+  <div style="position:fixed;top:14px;right:14px;display:flex;gap:8px;">
+    <a href="#" class="quiet-link" onclick="launchSpectate();return false;">Spectate →</a>
+    <a href="/marshal" class="quiet-link">Marshal Login →</a>
   </div>
   <div class="logo">Race<span>League</span></div>
   <div class="sub">Driver Panel</div>
@@ -360,6 +507,28 @@
   </div>
 </div>
 
+<!-- Screen 5: Spectate (public, no auth) -->
+<div class="screen" id="screen-spectate">
+  <div style="position:fixed;top:14px;right:14px;">
+    <a href="#" class="quiet-link" onclick="exitSpectate();return false;">← Back to login</a>
+  </div>
+  <div class="logo">Race<span>League</span></div>
+  <div class="sub">Spectate</div>
+  <div class="scroll-body">
+    <div class="status-row">
+      <div class="flex-row-gap-6">
+        <div class="status-dot" id="sp-status-dot"></div>
+        <span class="text-muted-sm" id="sp-status-label">Connecting</span>
+      </div>
+      <div id="sp-lap-counter" class="text-muted-sm"></div>
+    </div>
+    <input type="text" id="sp-lb-search" placeholder="Search driver..." oninput="filterSpectateLeaderboard(this.value)" />
+    <div id="sp-leaderboard">
+      <div style="font-size:11px;color:var(--muted);text-align:center;padding:16px;">Waiting for race...</div>
+    </div>
+  </div>
+</div>
+
 <!-- Main Driver Panel -->
 <div id="driver-panel">
   <div class="panel-header">
@@ -373,8 +542,12 @@
       <div id="dp-engineer-badge" style="display:none;font-size:9px;color:var(--muted);background:var(--bg);border:1px solid var(--border);padding:2px 7px;border-radius:10px;">🎧 Engineer</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;">
+      <div class="style-toggle" id="style-toggle" title="Switch panel style">
+        <span id="style-toggle-modern" onclick="setPanelStyle('modern')">Modern</span>
+        <span id="style-toggle-legacy" onclick="setPanelStyle('legacy')">Legacy</span>
+      </div>
       <div class="race-status-pill" id="race-status-pill">● Waiting</div>
-      <a href="/marshal" style="font-family:'Oxanium',sans-serif;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);background:var(--surface);border:1px solid var(--border);padding:4px 10px;border-radius:4px;text-decoration:none;white-space:nowrap;" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--muted)'">Marshal →</a>
+      <a href="/marshal" class="quiet-link" style="padding:4px 10px;font-size:9px;">Marshal →</a>
     </div>
   </div>
 
@@ -385,38 +558,78 @@
       <div id="flag-notification" style="margin-bottom:4px;"></div>
     </div>
 
-    <!-- Leaderboard -->
-    <div>
-      <div class="section-title">
-        <span>Leaderboard</span>
-        <button id="lb-popout-btn" onclick="popoutLeaderboard()">⤢ Pop out</button>
+    <!-- ═══ LEGACY LAYOUT ═══ -->
+    <div id="layout-legacy">
+      <div>
+        <div class="section-title">
+          <span>Leaderboard</span>
+          <button id="lb-popout-btn" onclick="popoutLeaderboard()">⤢ Pop out</button>
+        </div>
+        <div class="leaderboard" id="legacy-leaderboard">
+          <div style="font-size:11px;color:var(--muted);text-align:center;padding:16px;">Waiting for race to start...</div>
+        </div>
       </div>
-      <div class="leaderboard" id="leaderboard">
-        <div style="font-size:11px;color:var(--muted);text-align:center;padding:16px;">Waiting for race to start...</div>
+
+      <div id="legacy-action-section" style="display:none;margin-top:12px;">
+        <div class="section-title"><span>Actions</span></div>
+        <div class="action-grid">
+          <button class="action-btn blue-flag" onclick="sendAction('blue_flag')" id="legacy-btn-blue-flag">
+            <span class="a-icon">🔵</span>
+            <span class="a-name">Blue Flag</span>
+          </button>
+          <button class="action-btn next-lap" onclick="sendAction('next_lap')" id="legacy-btn-next-lap">
+            <span class="a-icon">🏁</span>
+            <span class="a-name">Next Lap</span>
+          </button>
+          <button class="action-btn pitting" onclick="togglePitting()" id="legacy-btn-pitting">
+            <span class="a-icon" id="legacy-pit-icon">🔧</span>
+            <span class="a-name" id="legacy-pit-label">Pitting</span>
+          </button>
+        </div>
+        <div id="legacy-action-notice" style="display:none;font-size:10px;color:var(--muted);text-align:center;margin-top:8px;padding:6px;background:var(--surface);border:1px solid var(--border);border-radius:4px;"></div>
       </div>
     </div>
 
-    <!-- Action buttons (engineer only) -->
-    <div id="action-section" style="display:none;">
-      <div class="section-title"><span>Actions</span></div>
-      <div class="action-grid">
-        <button class="action-btn blue-flag" onclick="sendAction('blue_flag')" id="btn-blue-flag">
-          <span class="a-key" id="key-blue-flag">F1</span>
-          <span class="a-icon">🔵</span>
-          <span class="a-name">Blue Flag</span>
-        </button>
-        <button class="action-btn next-lap" onclick="sendAction('next_lap')" id="btn-next-lap">
-          <span class="a-key" id="key-next-lap">F2</span>
-          <span class="a-icon">🏁</span>
-          <span class="a-name">Next Lap</span>
-        </button>
-        <button class="action-btn pitting" onclick="togglePitting()" id="btn-pitting">
-          <span class="a-key" id="key-pitting">F3</span>
-          <span class="a-icon" id="pit-icon">🔧</span>
-          <span class="a-name" id="pit-label">Pitting</span>
-        </button>
+    <!-- ═══ MODERN LAYOUT ═══ -->
+    <div id="layout-modern" style="display:none;">
+      <div class="rc-chev-nav">
+        <button class="active" id="d-tab-btn-overview" onclick="setDriverTab('overview')">Overview</button>
+        <button id="d-tab-btn-field" onclick="setDriverTab('field')">Field</button>
       </div>
-      <div id="action-notice" style="display:none;font-size:10px;color:var(--muted);text-align:center;margin-top:8px;padding:6px;background:var(--surface);border:1px solid var(--border);border-radius:4px;"></div>
+
+      <div class="d-tab-panel active" id="d-tab-overview">
+        <div id="modern-action-section" style="display:none;">
+          <div class="rc-block-title">Quick Actions</div>
+          <div id="modern-action-notice" style="display:none;font-size:10px;color:var(--muted);text-align:center;margin-bottom:8px;padding:6px;background:var(--surface);border:1px solid var(--border);border-radius:4px;"></div>
+          <div class="rc-block-grid">
+            <button class="rc-action-block primary" id="modern-btn-next-lap" onclick="sendAction('next_lap')">
+              <span class="ai">🏁</span><span class="al">Next Lap</span>
+            </button>
+            <button class="rc-action-block" id="modern-btn-blue-flag" onclick="sendAction('blue_flag')">
+              <span class="ai">🔵</span><span class="al">Blue Flag</span>
+            </button>
+            <button class="rc-action-block" id="modern-btn-pitting" onclick="togglePitting()">
+              <span class="ai" id="modern-pit-icon">🔧</span><span class="al" id="modern-pit-label">Pitting</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="rc-block-title">Nearby on Track</div>
+        <div id="d-nearby">
+          <div style="font-size:11px;color:var(--muted);text-align:center;padding:16px;">Waiting for race...</div>
+        </div>
+      </div>
+
+      <div class="d-tab-panel" id="d-tab-field">
+        <div class="rc-you-pin" id="rc-you-pin" style="display:none;">
+          <div class="rc-field-divider"><span>Your position</span><div class="ln"></div></div>
+          <div class="f-row you" id="rc-you-row"></div>
+        </div>
+        <div class="rc-field-divider"><span>Full field</span><div class="ln"></div></div>
+        <div id="modern-leaderboard">
+          <div style="font-size:11px;color:var(--muted);text-align:center;padding:16px;">Waiting for race to start...</div>
+        </div>
+      </div>
     </div>
 
   </div>
@@ -485,6 +698,35 @@
   let driverInfo = null;
   let isEngineer = false;
   let toastTimer;
+
+  // ── Panel style (Modern / Legacy) ───────────────────────────────────────
+  let _panelStyle = localStorage.getItem("rc_panel_style") || "modern";
+
+  function updateStyleToggleBtns() {
+    document.getElementById("style-toggle-modern").classList.toggle("active", _panelStyle === "modern");
+    document.getElementById("style-toggle-legacy").classList.toggle("active", _panelStyle === "legacy");
+  }
+
+  function setPanelStyle(style) {
+    _panelStyle = style;
+    localStorage.setItem("rc_panel_style", style);
+    updateStyleToggleBtns();
+    document.getElementById("layout-legacy").style.display = style === "legacy" ? "block" : "none";
+    document.getElementById("layout-modern").style.display = style === "modern" ? "block" : "none";
+    const actLegacy = document.getElementById("legacy-action-section");
+    const actModern = document.getElementById("modern-action-section");
+    if (actLegacy) actLegacy.style.display = (isEngineer && style === "legacy") ? "block" : "none";
+    if (actModern) actModern.style.display = (isEngineer && style === "modern") ? "block" : "none";
+    if (_raceState) renderRaceState(_raceState);
+    dpToast(`✓ Panel style set to ${style === "legacy" ? "Legacy" : "Modern"}`, "ok");
+  }
+
+  function setDriverTab(tab) {
+    document.getElementById("d-tab-btn-overview")?.classList.toggle("active", tab === "overview");
+    document.getElementById("d-tab-btn-field")?.classList.toggle("active", tab === "field");
+    document.getElementById("d-tab-overview")?.classList.toggle("active", tab === "overview");
+    document.getElementById("d-tab-field")?.classList.toggle("active", tab === "field");
+  }
 
   // ── Flag polling state ──────────────────────────────────────────────────
   let _lastFlagTimestamp = null;
@@ -610,9 +852,8 @@
     document.getElementById("dp-drivernum").textContent  = `#${driverInfo.number}`;
     if (isEngineer) document.getElementById("dp-engineer-badge").style.display = "block";
 
-    // Show actions only for engineers
-    const actionSection = document.getElementById("action-section");
-    if (actionSection) actionSection.style.display = isEngineer ? "block" : "none";
+    updateStyleToggleBtns();
+    setPanelStyle(_panelStyle);
 
     // Poll race state every 3 seconds (flag detection included)
     pollRaceState();
@@ -642,7 +883,6 @@
 
       // ── Lights out on race start ─────────────────────────────────
       if (_raceState?.raceStarted && !data.raceStarted) {
-        // Race was reset — allow lights-out to trigger again next start
         _lightsOutShown = false;
       }
       if (!_raceState?.raceStarted && data.raceStarted) {
@@ -682,15 +922,18 @@
   }
 
   function setButtonsDisabled(disabled, reason) {
-    ["blue-flag", "next-lap", "pitting"].forEach(id => {
-      const btn = document.getElementById(`btn-${id}`);
+    ["legacy-btn-blue-flag", "legacy-btn-next-lap", "legacy-btn-pitting",
+     "modern-btn-blue-flag", "modern-btn-next-lap", "modern-btn-pitting"].forEach(id => {
+      const btn = document.getElementById(id);
       if (!btn) return;
       btn.disabled      = disabled;
       btn.style.opacity = disabled ? "0.35" : "1";
       btn.style.cursor  = disabled ? "not-allowed" : "pointer";
     });
-    const notice = document.getElementById("action-notice");
-    if (notice) { notice.textContent = disabled ? reason : ""; notice.style.display = disabled ? "block" : "none"; }
+    const notices = [document.getElementById("legacy-action-notice"), document.getElementById("modern-action-notice")];
+    notices.forEach(notice => {
+      if (notice) { notice.textContent = disabled ? reason : ""; notice.style.display = disabled ? "block" : "none"; }
+    });
   }
 
   function renderRaceState(data) {
@@ -713,12 +956,17 @@
     else if (data.status === "sc")     { pill.classList.add("yellow"); pill.textContent = "🟠 Safety Car"; }
     else { pill.textContent = "● Waiting"; }
 
-    const lb = document.getElementById("leaderboard");
+    if (_panelStyle === "legacy") renderLegacyLeaderboard(data);
+    else { renderModernLeaderboard(data); renderNearby(data); }
+  }
+
+  // ── Legacy leaderboard ────────────────────────────────────────────────
+  function renderLegacyLeaderboard(data) {
+    const lb = document.getElementById("legacy-leaderboard");
     if (!data.drivers || data.drivers.length === 0) {
       lb.innerHTML = '<div style="font-size:11px;color:var(--muted);text-align:center;padding:16px;">Waiting for race to start...</div>';
       return;
     }
-
     lb.innerHTML = data.drivers.map((d, i) => {
       const pos = i + 1;
       const isMe = d.name === driverInfo?.name;
@@ -742,70 +990,108 @@
     }).join("");
   }
 
-  // ── Flag notification ──────────────────────────────────────────────────
-  function showFlagNotification(flag, customData) {
-    // Handle custom flags pushed from dev panel
-    if (flag === "__custom__" && customData) {
-      showCustomFlagNotification(customData);
+  // ── Modern full-field leaderboard ───────────────────────────────────────
+  function fieldRowInner(d, i, data) {
+    const pos = i + 1;
+    const pc = pos === 1 ? "p1" : pos === 2 ? "p2" : pos === 3 ? "p3" : "";
+    const leaderLap = data.drivers[0]?.lap || 1;
+    let lapHtml, gapHtml = "";
+
+    if (d.dnf) {
+      lapHtml = `<div class="f-lap dnf-text">DNF</div>`;
+    } else if (d.finished) {
+      lapHtml = `<div class="f-lap finished">Finished</div>`;
+    } else {
+      lapHtml = `<div class="f-lap">Lap ${d.lap || 1}</div>`;
+      if (pos === 1) {
+        gapHtml = `<div class="f-gap">Leader</div>`;
+      } else {
+        const lapDiff = leaderLap - (d.lap || 1);
+        const txt = lapDiff > 0 ? `+${lapDiff} LAP${lapDiff > 1 ? "S" : ""}` : (d.gap && d.gap !== "Leader" ? d.gap : "");
+        if (txt) gapHtml = `<div class="f-gap">${txt}</div>`;
+      }
+    }
+
+    const pitting = !!d.inPits && !d.dnf && !d.finished;
+    const pitBadge = pitting ? `<div class="f-pit-badge">🔧 Pit</div>` : "";
+
+    return `
+      <div class="f-pos ${pc}">${pos}</div>
+      <div class="f-num ${pitting ? "pitting" : ""}">${d.number}</div>
+      <div class="f-body">
+        <div class="f-name">${d.name}</div>
+        <div class="f-call">${d.callsign}</div>
+      </div>
+      <div>${lapHtml}${gapHtml}${pitBadge}</div>`;
+  }
+
+  function renderModernLeaderboard(data) {
+    const lb = document.getElementById("modern-leaderboard");
+    const pin = document.getElementById("rc-you-pin");
+    if (!data.drivers || data.drivers.length === 0) {
+      lb.innerHTML = '<div style="font-size:11px;color:var(--muted);text-align:center;padding:16px;">Waiting for race to start...</div>';
+      if (pin) pin.style.display = "none";
       return;
     }
-    const def = FLAG_NOTIFS[flag];
-    if (!def) return;
 
-    const colors = {
-      green:  { bg:"rgba(0,230,118,0.08)",  border:"rgba(0,230,118,0.6)",  text:"#00e676", glow:"rgba(0,230,118,0.2)" },
-      yellow: { bg:"rgba(255,214,0,0.08)",  border:"rgba(255,214,0,0.6)",  text:"#ffd600", glow:"rgba(255,214,0,0.2)" },
-      red:    { bg:"rgba(255,23,68,0.08)",   border:"rgba(255,23,68,0.6)",  text:"#ff1744", glow:"rgba(255,23,68,0.2)" },
-      blue:   { bg:"rgba(41,121,255,0.08)",  border:"rgba(41,121,255,0.6)", text:"#2979ff", glow:"rgba(41,121,255,0.2)" },
-      orange: { bg:"rgba(255,109,0,0.08)",   border:"rgba(255,109,0,0.6)",  text:"#ff6d00", glow:"rgba(255,109,0,0.2)" },
-      white:  { bg:"rgba(255,255,255,0.05)", border:"rgba(255,255,255,0.5)",text:"#ffffff", glow:"rgba(255,255,255,0.1)" },
-    };
-    const c = colors[def.color] || colors.white;
+    lb.innerHTML = data.drivers.map((d, i) => {
+      const isMe = d.name === driverInfo?.name;
+      const rowClasses = ["f-row"];
+      if (isMe) rowClasses.push("you");
+      if (d.dnf) rowClasses.push("dnf");
+      else if (d.inPits) rowClasses.push("pitting");
+      return `<div class="${rowClasses.join(" ")}">${fieldRowInner(d, i, data)}</div>`;
+    }).join("");
 
-    const section   = document.getElementById("flag-notif-section");
-    const container = document.getElementById("flag-notification");
-    if (!section || !container) return;
-
-    section.style.display = "block";
-    container.innerHTML = `
-      <div style="display:flex;align-items:center;gap:14px;padding:14px 16px;background:${c.bg};border:1.5px solid ${c.border};border-radius:10px;box-shadow:0 0 30px ${c.glow};animation:flagSlideIn 0.4s cubic-bezier(0.34,1.56,0.64,1);">
-        <span style="font-size:36px;line-height:1;flex-shrink:0;">${def.emoji}</span>
-        <div>
-          <div style="font-size:18px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:${c.text};">${def.title}</div>
-        </div>
-      </div>`;
-
-    if (def.sound) {
-      const audio = new Audio(`${API_URL}/sounds/${def.sound}`);
-      audio.volume = 1.0;
-      audio.play().catch(() => {});
+    const idx = driverInfo ? data.drivers.findIndex(d => d.name === driverInfo.name) : -1;
+    if (pin) {
+      if (idx === -1) {
+        pin.style.display = "none";
+      } else {
+        pin.style.display = (idx + 1) > 7 ? "block" : "none";
+        const youRow = document.getElementById("rc-you-row");
+        if (youRow) youRow.innerHTML = fieldRowInner(data.drivers[idx], idx, data);
+      }
     }
   }
 
-  // ── Action buttons ──────────────────────────────────────────────────────
-  let inPits = false;
-
-  function togglePitting() {
-    inPits = !inPits;
-    const btn   = document.getElementById("btn-pitting");
-    const icon  = document.getElementById("pit-icon");
-    const label = document.getElementById("pit-label");
-
-    if (inPits) {
-      icon.textContent       = "🔧";
-      label.textContent      = "In Pits";
-      btn.style.borderColor  = "rgba(255,214,0,0.6)";
-      btn.style.background   = "rgba(255,214,0,0.12)";
-      btn.style.color        = "#ffd600";
-      sendAction("pitting");
-    } else {
-      icon.textContent       = "🔧";
-      label.textContent      = "Pitting";
-      btn.style.borderColor  = "";
-      btn.style.background   = "";
-      btn.style.color        = "";
-      sendAction("in_race");
+  function renderNearby(data) {
+    const el = document.getElementById("d-nearby");
+    if (!el) return;
+    const refName = driverInfo?.name;
+    if (!refName || !data.drivers?.length) {
+      el.innerHTML = '<div style="font-size:11px;color:var(--muted);text-align:center;padding:16px;">No data yet.</div>';
+      return;
     }
+    const idx = data.drivers.findIndex(d => d.name === refName);
+    if (idx === -1) {
+      el.innerHTML = '<div style="font-size:11px;color:var(--muted);text-align:center;padding:16px;">Not currently on track.</div>';
+      return;
+    }
+    const you = data.drivers[idx];
+    const ahead = data.drivers.slice(Math.max(0, idx - 2), idx).reverse();
+    const behind = data.drivers.slice(idx + 1, idx + 3);
+
+    const row = (d, kind) => {
+      const arrow = kind === "ahead" ? "▲" : kind === "behind" ? "▼" : "●";
+      const gapTxt = d.dnf ? "DNF" : d.finished ? "Finished" : (d.gap || "–");
+      const pitting = !!d.inPits && !d.dnf && !d.finished;
+      const pitBadge = pitting ? `<div class="rc-nr-pit-badge">🔧 Pit</div>` : "";
+      return `
+        <div class="rc-nearby-row ${kind} ${pitting ? "pitting" : ""}">
+          <span class="rc-nr-arrow">${arrow}</span>
+          <div class="rc-nr-pos">${data.drivers.indexOf(d) + 1}</div>
+          <div class="rc-nr-num ${pitting ? "pitting" : ""}">${d.number}</div>
+          <div class="rc-nr-body"><div class="rc-nr-name">${d.name}</div><div class="rc-nr-call">${d.callsign}</div></div>
+          <div><div class="rc-nr-gap">${gapTxt}</div>${pitBadge}</div>
+        </div>`;
+    };
+
+    let html = "";
+    ahead.forEach(d => html += row(d, "ahead"));
+    html += row(you, "you");
+    behind.forEach(d => html += row(d, "behind"));
+    el.innerHTML = html;
   }
 
   const GLOBAL_COOLDOWN_MS = 7000;
@@ -814,24 +1100,26 @@
   const cooldownTimers      = {};
 
   function startButtonCooldown(action, ms) {
-    const btnId = `btn-${action.replace(/_/g, "-")}`;
-    const btn   = document.getElementById(btnId);
-    if (!btn) return;
-    btn.disabled = true;
-    const nameEl   = btn.querySelector(".a-name");
-    const original = nameEl?.textContent || action;
+    const ids = action === "blue_flag" ? ["legacy-btn-blue-flag", "modern-btn-blue-flag"]
+              : action === "next_lap"  ? ["legacy-btn-next-lap", "modern-btn-next-lap"]
+              : ["legacy-btn-pitting", "modern-btn-pitting"];
     clearInterval(cooldownTimers[action]);
     const end = Date.now() + ms;
+    const nameEls = ids.map(id => document.getElementById(id)?.querySelector(".a-name, .al")).filter(Boolean);
+    const originals = nameEls.map(el => el.textContent);
+    ids.forEach(id => { const b = document.getElementById(id); if (b) b.disabled = true; });
     cooldownTimers[action] = setInterval(() => {
       const remaining = Math.ceil((end - Date.now()) / 1000);
       if (remaining <= 0) {
         clearInterval(cooldownTimers[action]);
-        btn.disabled = false;
-        if (nameEl) nameEl.textContent = original;
-        btn.style.opacity = "1";
+        ids.forEach((id, i) => {
+          const b = document.getElementById(id);
+          if (b) { b.disabled = false; b.style.opacity = "1"; }
+          if (nameEls[i]) nameEls[i].textContent = originals[i];
+        });
       } else {
-        if (nameEl) nameEl.textContent = `${remaining}s`;
-        btn.style.opacity = "0.5";
+        nameEls.forEach(el => el.textContent = `${remaining}s`);
+        ids.forEach(id => { const b = document.getElementById(id); if (b) b.style.opacity = "0.5"; });
       }
     }, 100);
   }
@@ -844,9 +1132,6 @@
     const now = Date.now();
     if (now < globalCooldownUntil) { dpToast(`⏳ Wait ${Math.ceil((globalCooldownUntil - now) / 1000)}s`, "err"); return; }
     if (action === "next_lap" && lapCooldownUntil > now) { dpToast(`⏳ Next lap in ${Math.ceil((lapCooldownUntil - now) / 1000)}s`, "err"); return; }
-
-    const btn = document.getElementById(`btn-${action.replace(/_/g, "-")}`);
-    if (btn) { btn.classList.add("active-state"); setTimeout(() => btn.classList.remove("active-state"), 300); }
 
     try {
       const res  = await fetch(`${API_URL}/driver/action`, {
@@ -927,7 +1212,6 @@
     const label   = document.getElementById("lights-label");
     overlay.style.display = "flex";
 
-    // Reset all lights
     for (let i = 1; i <= 5; i++) {
       document.getElementById(`light-${i}`).classList.remove("lit");
     }
@@ -936,14 +1220,12 @@
     label.style.fontSize = "13px";
     label.style.letterSpacing = "3px";
 
-    // Light up one by one, ~1s apart
     let delay = 4500;
     for (let i = 1; i <= 5; i++) {
       setTimeout(() => {
         document.getElementById(`light-${i}`).classList.add("lit");
         if (i === 5) {
           label.textContent = "...";
-          // Random delay 1–5s then GO
           const goDelay = 1000 + Math.random() * 4000;
           setTimeout(() => startGoSequence(), goDelay);
         }
@@ -955,12 +1237,10 @@
     const overlay = document.getElementById("lights-overlay");
     const label   = document.getElementById("lights-label");
 
-    // Extinguish all lights
     for (let i = 1; i <= 5; i++) {
       document.getElementById(`light-${i}`).classList.remove("lit");
     }
 
-    // Flash green 3 times with GO!
     overlay.style.background = "#000";
     label.textContent  = "GO!";
     label.style.color  = "#00e676";
@@ -976,7 +1256,6 @@
         if (flashes < 3) {
           setTimeout(doFlash, 220);
         } else {
-          // Done — hide overlay and return to normal
           setTimeout(() => {
             overlay.style.display = "none";
             overlay.style.background = "#000";
@@ -987,6 +1266,170 @@
       }, 180);
     }
     doFlash();
+  }
+
+  // ── Flag notification ──────────────────────────────────────────────────
+  function showFlagNotification(flag, customData) {
+    if (flag === "__custom__" && customData) {
+      showCustomFlagNotification(customData);
+      return;
+    }
+    const def = FLAG_NOTIFS[flag];
+    if (!def) return;
+
+    const colors = {
+      green:  { bg:"rgba(0,230,118,0.08)",  border:"rgba(0,230,118,0.6)",  text:"#00e676", glow:"rgba(0,230,118,0.2)" },
+      yellow: { bg:"rgba(255,214,0,0.08)",  border:"rgba(255,214,0,0.6)",  text:"#ffd600", glow:"rgba(255,214,0,0.2)" },
+      red:    { bg:"rgba(255,23,68,0.08)",   border:"rgba(255,23,68,0.6)",  text:"#ff1744", glow:"rgba(255,23,68,0.2)" },
+      blue:   { bg:"rgba(41,121,255,0.08)",  border:"rgba(41,121,255,0.6)", text:"#2979ff", glow:"rgba(41,121,255,0.2)" },
+      orange: { bg:"rgba(255,109,0,0.08)",   border:"rgba(255,109,0,0.6)",  text:"#ff6d00", glow:"rgba(255,109,0,0.2)" },
+      white:  { bg:"rgba(255,255,255,0.05)", border:"rgba(255,255,255,0.5)",text:"#ffffff", glow:"rgba(255,255,255,0.1)" },
+    };
+    const c = colors[def.color] || colors.white;
+
+    const section   = document.getElementById("flag-notif-section");
+    const container = document.getElementById("flag-notification");
+    if (!section || !container) return;
+
+    section.style.display = "block";
+    container.innerHTML = `
+      <div style="display:flex;align-items:center;gap:14px;padding:14px 16px;background:${c.bg};border:1.5px solid ${c.border};border-radius:10px;box-shadow:0 0 30px ${c.glow};animation:flagSlideIn 0.4s cubic-bezier(0.34,1.56,0.64,1);">
+        <span style="font-size:36px;line-height:1;flex-shrink:0;">${def.emoji}</span>
+        <div>
+          <div style="font-size:18px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:${c.text};">${def.title}</div>
+        </div>
+      </div>`;
+
+    if (def.sound) {
+      const audio = new Audio(`${API_URL}/sounds/${def.sound}`);
+      audio.volume = 1.0;
+      audio.play().catch(() => {});
+    }
+  }
+
+  // ── Action buttons ──────────────────────────────────────────────────────
+  let inPits = false;
+
+  function togglePitting() {
+    inPits = !inPits;
+    const legacyIcon = document.getElementById("legacy-pit-icon");
+    const legacyLabel = document.getElementById("legacy-pit-label");
+    const legacyBtn = document.getElementById("legacy-btn-pitting");
+    const modernIcon = document.getElementById("modern-pit-icon");
+    const modernLabel = document.getElementById("modern-pit-label");
+    const modernBtn = document.getElementById("modern-btn-pitting");
+
+    if (inPits) {
+      if (legacyLabel) legacyLabel.textContent = "In Pits";
+      if (modernLabel) modernLabel.textContent = "In Pits";
+      if (legacyBtn) { legacyBtn.style.borderColor = "rgba(255,214,0,0.6)"; legacyBtn.style.background = "rgba(255,214,0,0.12)"; legacyBtn.style.color = "#ffd600"; }
+      if (modernBtn) modernBtn.classList.add("pit-active");
+      sendAction("pitting");
+    } else {
+      if (legacyLabel) legacyLabel.textContent = "Pitting";
+      if (modernLabel) modernLabel.textContent = "Pitting";
+      if (legacyBtn) { legacyBtn.style.borderColor = ""; legacyBtn.style.background = ""; legacyBtn.style.color = ""; }
+      if (modernBtn) modernBtn.classList.remove("pit-active");
+      sendAction("in_race");
+    }
+  }
+
+  // ── Spectate (public, no login) ─────────────────────────────────────────
+  let _spectatePollInterval = null;
+  let _spectateExpandedName = null;
+  let _spectateData = null;
+
+  function launchSpectate() {
+    showScreen("screen-spectate");
+    pollSpectateState();
+    if (_spectatePollInterval) clearInterval(_spectatePollInterval);
+    _spectatePollInterval = setInterval(pollSpectateState, 3000);
+  }
+
+  function exitSpectate() {
+    if (_spectatePollInterval) clearInterval(_spectatePollInterval);
+    showScreen("screen-login");
+  }
+
+  function formatLapTime(seconds) {
+    if (typeof seconds !== "number" || isNaN(seconds)) return "–";
+    const mins = Math.floor(seconds / 60);
+    const secs = (seconds % 60).toFixed(2);
+    return mins > 0 ? `${mins}:${secs.padStart(5, "0")}` : `${secs}s`;
+  }
+
+  async function pollSpectateState() {
+    try {
+      const res = await fetch(`${API_URL}/driver/state`);
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      _spectateData = data;
+      renderSpectateLeaderboard(data);
+      document.getElementById("sp-status-dot").classList.add("live");
+      document.getElementById("sp-status-label").textContent = "Live";
+      const lapEl = document.getElementById("sp-lap-counter");
+      if (lapEl && data.totalLaps && data.drivers?.length) {
+        const maxLap = Math.max(...data.drivers.map(d => d.lap || 1));
+        lapEl.textContent = `Lap ${maxLap} / ${data.totalLaps}`;
+      } else if (lapEl) lapEl.textContent = "";
+    } catch {
+      document.getElementById("sp-status-dot").classList.remove("live");
+      document.getElementById("sp-status-label").textContent = "Offline";
+    }
+  }
+
+  function renderSpectateLeaderboard(data) {
+    const el = document.getElementById("sp-leaderboard");
+    if (!data.drivers?.length) {
+      el.innerHTML = '<div style="font-size:11px;color:var(--muted);text-align:center;padding:16px;">Waiting for race...</div>';
+      return;
+    }
+    const q = (document.getElementById("sp-lb-search")?.value || "").toLowerCase();
+    const drivers = data.drivers.filter(d => !q || d.name.toLowerCase().includes(q) || d.callsign.toLowerCase().includes(q));
+
+    el.innerHTML = drivers.map((d) => {
+      const pos = data.drivers.indexOf(d) + 1;
+      const expandedClass = d.name === _spectateExpandedName ? " expanded" : "";
+
+      const pitLine = d.pitCount > 0
+        ? `🔧 Driver has pitted <b>${d.pitCount === 1 ? "once" : d.pitCount + " times"}</b>${d.lastPitLap ? ` — last on lap ${d.lastPitLap}` : ""}`
+        : `Driver has not yet pitted`;
+
+      const bestLapHtml = d.bestLap
+        ? `<div class="sp-bestlap">
+             <div class="sp-bestlap-badge">🏆</div>
+             <div class="sp-detail-text">Best lap this race was on lap ${d.bestLap.lap}, hitting a ${formatLapTime(d.bestLap.time)} lap.</div>
+           </div>`
+        : `<div class="sp-detail-sub">No best lap recorded yet.</div>`;
+
+      return `
+        <div class="sp-row${expandedClass}" data-name="${d.name}" onclick="toggleSpectateRow('${d.name}')">
+          <div class="sp-row-head">
+            <div style="width:18px;font-weight:900;font-size:13px;color:var(--muted);text-align:center;">${pos}</div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:12px;font-weight:800;">${d.name} <span style="font-size:9px;color:var(--muted);font-weight:400;">#${d.number}</span></div>
+              <div style="font-size:9px;color:var(--muted);">${d.callsign}</div>
+            </div>
+            <div style="font-size:10px;color:var(--muted);">${d.dnf ? "DNF" : d.finished ? "Finished 🏁" : `Lap ${d.lap || 1}`}</div>
+            <span class="sp-chevron">▾</span>
+          </div>
+          <div class="sp-details">
+            <div class="sp-detail-line"><span class="sp-detail-icon">🔧</span><span class="sp-detail-text">${pitLine}</span></div>
+            ${bestLapHtml}
+            <div class="sp-detail-line"><span class="sp-detail-icon">🏁</span><span class="sp-detail-text">The driver is currently on lap ${d.lap || 1}.</span></div>
+            <div class="sp-detail-line"><span class="sp-detail-icon">🕐</span><span class="sp-detail-text">Their last lap was a ${formatLapTime(d.lastLapDuration)}.</span></div>
+          </div>
+        </div>`;
+    }).join("");
+  }
+
+  function toggleSpectateRow(name) {
+    _spectateExpandedName = (_spectateExpandedName === name) ? null : name;
+    if (_spectateData) renderSpectateLeaderboard(_spectateData);
+  }
+
+  function filterSpectateLeaderboard() {
+    if (_spectateData) renderSpectateLeaderboard(_spectateData);
   }
 
 </script>
