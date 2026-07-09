@@ -802,17 +802,21 @@
 
   const params = new URLSearchParams(location.search);
   const code   = params.get("code");
-  if (code) { window.history.replaceState({}, document.title, "/marshal"); exchangeCode(code); }
-  else {
-    const saved = sessionStorage.getItem("rc_user");
-    if (saved) {
-      user = JSON.parse(saved);
-      const wantDev = sessionStorage.getItem("rc_want_dev") === "1";
-      sessionStorage.removeItem("rc_want_dev");
-      if (wantDev && user.isAdmin) showAdminPanel();
-      else showPanel();
+  // Deferred so every const/let below in this file (SECTIONS, adminMode, etc.)
+  // is guaranteed to be initialized before we ever call showPanel()/showAdminPanel().
+  setTimeout(() => {
+    if (code) { window.history.replaceState({}, document.title, "/marshal"); exchangeCode(code); }
+    else {
+      const saved = sessionStorage.getItem("rc_user");
+      if (saved) {
+        user = JSON.parse(saved);
+        const wantDev = sessionStorage.getItem("rc_want_dev") === "1";
+        sessionStorage.removeItem("rc_want_dev");
+        if (wantDev && user.isAdmin) showAdminPanel();
+        else showPanel();
+      }
     }
-  }
+  }, 0);
 
   function loginWithDiscord() { window.location.href = DISCORD_OAUTH; }
 
