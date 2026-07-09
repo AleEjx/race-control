@@ -386,6 +386,93 @@
       </div>
     </div>
 
+    <!-- ── DEV PANEL: Panel Controls ── -->
+    <div id="section-panel-controls" style="background:#13131a;border:1px solid rgba(255,214,0,0.2);border-radius:6px;padding:10px 12px;">
+      <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#ffd600;margin-bottom:10px;">🧪 Panel Controls <span style="color:#30303a;font-size:8px;">(dev only)</span></div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+          <span style="font-size:11px;color:#e8e8f0;">Driver Panel</span>
+          <div style="display:flex;gap:4px;">
+            <button onclick="adminTogglePanel('driver',true)" style="background:rgba(0,230,118,0.1);border:1px solid rgba(0,230,118,0.3);color:#00e676;font-family:'Oxanium',sans-serif;font-size:9px;font-weight:700;padding:4px 10px;border-radius:4px;cursor:pointer;">Enable</button>
+            <button onclick="adminTogglePanel('driver',false)" style="background:rgba(255,23,68,0.08);border:1px solid rgba(255,23,68,0.2);color:#ff1744;font-family:'Oxanium',sans-serif;font-size:9px;font-weight:700;padding:4px 10px;border-radius:4px;cursor:pointer;">Disable</button>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+          <span style="font-size:11px;color:#e8e8f0;">Marshal Panel</span>
+          <div style="display:flex;gap:4px;">
+            <button onclick="adminTogglePanel('marshal',true)" style="background:rgba(0,230,118,0.1);border:1px solid rgba(0,230,118,0.3);color:#00e676;font-family:'Oxanium',sans-serif;font-size:9px;font-weight:700;padding:4px 10px;border-radius:4px;cursor:pointer;">Enable</button>
+            <button onclick="adminTogglePanel('marshal',false)" style="background:rgba(255,23,68,0.08);border:1px solid rgba(255,23,68,0.2);color:#ff1744;font-family:'Oxanium',sans-serif;font-size:9px;font-weight:700;padding:4px 10px;border-radius:4px;cursor:pointer;">Disable</button>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+          <span style="font-size:11px;color:#e8e8f0;">Both Panels</span>
+          <div style="display:flex;gap:4px;">
+            <button onclick="adminTogglePanel('both',true)" style="background:rgba(0,230,118,0.1);border:1px solid rgba(0,230,118,0.3);color:#00e676;font-family:'Oxanium',sans-serif;font-size:9px;font-weight:700;padding:4px 10px;border-radius:4px;cursor:pointer;">Enable All</button>
+            <button onclick="adminTogglePanel('both',false)" style="background:rgba(255,23,68,0.08);border:1px solid rgba(255,23,68,0.2);color:#ff1744;font-family:'Oxanium',sans-serif;font-size:9px;font-weight:700;padding:4px 10px;border-radius:4px;cursor:pointer;">Disable All</button>
+          </div>
+        </div>
+        <div id="panel-controls-status" style="font-size:10px;color:#50506a;min-height:14px;"></div>
+        <div style="border-top:1px solid #1f1f2e;padding-top:8px;display:flex;align-items:center;justify-content:space-between;gap:8px;">
+          <span style="font-size:11px;color:#e8e8f0;">Active League</span>
+          <div style="display:flex;gap:4px;">
+            <button id="btn-league-main" onclick="adminSwitchLeague('main')" style="background:rgba(0,230,118,0.1);border:1px solid rgba(0,230,118,0.3);color:#00e676;font-family:'Oxanium',sans-serif;font-size:9px;font-weight:700;padding:4px 10px;border-radius:4px;cursor:pointer;">Main</button>
+            <button id="btn-league-academy" onclick="adminSwitchLeague('academy')" style="background:#0c0c14;border:1px solid #1f1f2e;color:#50506a;font-family:'Oxanium',sans-serif;font-size:9px;font-weight:700;padding:4px 10px;border-radius:4px;cursor:pointer;">Academy</button>
+          </div>
+        </div>
+        <div id="league-status" style="font-size:10px;color:#50506a;min-height:14px;"></div>
+      </div>
+    </div>
+
+    <!-- ── DEV PANEL: WatchMarshal & Action Logging ── -->
+    <div id="section-dev-toggles" style="background:#13131a;border:1px solid rgba(255,214,0,0.2);border-radius:6px;padding:10px 12px;">
+      <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#ffd600;margin-bottom:10px;">🧪 System Toggles <span style="color:#30303a;font-size:8px;">(dev only)</span></div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+            <span style="font-size:11px;color:#e8e8f0;">👁️ WatchMarshal monitoring</span>
+            <button id="watchmarshal-toggle-btn" onclick="adminToggleWatchMarshal()" style="font-size:9px;font-weight:800;padding:4px 12px;border-radius:4px;border:1px solid;cursor:pointer;font-family:inherit;">–</button>
+          </div>
+          <div id="watchmarshal-toggle-status" style="font-size:9px;color:#50506a;margin-top:2px;"></div>
+        </div>
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+            <span style="font-size:11px;color:#e8e8f0;">📋 Log laps &amp; pits to Discord</span>
+            <button id="action-log-toggle-btn" onclick="adminToggleActionLogging()" style="font-size:9px;font-weight:800;padding:4px 12px;border-radius:4px;border:1px solid;cursor:pointer;font-family:inherit;">–</button>
+          </div>
+          <div id="action-log-toggle-status" style="font-size:9px;color:#50506a;margin-top:2px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── DEV PANEL: Driver Database ── -->
+    <div id="section-driver-db" style="background:#13131a;border:1px solid rgba(255,214,0,0.2);border-radius:6px;padding:10px 12px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#ffd600;">🧪 Driver Database <span style="color:#30303a;font-size:8px;">(dev only)</span></div>
+        <span id="driver-db-count" style="font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;background:rgba(0,230,118,0.1);border:1px solid rgba(0,230,118,0.3);color:#00e676;">0 drivers</span>
+      </div>
+      <div style="display:flex;gap:4px;margin-bottom:8px;">
+        <input type="text" id="driver-db-search" placeholder="Search drivers..." oninput="renderDriverDBList()" style="flex:1;background:#0c0c14;border:1px solid #1f1f2e;color:#e8e8f0;font-family:'Oxanium',sans-serif;font-size:11px;padding:6px 10px;border-radius:4px;outline:none;" />
+        <button onclick="openDriverModal()" style="background:rgba(0,230,118,0.1);border:1px solid rgba(0,230,118,0.3);color:#00e676;font-family:'Oxanium',sans-serif;font-size:9px;font-weight:700;padding:4px 10px;border-radius:4px;cursor:pointer;white-space:nowrap;">+ Add</button>
+      </div>
+      <div id="driver-db-list" style="display:flex;flex-direction:column;gap:4px;max-height:220px;overflow-y:auto;">Loading...</div>
+      <div style="display:flex;gap:4px;margin-top:8px;">
+        <button onclick="pushDriverDB()" style="flex:1;background:rgba(0,230,118,0.1);border:1px solid rgba(0,230,118,0.3);color:#00e676;font-family:'Oxanium',sans-serif;font-size:9px;font-weight:700;padding:6px;border-radius:4px;cursor:pointer;">⬆ Push to Server</button>
+        <button onclick="exportDriverCode()" style="flex:1;background:rgba(41,121,255,0.1);border:1px solid rgba(41,121,255,0.3);color:#2979ff;font-family:'Oxanium',sans-serif;font-size:9px;font-weight:700;padding:6px;border-radius:4px;cursor:pointer;">Export Code</button>
+      </div>
+      <div style="display:flex;gap:4px;margin-top:4px;">
+        <button onclick="openImportModal()" style="flex:1;background:rgba(41,121,255,0.1);border:1px solid rgba(41,121,255,0.3);color:#2979ff;font-family:'Oxanium',sans-serif;font-size:9px;font-weight:700;padding:6px;border-radius:4px;cursor:pointer;">⬇ Import Code</button>
+        <button onclick="resetDriverDB()" style="background:#0c0c14;border:1px solid #1f1f2e;color:#50506a;font-family:'Oxanium',sans-serif;font-size:9px;font-weight:700;padding:6px 10px;border-radius:4px;cursor:pointer;">↺ Reset</button>
+      </div>
+      <div id="driver-db-status" style="font-size:9px;color:#50506a;min-height:12px;margin-top:6px;"></div>
+    </div>
+
+    <!-- ── DEV PANEL: Engineering Assignments ── -->
+    <div id="section-engineers" style="background:#13131a;border:1px solid rgba(255,214,0,0.2);border-radius:6px;padding:10px 12px;">
+      <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#ffd600;margin-bottom:8px;">🧪 Engineering Assignments <span style="color:#30303a;font-size:8px;">(dev only)</span></div>
+      <div id="engineers-list" style="display:flex;flex-direction:column;gap:4px;font-size:10px;color:#50506a;">Loading...</div>
+      <button onclick="clearLocalEngineers()" style="margin-top:8px;background:rgba(255,23,68,0.08);border:1px solid rgba(255,23,68,0.2);color:#ff1744;font-family:'Oxanium',sans-serif;font-size:9px;font-weight:700;padding:5px 10px;border-radius:4px;cursor:pointer;">🗑️ Clear Local Engineers</button>
+    </div>
+
     <!-- ── DEV PANEL: Mock Leaderboard ── -->
     <div id="section-dev-leaderboard" style="background:#13131a;border:1px solid rgba(255,214,0,0.2);border-radius:6px;padding:10px 12px;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
@@ -454,6 +541,48 @@
 <style>
   @keyframes cfSlide { from { transform:translateY(-16px); opacity:0; } to { transform:translateY(0); opacity:1; } }
 </style>
+
+<!-- Dev: Add/Edit Driver Modal -->
+<div id="driver-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:600;align-items:center;justify-content:center;">
+  <div style="width:calc(100% - 32px);max-width:320px;background:#0a0a0f;border:1.5px solid rgba(255,214,0,0.4);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:8px;">
+    <div id="driver-modal-title" style="font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#ffd600;margin-bottom:4px;">Add Driver</div>
+    <input type="hidden" id="dm-edit-id" />
+    <input type="text" id="dm-name" placeholder="Driver name" style="background:#0c0c14;border:1px solid #1f1f2e;color:#e8e8f0;font-family:'Oxanium',sans-serif;font-size:12px;padding:8px 10px;border-radius:4px;outline:none;" />
+    <input type="text" id="dm-number" placeholder="Car number" style="background:#0c0c14;border:1px solid #1f1f2e;color:#e8e8f0;font-family:'Oxanium',sans-serif;font-size:12px;padding:8px 10px;border-radius:4px;outline:none;" />
+    <input type="text" id="dm-callsign" placeholder="Callsign" style="background:#0c0c14;border:1px solid #1f1f2e;color:#e8e8f0;font-family:'Oxanium',sans-serif;font-size:12px;padding:8px 10px;border-radius:4px;outline:none;" />
+    <input type="text" id="dm-discord" placeholder="Discord ID" style="background:#0c0c14;border:1px solid #1f1f2e;color:#e8e8f0;font-family:'Oxanium',sans-serif;font-size:12px;padding:8px 10px;border-radius:4px;outline:none;" />
+    <div id="dm-error" style="font-size:10px;color:#ff1744;min-height:14px;"></div>
+    <div style="display:flex;gap:6px;margin-top:4px;">
+      <button onclick="saveDriverEntry()" style="flex:1;background:rgba(0,230,118,0.15);border:1px solid rgba(0,230,118,0.4);color:#00e676;font-family:'Oxanium',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:8px;border-radius:4px;cursor:pointer;">Save</button>
+      <button onclick="closeDriverModal()" style="background:#0c0c14;border:1px solid #1f1f2e;color:#50506a;font-family:'Oxanium',sans-serif;font-size:11px;font-weight:700;padding:8px 14px;border-radius:4px;cursor:pointer;">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Dev: Export Driver Code Modal -->
+<div id="driver-export-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:600;align-items:center;justify-content:center;">
+  <div style="width:calc(100% - 32px);max-width:400px;background:#0a0a0f;border:1.5px solid rgba(41,121,255,0.4);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:8px;max-height:80vh;">
+    <div style="font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#2979ff;">Export Code</div>
+    <pre id="driver-export-code" style="background:#0c0c14;border:1px solid #1f1f2e;color:#8888aa;font-size:10px;padding:10px;border-radius:4px;overflow:auto;white-space:pre-wrap;word-break:break-word;flex:1;"></pre>
+    <div style="display:flex;gap:6px;">
+      <button onclick="copyDriverExport()" style="flex:1;background:rgba(41,121,255,0.15);border:1px solid rgba(41,121,255,0.4);color:#2979ff;font-family:'Oxanium',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:8px;border-radius:4px;cursor:pointer;">Copy</button>
+      <button onclick="document.getElementById('driver-export-modal').style.display='none'" style="background:#0c0c14;border:1px solid #1f1f2e;color:#50506a;font-family:'Oxanium',sans-serif;font-size:11px;font-weight:700;padding:8px 14px;border-radius:4px;cursor:pointer;">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Dev: Import Driver Code Modal (hasDev only) -->
+<div id="driver-import-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:600;align-items:center;justify-content:center;">
+  <div style="width:calc(100% - 32px);max-width:400px;background:#0a0a0f;border:1.5px solid rgba(41,121,255,0.4);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:8px;">
+    <div style="font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#2979ff;">Import Code — <span id="driver-import-league-label">Main</span> League</div>
+    <textarea id="driver-import-code" rows="8" placeholder="Paste exported DRIVER_IDS / DRIVER_INFO code here" style="background:#0c0c14;border:1px solid #1f1f2e;color:#e8e8f0;font-family:monospace;font-size:10px;padding:10px;border-radius:4px;outline:none;resize:vertical;"></textarea>
+    <div id="driver-import-status" style="font-size:10px;color:#50506a;min-height:14px;"></div>
+    <div style="display:flex;gap:6px;">
+      <button onclick="importDriverCode()" style="flex:1;background:rgba(0,230,118,0.15);border:1px solid rgba(0,230,118,0.4);color:#00e676;font-family:'Oxanium',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:8px;border-radius:4px;cursor:pointer;">Import</button>
+      <button onclick="document.getElementById('driver-import-modal').style.display='none'" style="background:#0c0c14;border:1px solid #1f1f2e;color:#50506a;font-family:'Oxanium',sans-serif;font-size:11px;font-weight:700;padding:8px 14px;border-radius:4px;cursor:pointer;">Cancel</button>
+    </div>
+  </div>
+</div>
 
 <!-- Widget -->
 <div id="widget">
@@ -1278,6 +1407,10 @@
     { id: "section-audit",           label: "Audit Log" },
     { id: "section-racesetup",       label: "Race Setup" },
     { id: "section-audio",           label: "Custom Audio Player" },
+    { id: "section-panel-controls",  label: "🧪 Panel Controls (dev)" },
+    { id: "section-dev-toggles",     label: "🧪 System Toggles (dev)" },
+    { id: "section-driver-db",       label: "🧪 Driver Database (dev)" },
+    { id: "section-engineers",       label: "🧪 Engineering Assignments (dev)" },
     { id: "section-dev-leaderboard", label: "🧪 Mock Leaderboard (dev)" },
     { id: "section-dev-flag",        label: "🧪 Custom Flag (dev)" },
   ];
@@ -1628,6 +1761,407 @@
     } catch { showToast("✗ Bot unreachable", "error"); }
   }
 
+  // ── Dev: Panel Controls (enable/disable driver & marshal panels, league switch) ──
+  let _activeLeague = "main"; // "main" | "academy" — synced with server
+
+  async function adminTogglePanel(target, enable) {
+    const statusEl = document.getElementById("panel-controls-status");
+    statusEl.style.color = "#50506a";
+    statusEl.textContent = "Updating...";
+    try {
+      let res = await fetch(`${API_URL}/panel-status`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-discord-id": user.id, "x-discord-token": user.token },
+        body: JSON.stringify({ target, enable }),
+      });
+      if (res.status === 404) {
+        res = await fetch(`${API_URL}/admin/panel-status`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "x-discord-id": user.id, "x-discord-token": user.token },
+          body: JSON.stringify({ target, enable }),
+        });
+      }
+      const data = await res.json();
+      if (res.ok) {
+        statusEl.style.color = "#00e676";
+        statusEl.textContent = `✓ ${target} ${enable ? "enabled" : "disabled"}`;
+        showToast(`✓ ${target} panel ${enable ? "enabled" : "disabled"}`, "success");
+      } else {
+        statusEl.style.color = "#ff1744";
+        statusEl.textContent = `✗ ${data.error || "Failed"}`;
+        showToast(`✗ ${data.error || "Failed"}`, "error");
+      }
+    } catch {
+      statusEl.style.color = "#ff1744";
+      statusEl.textContent = "✗ Bot unreachable";
+      showToast("✗ Bot unreachable", "error");
+    }
+  }
+
+  function updateLeagueButtons() {
+    const mainBtn = document.getElementById("btn-league-main");
+    const acadBtn = document.getElementById("btn-league-academy");
+    const on  = "background:rgba(0,230,118,0.1);border:1px solid rgba(0,230,118,0.3);color:#00e676;font-family:'Oxanium',sans-serif;font-size:9px;font-weight:700;padding:4px 10px;border-radius:4px;cursor:pointer;";
+    const off = "background:#0c0c14;border:1px solid #1f1f2e;color:#50506a;font-family:'Oxanium',sans-serif;font-size:9px;font-weight:700;padding:4px 10px;border-radius:4px;cursor:pointer;";
+    if (mainBtn) mainBtn.style.cssText = _activeLeague === "main" ? on : off;
+    if (acadBtn) acadBtn.style.cssText = _activeLeague === "academy" ? on : off;
+    const badge = document.getElementById("driver-db-league-badge");
+    if (badge) badge.textContent = _activeLeague === "academy" ? "Academy" : "Main";
+  }
+
+  async function fetchActiveLeague() {
+    try {
+      const res = await fetch(`${API_URL}/league`);
+      if (!res.ok) return;
+      const data = await res.json();
+      _activeLeague = data.league === "academy" ? "academy" : "main";
+      updateLeagueButtons();
+    } catch (e) { console.warn("[League] Fetch failed:", e.message); }
+  }
+
+  async function adminSwitchLeague(league) {
+    if (league === _activeLeague) return;
+    const statusEl = document.getElementById("league-status");
+    statusEl.style.color = "#50506a";
+    statusEl.textContent = "Switching...";
+    try {
+      const res = await fetch(`${API_URL}/admin/league`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-discord-id": user.id, "x-discord-token": user.token },
+        body: JSON.stringify({ league }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        statusEl.style.color = "#ff1744";
+        statusEl.textContent = `✗ ${data.error || "Failed"}`;
+        showToast(`✗ ${data.error || "Failed"}`, "error");
+        return;
+      }
+      _activeLeague = data.league;
+      updateLeagueButtons();
+      await syncDriverDBFromServer();
+      renderDriverDBList();
+      statusEl.style.color = "#00e676";
+      statusEl.textContent = `✓ Switched to ${_activeLeague === "academy" ? "Academy" : "Main"} League`;
+      showToast(`✓ Switched to ${_activeLeague === "academy" ? "Academy" : "Main"} League`, "success");
+    } catch {
+      statusEl.style.color = "#ff1744";
+      statusEl.textContent = "✗ Bot unreachable";
+      showToast("✗ Bot unreachable", "error");
+    }
+  }
+
+  // ── Dev: System toggles (WatchMarshal / Action Logging) ──────────────────
+  let _watchMarshalEnabled = true;
+  let _actionLoggingEnabled = false;
+
+  function updateWatchMarshalToggleBtn() {
+    const btn = document.getElementById("watchmarshal-toggle-btn");
+    const st  = document.getElementById("watchmarshal-toggle-status");
+    if (!btn) return;
+    const on = _watchMarshalEnabled;
+    btn.textContent = on ? "ON" : "OFF";
+    btn.style.background  = on ? "rgba(0,230,118,0.15)" : "rgba(255,23,68,0.15)";
+    btn.style.borderColor = on ? "#00e676" : "#ff1744";
+    btn.style.color       = on ? "#00e676" : "#ff1744";
+    if (st) st.textContent = on ? "WatchMarshal is active" : "WatchMarshal is off";
+  }
+
+  async function loadWatchMarshalState() {
+    try {
+      const res = await fetch(`${API_URL}/panel-status`);
+      const data = await res.json();
+      _watchMarshalEnabled = data.watchmarshal !== false;
+      updateWatchMarshalToggleBtn();
+    } catch {}
+  }
+
+  async function adminToggleWatchMarshal() {
+    _watchMarshalEnabled = !_watchMarshalEnabled;
+    updateWatchMarshalToggleBtn();
+    try {
+      let res = await fetch(`${API_URL}/panel-status`, {
+        method: "POST", headers: { "Content-Type": "application/json", "x-discord-id": user.id, "x-discord-token": user.token },
+        body: JSON.stringify({ target: "watchmarshal", enable: _watchMarshalEnabled }),
+      });
+      if (res.status === 404) {
+        res = await fetch(`${API_URL}/admin/panel-status`, {
+          method: "POST", headers: { "Content-Type": "application/json", "x-discord-id": user.id, "x-discord-token": user.token },
+          body: JSON.stringify({ target: "watchmarshal", enable: _watchMarshalEnabled }),
+        });
+      }
+      const data = await res.json();
+      if (res.ok) showToast(_watchMarshalEnabled ? "✓ WatchMarshal ON" : "✓ WatchMarshal OFF", "success");
+      else { _watchMarshalEnabled = !_watchMarshalEnabled; updateWatchMarshalToggleBtn(); showToast(`✗ ${data.error || "Failed"}`, "error"); }
+    } catch {
+      _watchMarshalEnabled = !_watchMarshalEnabled;
+      updateWatchMarshalToggleBtn();
+      showToast("✗ Bot unreachable", "error");
+    }
+  }
+
+  function updateActionLogToggleBtn() {
+    const btn = document.getElementById("action-log-toggle-btn");
+    const st  = document.getElementById("action-log-toggle-status");
+    if (!btn) return;
+    const on = _actionLoggingEnabled;
+    btn.textContent = on ? "ON" : "OFF";
+    btn.style.background  = on ? "rgba(0,230,118,0.15)" : "rgba(255,23,68,0.15)";
+    btn.style.borderColor = on ? "#00e676" : "#ff1744";
+    btn.style.color       = on ? "#00e676" : "#ff1744";
+    if (st) st.textContent = on ? "Posting laps & pits to Discord" : "Not logging to Discord";
+  }
+
+  async function loadActionLoggingState() {
+    try {
+      const res = await fetch(`${API_URL}/admin/action-logging`, { headers: { "x-discord-id": user.id, "x-discord-token": user.token } });
+      if (!res.ok) return;
+      const data = await res.json();
+      _actionLoggingEnabled = !!data.enabled;
+      updateActionLogToggleBtn();
+    } catch {}
+  }
+
+  async function adminToggleActionLogging() {
+    _actionLoggingEnabled = !_actionLoggingEnabled;
+    updateActionLogToggleBtn();
+    try {
+      const res = await fetch(`${API_URL}/admin/action-logging`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-discord-id": user.id, "x-discord-token": user.token },
+        body: JSON.stringify({ enabled: _actionLoggingEnabled }),
+      });
+      const data = await res.json();
+      if (res.ok) showToast(_actionLoggingEnabled ? "✓ Action logging ON" : "✓ Action logging OFF", "success");
+      else { _actionLoggingEnabled = !_actionLoggingEnabled; updateActionLogToggleBtn(); showToast(`✗ ${data.error}`, "error"); }
+    } catch {
+      _actionLoggingEnabled = !_actionLoggingEnabled;
+      updateActionLogToggleBtn();
+      showToast("✗ Bot unreachable", "error");
+    }
+  }
+
+  // ── Dev: Driver Database ──────────────────────────────────────────────────
+  function driverDbKey() { return _activeLeague === "academy" ? "rc_driver_db_academy" : "rc_driver_db"; }
+
+  function getDriverDB() {
+    try { return JSON.parse(localStorage.getItem(driverDbKey()) || "[]"); } catch { return []; }
+  }
+
+  function setDriverDB(drivers) { localStorage.setItem(driverDbKey(), JSON.stringify(drivers)); }
+
+  async function syncDriverDBFromServer() {
+    try {
+      const res = await fetch(`${API_URL}/driver-db?league=${_activeLeague}`);
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data.league) _activeLeague = data.league;
+      if (data.drivers) setDriverDB(data.drivers);
+    } catch (e) { console.warn("[DriverDB] Sync failed:", e.message); }
+  }
+
+  function renderDriverDBList() {
+    const q = (document.getElementById("driver-db-search")?.value || "").toLowerCase();
+    const drivers = getDriverDB();
+    const sorted = [...drivers].sort((a, b) => (parseInt(a.number) || 999) - (parseInt(b.number) || 999));
+    const filtered = sorted.filter(d =>
+      d.name.toLowerCase().includes(q) || d.number.toLowerCase().includes(q) ||
+      d.callsign.toLowerCase().includes(q) || d.discordId.includes(q)
+    );
+    const el = document.getElementById("driver-db-list");
+    if (el) {
+      el.innerHTML = filtered.length ? filtered.map(d => `
+        <div style="display:flex;align-items:center;gap:6px;padding:5px 6px;background:#0c0c14;border:1px solid #1f1f2e;border-radius:4px;">
+          <div style="font-size:10px;font-weight:800;color:#50506a;width:24px;text-align:center;flex-shrink:0;">#${d.number}</div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:11px;font-weight:700;color:#e8e8f0;">${d.name}</div>
+            <div style="font-size:9px;color:#50506a;">${d.callsign} · <span style="font-family:monospace;">${d.discordId}</span></div>
+          </div>
+          <button onclick="openDriverModal('${d.name.replace(/'/g,"\\'")}')" style="background:rgba(41,121,255,0.08);border:1px solid rgba(41,121,255,0.25);color:#2979ff;font-family:'Oxanium',sans-serif;font-size:9px;font-weight:700;padding:3px 6px;border-radius:3px;cursor:pointer;">✏️</button>
+          <button onclick="deleteDriverEntry('${d.name.replace(/'/g,"\\'")}')" style="background:rgba(255,23,68,0.08);border:1px solid rgba(255,23,68,0.2);color:#ff1744;font-family:'Oxanium',sans-serif;font-size:9px;font-weight:700;padding:3px 6px;border-radius:3px;cursor:pointer;">✕</button>
+        </div>`).join("") : '<div style="font-size:10px;color:#30303a;text-align:center;padding:8px;">No drivers found.</div>';
+    }
+    const badge = document.getElementById("driver-db-count");
+    if (badge) badge.textContent = `${drivers.length} driver${drivers.length !== 1 ? "s" : ""}`;
+  }
+
+  function openDriverModal(editName) {
+    const drivers = getDriverDB();
+    const d = editName ? drivers.find(x => x.name === editName) : null;
+    document.getElementById("dm-edit-id").value = editName || "";
+    document.getElementById("dm-name").value = d?.name || "";
+    document.getElementById("dm-number").value = d?.number || "";
+    document.getElementById("dm-callsign").value = d?.callsign || "";
+    document.getElementById("dm-discord").value = d?.discordId || "";
+    document.getElementById("dm-error").textContent = "";
+    document.getElementById("driver-modal-title").textContent = d ? "Edit Driver" : "Add Driver";
+    document.getElementById("driver-modal").style.display = "flex";
+  }
+
+  function closeDriverModal() { document.getElementById("driver-modal").style.display = "none"; }
+
+  function saveDriverEntry() {
+    const editId   = document.getElementById("dm-edit-id").value;
+    const name     = document.getElementById("dm-name").value.trim().toUpperCase();
+    const number   = document.getElementById("dm-number").value.trim();
+    const callsign = document.getElementById("dm-callsign").value.trim().toUpperCase();
+    const discord  = document.getElementById("dm-discord").value.trim();
+    const errEl    = document.getElementById("dm-error");
+
+    if (!name)     { errEl.textContent = "Name is required."; return; }
+    if (!number)   { errEl.textContent = "Car number is required."; return; }
+    if (!callsign) { errEl.textContent = "Callsign is required."; return; }
+    if (!discord)  { errEl.textContent = "Discord ID is required."; return; }
+    if (!/^\d{17,19}$/.test(discord)) { errEl.textContent = "Discord ID should be 17–19 digits."; return; }
+
+    const drivers = getDriverDB();
+    if (drivers.find(d => d.name === name && d.name !== editId)) { errEl.textContent = "A driver with that name already exists."; return; }
+    const dupId = drivers.find(d => d.discordId === discord && d.name !== editId);
+    if (dupId) { errEl.textContent = `Discord ID already used by ${dupId.name}.`; return; }
+
+    if (editId) {
+      const idx = drivers.findIndex(d => d.name === editId);
+      if (idx >= 0) drivers[idx] = { name, number, callsign, discordId: discord };
+    } else {
+      drivers.push({ name, number, callsign, discordId: discord });
+    }
+    setDriverDB(drivers);
+    closeDriverModal();
+    renderDriverDBList();
+    showToast(`✓ Driver ${editId ? "updated" : "added"}: ${name}`, "success");
+  }
+
+  function deleteDriverEntry(name) {
+    if (!confirm(`Remove ${name} from the driver database?`)) return;
+    setDriverDB(getDriverDB().filter(d => d.name !== name));
+    renderDriverDBList();
+    showToast(`✓ Removed ${name}`, "success");
+  }
+
+  async function pushDriverDB() {
+    const drivers = getDriverDB();
+    if (!drivers.length) return showToast("✗ No drivers to push", "error");
+    const statusEl = document.getElementById("driver-db-status");
+    statusEl.style.color = "#50506a";
+    statusEl.textContent = "Pushing...";
+    try {
+      const res = await fetch(`${API_URL}/admin/driver-db`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-discord-id": user.id, "x-discord-token": user.token },
+        body: JSON.stringify({ drivers, league: _activeLeague }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        statusEl.style.color = "#ff1744"; statusEl.textContent = `✗ ${data.error || "Push failed"}`;
+        showToast(`✗ ${data.error || "Push failed"}`, "error");
+        return;
+      }
+      statusEl.style.color = "#00e676";
+      statusEl.textContent = `✓ Pushed ${drivers.length} drivers — broadcasting to all clients`;
+      showToast(`✓ Driver DB pushed — ${drivers.length} drivers`, "success");
+    } catch {
+      statusEl.style.color = "#ff1744"; statusEl.textContent = "✗ Push failed";
+      showToast("✗ Push failed", "error");
+    }
+  }
+
+  function exportDriverCode() {
+    const drivers = getDriverDB();
+    const ids  = drivers.map(d => `  "${d.discordId}":"${d.name}"`).join(",\n");
+    const info = drivers.map(d => `  "${d.name}":{ number:"${d.number}", callsign:"${d.callsign}" }`).join(",\n");
+    document.getElementById("driver-export-code").textContent =
+      `const DRIVER_IDS = {\n${ids},\n};\n\nconst DRIVER_INFO = {\n${info},\n};`;
+    document.getElementById("driver-export-modal").style.display = "flex";
+  }
+
+  function copyDriverExport() {
+    navigator.clipboard.writeText(document.getElementById("driver-export-code").textContent)
+      .then(() => showToast("✓ Copied to clipboard", "success"));
+  }
+
+  // Import & Reset are full-dev-only (matches the desktop app's DEV_USER_ID gate)
+  function openImportModal() {
+    if (!hasDev) return showToast("✗ Dev access required", "error");
+    document.getElementById("driver-import-code").value = "";
+    const statusEl = document.getElementById("driver-import-status");
+    statusEl.style.color = "#50506a"; statusEl.textContent = "";
+    document.getElementById("driver-import-league-label").textContent = _activeLeague === "academy" ? "Academy" : "Main";
+    document.getElementById("driver-import-modal").style.display = "flex";
+  }
+
+  function importDriverCode() {
+    if (!hasDev) return;
+    const statusEl = document.getElementById("driver-import-status");
+    const raw = (document.getElementById("driver-import-code").value || "").trim();
+    if (!raw) { statusEl.style.color = "#ff1744"; statusEl.textContent = "✗ Paste exported code first."; return; }
+    let drivers;
+    try {
+      const idsMatch  = raw.match(/DRIVER_IDS\s*=\s*(\{[\s\S]*?\n\s*\})\s*;/);
+      const infoMatch = raw.match(/DRIVER_INFO\s*=\s*(\{[\s\S]*?\n\s*\})\s*;/);
+      if (!idsMatch || !infoMatch) throw new Error("Couldn't find DRIVER_IDS/DRIVER_INFO blocks in the pasted code.");
+      const ids  = Function(`"use strict"; return (${idsMatch[1]});`)();
+      const info = Function(`"use strict"; return (${infoMatch[1]});`)();
+      drivers = Object.entries(ids).map(([discordId, name]) => ({
+        discordId: String(discordId), name,
+        number: info[name]?.number || "??", callsign: info[name]?.callsign || name,
+      }));
+      if (!drivers.length) throw new Error("No drivers found in pasted code.");
+    } catch (e) { statusEl.style.color = "#ff1744"; statusEl.textContent = `✗ ${e.message}`; return; }
+
+    const leagueLabel = _activeLeague === "academy" ? "Academy" : "Main";
+    if (!confirm(`Import ${drivers.length} driver(s) into the ${leagueLabel} League database? This replaces the current list and cannot be undone.`)) return;
+    setDriverDB(drivers);
+    renderDriverDBList();
+    document.getElementById("driver-import-modal").style.display = "none";
+    showToast(`✓ Imported ${drivers.length} driver(s)`, "success");
+  }
+
+  function resetDriverDB() {
+    if (!hasDev) return showToast("✗ Dev access required", "error");
+    const leagueLabel = _activeLeague === "academy" ? "Academy" : "Main";
+    if (!confirm(`Reset ${leagueLabel} League driver database? This clears the local list and cannot be undone.`)) return;
+    localStorage.removeItem(driverDbKey());
+    renderDriverDBList();
+    showToast(`✓ ${leagueLabel} League driver DB reset`, "success");
+  }
+
+  // ── Dev: Engineering Assignments ──────────────────────────────────────────
+  async function loadEngineerAssignments() {
+    const el = document.getElementById("engineers-list");
+    if (!el) return;
+    try {
+      const res = await fetch(`${API_URL}/admin/driver-logins`, { headers: { "x-discord-id": user.id, "x-discord-token": user.token } });
+      const data = await res.json();
+      const serverEngineers = (data.logins || []).filter(l => l.engineer);
+      const localEngineers = JSON.parse(localStorage.getItem("rc_engineers") || "[]");
+      const all = [...serverEngineers];
+      localEngineers.forEach(le => { if (!all.find(e => e.discordId === le.discordId)) all.push(le); });
+      el.innerHTML = all.length ? all.map(l => `
+        <div style="padding:4px 0;border-bottom:1px solid #1f1f2e;display:flex;justify-content:space-between;gap:6px;">
+          <span style="font-weight:700;color:#e8e8f0;">${l.username}</span>
+          <span style="color:#50506a;">→ engineering for <span style="color:#e8e8f0;font-weight:700;">${l.engineerFor || "?"}</span></span>
+        </div>`).join("") : '<div style="color:#30303a;">No engineers active.</div>';
+    } catch { el.innerHTML = '<div style="color:#ff1744;">Failed to load.</div>'; }
+  }
+
+  function clearLocalEngineers() {
+    if (!confirm("Clear locally-cached engineer assignments? This does not affect the server.")) return;
+    localStorage.removeItem("rc_engineers");
+    loadEngineerAssignments();
+    showToast("✓ Local engineers cleared", "success");
+  }
+
+  // Pull in the new dev sections whenever the admin panel refreshes
+  const _origLoadAdminInfo = loadAdminInfo;
+  loadAdminInfo = async function() {
+    await _origLoadAdminInfo();
+    await fetchActiveLeague();
+    await loadWatchMarshalState();
+    await loadActionLoggingState();
+    await syncDriverDBFromServer();
+    renderDriverDBList();
+    await loadEngineerAssignments();
+  };
 </script>
 </body>
 </html>
