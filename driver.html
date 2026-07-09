@@ -943,26 +943,29 @@
     else hideShutdownBanner();
   }
 
-  function showRoleScreen() {
-    applyDevBypassState();
-    const autoDriver = DRIVER_DISCORD_IDS[user.id];
-    if (autoDriver) {
-      const driver = DRIVERS.find(d => d.name === autoDriver);
-      if (driver) { isEngineer = false; driverInfo = driver; launchPanel(); return; }
-    }
+function showRoleScreen() {
+  applyDevBypassState();
+  const autoDriver = DRIVER_DISCORD_IDS[user.id];
+  if (autoDriver) {
+    const driver = DRIVERS.find(d => d.name === autoDriver);
+    if (driver) { isEngineer = false; driverInfo = driver; launchPanel(); return; }
+  }
 
-    document.getElementById("role-avatar").src = user.avatar
-      ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=64`
-      : `https://cdn.discordapp.com/embed/avatars/${parseInt(user.id) % 5}.png`;
-    document.getElementById("role-username").textContent = user.username;
+  document.getElementById("role-avatar").src = user.avatar
+    ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=64`
+    : `https://cdn.discordapp.com/embed/avatars/${parseInt(user.id) % 5}.png`;
+  document.getElementById("role-username").textContent = user.username;
 
+  if (user.id !== DEV_USER_ID) {
     document.querySelectorAll(".role-btn").forEach(btn => {
       if (btn.getAttribute("onclick")?.includes("racer")) btn.style.display = "none";
     });
     const title = document.querySelector("#screen-role .card-title");
     if (title) title.textContent = "You are joining as an Engineer";
-    showScreen("screen-role");
   }
+
+  showScreen("screen-role");
+}
 
   function selectRole(role) {
     document.getElementById("role-error").textContent = "";
