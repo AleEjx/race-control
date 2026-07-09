@@ -714,6 +714,8 @@
   const REDIRECT_URI = encodeURIComponent("https://race-control-one.vercel.app/marshal");
   const DISCORD_OAUTH = `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=identify`;
 
+  let adminMode = true, allVCData = [];
+
   let user = null, collapsed = false, toastTimer, cooldown = false, cooldownTimer, lastFlag = null;
 
   // ── Dev bypass ──────────────────────────────────────────────────────
@@ -1180,7 +1182,6 @@
   }
 
   // ── Admin Panel ──────────────────────────────────────────────────────────
-  let adminMode = true, allVCData = [];
 
   // ── Shared tab bar (Driver / Marshal / Dev) ─────────────────────────────
   function rcSetActiveTab(tab) {
