@@ -487,6 +487,17 @@
 </head>
 <body>
 
+<!-- Shared switcher: tabs + identity, floats on every screen once logged in -->
+<div id="rc-navchip" style="display:none;position:fixed;top:12px;right:12px;z-index:5000;align-items:center;gap:8px;">
+  <div class="rc-tabbar" id="rc-tabbar">
+    <span class="rc-tab active" data-tab="driver" onclick="rcGoTab('driver')">Driver</span>
+    <span class="rc-tab" data-tab="marshal" onclick="rcGoTab('marshal')">Marshal</span>
+    <span class="rc-tab" data-tab="dev" id="rc-tab-dev" onclick="rcGoTab('dev')">Dev</span>
+  </div>
+  <img id="rc-nav-avatar" src="" style="width:26px;height:26px;border-radius:50%;border:1px solid var(--border);" />
+  <span id="rc-nav-username" style="font-size:11px;font-weight:700;color:var(--text);"></span>
+</div>
+
 <!-- Maintenance Screen -->
 <div class="screen" id="screen-maintenance">
   <div style="width:100%;max-width:340px;background:rgba(0,0,0,0.4);border:1.5px solid rgba(255,214,0,0.5);border-radius:10px;box-shadow:0 0 24px rgba(255,214,0,0.2);padding:28px 24px;display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;">
@@ -613,11 +624,6 @@
         <span id="style-toggle-legacy" onclick="setPanelStyle('legacy')">Legacy</span>
       </div>
       <div class="race-status-pill" id="race-status-pill">● Waiting</div>
-      <div class="rc-tabbar" id="rc-tabbar">
-        <span class="rc-tab active" data-tab="driver" onclick="rcGoTab('driver')">Driver</span>
-        <span class="rc-tab" data-tab="marshal" onclick="rcGoTab('marshal')">Marshal</span>
-        <span class="rc-tab" data-tab="dev" id="rc-tab-dev" onclick="rcGoTab('dev')">Dev</span>
-      </div>
     </div>
   </div>
 
@@ -875,6 +881,21 @@
     if (tab === "dev") { sessionStorage.setItem("rc_want_dev", "1"); location.href = "/marshal"; return; }
   }
 
+  function rcShowNav() {
+    const chip = document.getElementById("rc-navchip");
+    if (!chip || !user) return;
+    document.getElementById("rc-nav-avatar").src = user.avatar
+      ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=32`
+      : `https://cdn.discordapp.com/embed/avatars/${parseInt(user.id) % 5}.png`;
+    document.getElementById("rc-nav-username").textContent = user.username || "";
+    chip.style.display = "flex";
+  }
+
+  function rcHideNav() {
+    const chip = document.getElementById("rc-navchip");
+    if (chip) chip.style.display = "none";
+  }
+
   function setDriverTab(tab) {
     document.getElementById("d-tab-btn-overview")?.classList.toggle("active", tab === "overview");
     document.getElementById("d-tab-btn-field")?.classList.toggle("active", tab === "field");
@@ -950,6 +971,8 @@
     document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
     const el = document.getElementById(id);
     if (el) el.classList.add("active");
+    if (id === "screen-login" || id === "screen-maintenance") rcHideNav();
+    else rcShowNav();
   }
 
   function goBack(screen) { showScreen(screen); }
@@ -1082,6 +1105,7 @@ function showRoleScreen() {
     document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
     document.getElementById("driver-panel").style.display = "flex";
     document.getElementById("driver-panel").style.flexDirection = "column";
+    rcShowNav();
 
     document.getElementById("dp-avatar").src = user.avatar
       ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=64`
@@ -1166,6 +1190,7 @@ function showRoleScreen() {
     sessionStorage.removeItem("rc_driver_user");
     document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
     document.getElementById("driver-panel").style.display = "none";
+    rcHideNav();
 
     const bl = document.getElementById("screen-blacklisted");
     if (bl) { bl.classList.add("active"); return; }
