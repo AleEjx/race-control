@@ -202,6 +202,17 @@
     .style-toggle span { padding: 3px 8px; border-radius: 16px; transition: background .15s, color .15s; }
     .style-toggle span.active { background: rgba(41,121,255,0.18); color: var(--text); }
 
+    /* ── Shared tab bar (Driver / Marshal / Dev) ── */
+    .rc-tabbar {
+      display: flex; align-items: center; gap: 2px; font-size: 9px; letter-spacing: 1px;
+      text-transform: uppercase; background: var(--bg); border: 1px solid var(--border);
+      border-radius: 20px; padding: 3px; font-family: 'Oxanium', sans-serif; user-select: none;
+    }
+    .rc-tab { padding: 4px 10px; border-radius: 16px; cursor: pointer; color: var(--muted); font-weight: 700; transition: background .15s, color .15s; }
+    .rc-tab:hover { color: var(--text); }
+    .rc-tab.active { background: rgba(41,121,255,0.18); color: var(--text); }
+    .rc-tab[data-tab="dev"].active { background: rgba(255,214,0,0.18); color: var(--yellow); }
+
     .panel-body { padding: 12px; display: flex; flex-direction: column; gap: 12px; max-width: 480px; margin: 0 auto; width: 100%; }
 
     .section-title {
@@ -602,7 +613,11 @@
         <span id="style-toggle-legacy" onclick="setPanelStyle('legacy')">Legacy</span>
       </div>
       <div class="race-status-pill" id="race-status-pill">● Waiting</div>
-      <a href="/marshal" class="quiet-link" style="padding:4px 10px;font-size:9px;">Marshal →</a>
+      <div class="rc-tabbar" id="rc-tabbar">
+        <span class="rc-tab active" data-tab="driver" onclick="rcGoTab('driver')">Driver</span>
+        <span class="rc-tab" data-tab="marshal" onclick="rcGoTab('marshal')">Marshal</span>
+        <span class="rc-tab" data-tab="dev" id="rc-tab-dev" onclick="rcGoTab('dev')">Dev</span>
+      </div>
     </div>
   </div>
 
@@ -851,6 +866,13 @@
     if (actModern) actModern.style.display = (isEngineer && style === "modern") ? "block" : "none";
     if (_raceState) renderRaceState(_raceState);
     dpToast(`✓ Panel style set to ${style === "legacy" ? "Legacy" : "Modern"}`, "ok");
+  }
+
+  // ── Shared tab bar (Driver / Marshal / Dev) ─────────────────────────────
+  function rcGoTab(tab) {
+    if (tab === "driver") return; // already here
+    if (tab === "marshal") { sessionStorage.removeItem("rc_want_dev"); location.href = "/marshal"; return; }
+    if (tab === "dev") { sessionStorage.setItem("rc_want_dev", "1"); location.href = "/marshal"; return; }
   }
 
   function setDriverTab(tab) {
