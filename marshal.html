@@ -184,6 +184,18 @@
 </head>
 <body>
 
+<!-- Shared switcher: tabs + identity, floats on every screen once logged in -->
+<div id="rc-navchip" style="display:none;position:fixed;top:12px;right:12px;z-index:5000;align-items:center;gap:8px;">
+  <div class="rc-tabbar" id="rc-tabbar">
+    <span class="rc-tab" data-tab="driver" onclick="rcGoTab('driver')">Driver</span>
+    <span class="rc-tab active" data-tab="marshal" onclick="rcGoTab('marshal')">Marshal</span>
+    <span class="rc-tab" data-tab="dev" id="rc-tab-dev" onclick="rcGoTab('dev')" style="display:none;">Dev</span>
+  </div>
+  <img id="rc-nav-avatar" src="" style="width:26px;height:26px;border-radius:50%;border:1px solid var(--border);" />
+  <span id="rc-nav-username" style="font-size:11px;font-weight:700;color:var(--text);"></span>
+</div>
+
+
 <!-- Maintenance Screen -->
 <div id="marshal-maintenance" style="display:none;position:fixed;inset:0;background:var(--bg);align-items:center;justify-content:center;flex-direction:column;gap:16px;z-index:9999;">
   <div style="width:100%;max-width:340px;background:rgba(0,0,0,0.4);border:1.5px solid rgba(255,214,0,0.5);border-radius:10px;padding:28px 24px;display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;">
@@ -259,11 +271,6 @@
       <button onclick="openToolbox()" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#50506a;font-family:'Oxanium',sans-serif;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;border-radius:4px;cursor:pointer;">🧰</button>
     </div>
     <div style="display:flex;align-items:center;gap:8px;">
-      <div class="rc-tabbar" id="rc-tabbar-admin">
-        <span class="rc-tab" data-tab="driver" onclick="rcGoTab('driver')">Driver</span>
-        <span class="rc-tab" data-tab="marshal" onclick="rcGoTab('marshal')">Marshal</span>
-        <span class="rc-tab active" data-tab="dev" onclick="rcGoTab('dev')">Dev</span>
-      </div>
       <img id="admin-avatar" src="" style="width:20px;height:20px;border-radius:50%;" />
       <span id="admin-username" style="font-size:10px;color:#50506a;"></span>
     </div>
@@ -619,11 +626,6 @@
       </div>
     </div>
     <div class="widget-controls">
-      <div class="rc-tabbar" id="rc-tabbar">
-        <span class="rc-tab" data-tab="driver" onclick="rcGoTab('driver')">Driver</span>
-        <span class="rc-tab active" data-tab="marshal" onclick="rcGoTab('marshal')">Marshal</span>
-        <span class="rc-tab" data-tab="dev" id="rc-tab-dev" onclick="rcGoTab('dev')" style="display:none;">Dev</span>
-      </div>
       <button class="ctrl-btn" id="btn-collapse" title="Collapse" onclick="toggleCollapse()">▲</button>
     </div>
   </div>
@@ -877,7 +879,7 @@
     document.getElementById("login-password").style.display = "none";
     document.getElementById("admin-panel").style.display    = "none";
     document.getElementById("widget").style.display         = "block";
-    rcApplyDevTabVisibility();
+    rcShowNav();
     rcSetActiveTab("marshal");
     if (user?.roles?.includes(RACE_DIRECTOR_ROLE)) { const rs = document.getElementById("widget-race-setup"); if (rs) rs.style.display = "block"; }
     document.getElementById("user-name").textContent = user.username;
@@ -987,6 +989,7 @@
     sessionStorage.removeItem("rc_user");
     document.getElementById("widget").style.display = document.getElementById("admin-panel").style.display = "none";
     document.getElementById("login-discord").style.display = document.getElementById("login-password").style.display = "none";
+    rcHideNav();
     const bl = document.getElementById("login-blacklisted");
     if (bl) { document.getElementById("blacklisted-username").textContent = user?.username || "User"; bl.style.display = "flex"; }
   }
@@ -1188,6 +1191,22 @@
     document.querySelectorAll("#rc-tab-dev").forEach(el => { el.style.display = user?.isAdmin ? "" : "none"; });
   }
 
+  function rcShowNav() {
+    const chip = document.getElementById("rc-navchip");
+    if (!chip || !user) return;
+    document.getElementById("rc-nav-avatar").src = user.avatar
+      ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=32`
+      : `https://cdn.discordapp.com/embed/avatars/${parseInt(user.id) % 5}.png`;
+    document.getElementById("rc-nav-username").textContent = user.username || "";
+    rcApplyDevTabVisibility();
+    chip.style.display = "flex";
+  }
+
+  function rcHideNav() {
+    const chip = document.getElementById("rc-navchip");
+    if (chip) chip.style.display = "none";
+  }
+
   function rcGoDriverTab() {
     sessionStorage.removeItem("rc_want_dev");
     location.href = "/";
@@ -1205,6 +1224,7 @@
     document.getElementById("widget").style.display = "none";
     document.getElementById("admin-panel").style.display = "block";
     adminMode = true;
+    rcShowNav();
     rcSetActiveTab("dev");
     loadAdminInfo();
   }
@@ -1304,7 +1324,7 @@
       ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=32`
       : `https://cdn.discordapp.com/embed/avatars/${parseInt(user.id)%5}.png`;
     adminMode = true;
-    rcApplyDevTabVisibility();
+    rcShowNav();
     rcSetActiveTab("dev");
     applySectionVisibility();
     await loadAdminInfo();
