@@ -306,6 +306,58 @@
     .rc-action-block:disabled { opacity:.35; cursor:not-allowed; pointer-events:none; }
     @keyframes btnPop { 0%{transform:scale(1)} 40%{transform:scale(0.9)} 100%{transform:scale(1)} }
 
+    /* Lap Time Graph */
+    .rc-laptimes-card {
+      background:var(--surface); border:2px solid var(--border); padding:10px 12px;
+      clip-path: polygon(0 0, 100% 0, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+      margin-bottom:10px;
+    }
+    .rc-laptimes-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; }
+    .rc-laptimes-best { font-size:10px; font-weight:800; color:var(--green); }
+    .rc-lap-graph { display:none; height:60px; margin-top:6px; padding:0 1px; }
+    .rc-lap-graph.on { display:block; }
+    .rc-lap-graph svg { width:100%; height:100%; overflow:visible; }
+    .rc-lap-line { fill:none; stroke:var(--muted); stroke-width:1.5; opacity:.55; }
+    .rc-lap-dot { fill:var(--muted); opacity:.55; }
+    .rc-lap-dot.fastest { fill:var(--green); opacity:1; }
+    .rc-lap-dot.slowest { fill:var(--red); opacity:1; }
+    .rc-lap-dot.race-fastest { fill:#a855f7; opacity:1; }
+    .rc-lap-dot-label { font-family:'Oxanium',sans-serif; font-size:7px; font-weight:800; fill:var(--muted); opacity:.7; }
+    .rc-lap-dot-label.fastest { fill:var(--green); opacity:1; }
+    .rc-lap-dot-label.slowest { fill:var(--red); opacity:1; }
+    .rc-lap-dot-label.race-fastest { fill:#a855f7; opacity:1; }
+    .rc-lap-num-label { font-family:'Oxanium',sans-serif; font-size:6px; font-weight:700; fill:var(--muted); opacity:.6; }
+    .rc-race-fastest-ref { stroke:#a855f7; stroke-width:1; stroke-dasharray:2.5,2.5; opacity:.6; }
+    .rc-race-fastest-ref-label { font-family:'Oxanium',sans-serif; font-size:6.5px; font-weight:800; fill:#a855f7; opacity:.85; }
+    .rc-lap-graph-legend { display:none; gap:10px; margin-top:6px; padding:0 1px; }
+    .rc-lap-graph-legend.on { display:flex; }
+    .rc-lgl-item { display:flex; align-items:center; gap:4px; font-size:7px; letter-spacing:.5px; text-transform:uppercase; color:var(--muted); }
+    .rc-lgl-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+    .rc-lgl-dot.fastest { background:var(--green); }
+    .rc-lgl-dot.slowest { background:var(--red); }
+    .rc-lgl-dot.race-fastest { background:#a855f7; }
+    .rc-laptimes-empty { font-size:10px; color:var(--muted); text-align:center; padding:10px; }
+
+    /* Dual-Car Engineer Switcher */
+    .rc-car-strip { display:none; gap:7px; margin-bottom:10px; }
+    .rc-car-strip.on { display:grid; grid-template-columns:1fr 1fr; }
+    .rc-car-chip {
+      display:flex; align-items:center; gap:8px; padding:8px 10px;
+      background:var(--surface); border:2px solid var(--border); cursor:pointer;
+      clip-path: polygon(0 0, 100% 0, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+      transition:.12s;
+    }
+    .rc-car-chip.active { border-color:var(--blue); background:rgba(41,121,255,.08); }
+    .rc-car-chip-num {
+      width:24px; height:24px; flex-shrink:0; background:var(--bg); border:1px solid var(--border);
+      display:flex; align-items:center; justify-content:center; font-size:9px; font-weight:900; color:var(--muted);
+    }
+    .rc-car-chip.active .rc-car-chip-num { color:var(--blue); border-color:var(--blue); }
+    .rc-car-chip-body { min-width:0; }
+    .rc-car-chip-name { font-size:10px; font-weight:800; letter-spacing:.3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .rc-car-chip-meta { display:flex; align-items:center; gap:4px; font-size:8px; color:var(--muted); }
+    .rc-car-chip-flag-dot { width:5px; height:5px; border-radius:50%; background:var(--muted); flex-shrink:0; }
+
     .rc-nearby-row { display:flex; align-items:center; gap:9px; padding:8px 10px; background:var(--surface); border:2px solid var(--border); margin-bottom:6px;
       clip-path: polygon(0 0, 100% 0, 100% 100%, 10px 100%, 0 calc(100% - 10px)); }
     .rc-nearby-row.ahead { border-color:rgba(0,230,118,.4); }
@@ -432,6 +484,7 @@
     <div style="font-family:'Oxanium',sans-serif;font-size:11px;color:rgba(255,255,255,0.5);line-height:1.7;">The driver panel is currently offline.<br>A marshal will bring it back online shortly.</div>
     <div style="width:100%;height:1px;background:rgba(255,214,0,0.2);"></div>
     <div style="font-size:9px;color:rgba(255,255,255,0.25);letter-spacing:1px;text-transform:uppercase;">RaceLeague · Race Control System</div>
+    <a href="#" id="dev-login-link" style="display:none;font-size:8px;color:rgba(255,255,255,0.15);letter-spacing:1px;" onclick="showScreen('screen-login');return false;">dev login</a>
   </div>
 </div>
 
@@ -488,6 +541,8 @@
     <div class="card-title">🎧 Engineer Setup</div>
     <div class="info-text">Enter the username of the driver you are engineering for.</div>
     <input type="text" id="engineer-driver-input" placeholder="e.g. SETH" style="text-transform:uppercase;" />
+    <div class="info-text" style="margin-top:6px;">Engineering two cars? Add a second driver (optional).</div>
+    <input type="text" id="engineer-driver2-input" placeholder="e.g. MORGAN (optional)" style="text-transform:uppercase;" />
     <button class="btn btn-blue" onclick="confirmEngineer()">Confirm Driver</button>
     <button class="btn btn-outline" onclick="goBack('screen-role')">← Back</button>
     <div class="error-text" id="engineer-error"></div>
@@ -558,6 +613,24 @@
       <div id="flag-notification" style="margin-bottom:4px;"></div>
     </div>
 
+    <!-- Dual-Car Engineer Switcher -->
+    <div class="rc-car-strip" id="rc-car-strip">
+      <div class="rc-car-chip active" id="rc-car-chip-1" onclick="setEngineerActiveCar(1)">
+        <div class="rc-car-chip-num" id="rc-car-chip-num-1">--</div>
+        <div class="rc-car-chip-body">
+          <div class="rc-car-chip-name" id="rc-car-chip-name-1">-</div>
+          <div class="rc-car-chip-meta"><span class="rc-car-chip-flag-dot" id="rc-car-chip-dot-1"></span><span id="rc-car-chip-meta-1">-</span></div>
+        </div>
+      </div>
+      <div class="rc-car-chip" id="rc-car-chip-2" onclick="setEngineerActiveCar(2)">
+        <div class="rc-car-chip-num" id="rc-car-chip-num-2">--</div>
+        <div class="rc-car-chip-body">
+          <div class="rc-car-chip-name" id="rc-car-chip-name-2">-</div>
+          <div class="rc-car-chip-meta"><span class="rc-car-chip-flag-dot" id="rc-car-chip-dot-2"></span><span id="rc-car-chip-meta-2">-</span></div>
+        </div>
+      </div>
+    </div>
+
     <!-- ═══ LEGACY LAYOUT ═══ -->
     <div id="layout-legacy">
       <div>
@@ -611,6 +684,21 @@
             <button class="rc-action-block" id="modern-btn-pitting" onclick="togglePitting()">
               <span class="ai" id="modern-pit-icon">🔧</span><span class="al" id="modern-pit-label">Pitting</span>
             </button>
+          </div>
+        </div>
+
+        <div class="rc-block-title">Lap Times</div>
+        <div class="rc-laptimes-card">
+          <div class="rc-laptimes-head">
+            <span style="font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;">This race</span>
+            <span class="rc-laptimes-best" id="rc-laptimes-best"></span>
+          </div>
+          <div id="rc-laptimes-empty" class="rc-laptimes-empty">No completed laps yet.</div>
+          <div class="rc-lap-graph on" id="rc-lap-graph"></div>
+          <div class="rc-lap-graph-legend on" id="rc-lap-graph-legend">
+            <div class="rc-lgl-item"><span class="rc-lgl-dot fastest"></span>Your best</div>
+            <div class="rc-lgl-item"><span class="rc-lgl-dot slowest"></span>Your slowest</div>
+            <div class="rc-lgl-item"><span class="rc-lgl-dot race-fastest"></span>Race fastest</div>
           </div>
         </div>
 
@@ -696,8 +784,52 @@
 
   let user       = null;
   let driverInfo = null;
+  let driverInfo2 = null;         // dual-engineer: second car
+  let _engineerActiveCar = 1;     // dual-engineer: which car (1 or 2) is currently active
   let isEngineer = false;
   let toastTimer;
+
+  // ── Dev bypass ──────────────────────────────────────────────────────
+  const DEV_USER_ID = "790254318389166111";
+  let hasDev = false;
+  let _devBypassShutdown = false; // false = dev sees live panel, true = dev previews the disabled state
+
+  function showShutdownBanner() {
+    if (document.getElementById("dev-shutdown-banner")) return;
+    const notif = document.createElement("div");
+    notif.id = "dev-shutdown-banner";
+    notif.style.cssText = "position:fixed;top:0;left:0;right:0;z-index:600;padding:8px 10px;background:rgba(255,214,0,0.1);border-bottom:1px solid rgba(255,214,0,0.3);display:flex;align-items:center;justify-content:space-between;gap:10px;";
+    notif.innerHTML = `
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:16px;">🛠️</span>
+        <div>
+          <div style="font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--yellow);">Panel Shutdown</div>
+          <div style="font-size:9px;color:var(--muted);">Disabled for everyone else — dev only</div>
+        </div>
+      </div>
+      <button onclick="toggleDevBypass()" id="dev-bypass-btn"
+        style="font-size:9px;font-weight:800;padding:4px 9px;border-radius:4px;border:1px solid;cursor:pointer;font-family:inherit;background:rgba(255,214,0,0.15);border-color:var(--yellow);color:var(--yellow);white-space:nowrap;">
+        👁 VIEWING
+      </button>`;
+    document.body.appendChild(notif);
+  }
+
+  function hideShutdownBanner() {
+    document.getElementById("dev-shutdown-banner")?.remove();
+  }
+
+  function toggleDevBypass() {
+    _devBypassShutdown = !_devBypassShutdown;
+    const btn = document.getElementById("dev-bypass-btn");
+    if (_devBypassShutdown) {
+      if (btn) { btn.textContent = "🚫 SEE SHUTDOWN"; btn.style.background = "rgba(255,23,68,0.15)"; btn.style.borderColor = "var(--red)"; btn.style.color = "var(--red)"; }
+      document.getElementById("driver-panel").style.display = "none";
+      showScreen("screen-maintenance");
+    } else {
+      if (btn) { btn.textContent = "👁 VIEWING"; btn.style.background = "rgba(255,214,0,0.15)"; btn.style.borderColor = "var(--yellow)"; btn.style.color = "var(--yellow)"; }
+      if (driverInfo) launchPanel(); else showRoleScreen();
+    }
+  }
 
   // ── Panel style (Modern / Legacy) ───────────────────────────────────────
   let _panelStyle = localStorage.getItem("rc_panel_style") || "modern";
@@ -734,12 +866,26 @@
   const _params = new URLSearchParams(location.search);
   const _code   = _params.get("code");
 
+  let _panelOff = false;
+
   (async () => {
     try {
       const res  = await fetch(`${API_URL}/panel-status`);
       const data = await res.json();
-      if (!data.driver) { showScreen("screen-maintenance"); return; }
+      _panelOff = !data.driver;
     } catch {}
+
+    if (_panelOff) {
+      // Still let a logged-in dev through to the maintenance-bypass flow;
+      // everyone else (and anyone not yet logged in) sees the maintenance screen.
+      const saved = sessionStorage.getItem("rc_driver_user");
+      const savedUser = saved ? JSON.parse(saved) : null;
+      if (!(savedUser && savedUser.id === DEV_USER_ID)) {
+        showScreen("screen-maintenance");
+        addDevLoginLink();
+        return;
+      }
+    }
 
     if (_code) {
       window.history.replaceState({}, document.title, "/");
@@ -771,6 +917,7 @@
       if (!res.ok) throw new Error(data.error || "Auth failed");
       user = data.user;
       sessionStorage.setItem("rc_driver_user", JSON.stringify(user));
+      if (_panelOff && user.id !== DEV_USER_ID) { showScreen("screen-maintenance"); return; }
       showRoleScreen();
     } catch (err) {
       document.getElementById("login-error").textContent = `❌ ${err.message}`;
@@ -785,7 +932,19 @@
 
   function goBack(screen) { showScreen(screen); }
 
+  function addDevLoginLink() {
+    const link = document.getElementById("dev-login-link");
+    if (link) link.style.display = "block";
+  }
+
+  function applyDevBypassState() {
+    hasDev = user?.id === DEV_USER_ID;
+    if (_panelOff && hasDev) showShutdownBanner();
+    else hideShutdownBanner();
+  }
+
   function showRoleScreen() {
+    applyDevBypassState();
     const autoDriver = DRIVER_DISCORD_IDS[user.id];
     if (autoDriver) {
       const driver = DRIVERS.find(d => d.name === autoDriver);
@@ -816,7 +975,61 @@
     const driver = DRIVERS.find(d => d.name === input);
     if (!driver) { document.getElementById("engineer-error").textContent = `❌ Driver "${input}" not found.`; return; }
     driverInfo = driver;
+
+    const input2 = document.getElementById("engineer-driver2-input").value.trim().toUpperCase();
+    if (input2) {
+      const driver2 = DRIVERS.find(d => d.name === input2);
+      if (!driver2) { document.getElementById("engineer-error").textContent = `❌ Driver "${input2}" not found.`; return; }
+      if (driver2.name === driver.name) { document.getElementById("engineer-error").textContent = `❌ Pick two different drivers.`; return; }
+      driverInfo2 = driver2;
+    } else {
+      driverInfo2 = null;
+    }
+
     launchPanel();
+  }
+
+  function activeDriverInfo() {
+    return (isEngineer && driverInfo2 && _engineerActiveCar === 2) ? driverInfo2 : driverInfo;
+  }
+
+  function setEngineerActiveCar(slot, silent) {
+    if (slot === 2 && !driverInfo2) return;
+    _engineerActiveCar = slot;
+
+    document.getElementById("rc-car-chip-1")?.classList.toggle("active", slot === 1);
+    document.getElementById("rc-car-chip-2")?.classList.toggle("active", slot === 2);
+
+    const active = activeDriverInfo();
+    document.getElementById("dp-drivername").textContent = active.name;
+    document.getElementById("dp-drivernum").textContent  = `#${active.number}`;
+
+    // Reset local pit state display for the newly active car
+    inPits = false;
+    const modernBtn = document.getElementById("modern-btn-pitting");
+    const legacyBtn = document.getElementById("legacy-btn-pitting");
+    const modernLabel = document.getElementById("modern-pit-label");
+    const legacyLabel = document.getElementById("legacy-pit-label");
+    if (modernBtn) modernBtn.classList.remove("pit-active");
+    if (legacyBtn) { legacyBtn.style.borderColor = ""; legacyBtn.style.background = ""; legacyBtn.style.color = ""; }
+    if (modernLabel) modernLabel.textContent = "Pitting";
+    if (legacyLabel) legacyLabel.textContent = "Pitting";
+
+    if (_raceState) renderRaceState(_raceState);
+    if (!silent) dpToast(`Now controlling ${active.name}`, "");
+  }
+
+  function updateCarChipMeta(slot, driverState) {
+    const metaEl = document.getElementById(`rc-car-chip-meta-${slot}`);
+    const dotEl = document.getElementById(`rc-car-chip-dot-${slot}`);
+    if (!metaEl) return;
+    if (!driverState) { metaEl.textContent = "–"; return; }
+    const posTxt = driverState.position ? `P${driverState.position}` : "–";
+    const gapTxt = driverState.finished ? "Finished" : driverState.dnf ? "DNF" : (driverState.gap || "–");
+    metaEl.textContent = `${posTxt} · ${gapTxt}`;
+    if (dotEl) {
+      dotEl.style.background = driverState.inPits ? "var(--yellow)" : (driverState.watchMarshal ? "var(--red)" : "var(--muted)");
+    }
   }
 
   function filterDriverSelect() {
@@ -852,6 +1065,15 @@
     document.getElementById("dp-drivernum").textContent  = `#${driverInfo.number}`;
     if (isEngineer) document.getElementById("dp-engineer-badge").style.display = "block";
 
+    if (isEngineer && driverInfo2) {
+      document.getElementById("rc-car-strip").classList.add("on");
+      document.getElementById("rc-car-chip-num-1").textContent = driverInfo.number || "--";
+      document.getElementById("rc-car-chip-name-1").textContent = driverInfo.name || "-";
+      document.getElementById("rc-car-chip-num-2").textContent = driverInfo2.number || "--";
+      document.getElementById("rc-car-chip-name-2").textContent = driverInfo2.name || "-";
+      setEngineerActiveCar(1, true);
+    }
+
     updateStyleToggleBtns();
     setPanelStyle(_panelStyle);
 
@@ -866,10 +1088,24 @@
     try {
       const statusRes  = await fetch(`${API_URL}/panel-status`);
       const statusData = await statusRes.json();
-      if (!statusData.driver) {
-        showScreen("screen-maintenance");
-        document.getElementById("driver-panel").style.display = "none";
-        return;
+      _panelOff = !statusData.driver;
+      if (_panelOff) {
+        if (hasDev) {
+          showShutdownBanner();
+          if (_devBypassShutdown) {
+            document.getElementById("driver-panel").style.display = "none";
+            showScreen("screen-maintenance");
+            return;
+          }
+          // else: fall through and keep polling/rendering the live panel
+        } else {
+          hideShutdownBanner();
+          showScreen("screen-maintenance");
+          document.getElementById("driver-panel").style.display = "none";
+          return;
+        }
+      } else {
+        hideShutdownBanner();
       }
 
       const headers = user ? { "x-discord-id": user.id } : {};
@@ -957,7 +1193,102 @@
     else { pill.textContent = "● Waiting"; }
 
     if (_panelStyle === "legacy") renderLegacyLeaderboard(data);
-    else { renderModernLeaderboard(data); renderNearby(data); }
+    else { renderModernLeaderboard(data); renderNearby(data); renderLapGraph(data); }
+
+    if (isEngineer && driverInfo2) {
+      updateCarChipMeta(1, data.drivers?.find(d => d.name === driverInfo.name));
+      updateCarChipMeta(2, data.drivers?.find(d => d.name === driverInfo2.name));
+    }
+  }
+
+  // ── Lap time graph ──────────────────────────────────────────────────
+  function _rcCleanLaps(lapDurations) {
+    return (lapDurations || []).filter(l => !l.pit && !l.unstable && typeof l.time === "number");
+  }
+
+  function _rcRaceFastest(allDrivers) {
+    let best = null;
+    (allDrivers || []).forEach(d => {
+      _rcCleanLaps(d.lapDurations).forEach(l => {
+        if (!best || l.time < best.time) best = { driver: d.name, lap: l.lap, time: l.time };
+      });
+    });
+    return best;
+  }
+
+  function _rcFormatGraphTime(seconds) {
+    if (typeof seconds !== "number" || isNaN(seconds)) return "–";
+    if (seconds >= 60) {
+      const mins = Math.floor(seconds / 60);
+      const secs = (seconds % 60).toFixed(1).padStart(4, "0");
+      return `${mins}:${secs}`;
+    }
+    return seconds.toFixed(1);
+  }
+
+  function _rcFormatLapTime(seconds) {
+    if (typeof seconds !== "number" || isNaN(seconds)) return "–";
+    const mins = Math.floor(seconds / 60);
+    const secs = (seconds % 60).toFixed(2);
+    return mins > 0 ? `${mins}:${secs.padStart(5, "0")}` : `${secs}s`;
+  }
+
+  function renderLapGraph(data) {
+    const graphEl = document.getElementById("rc-lap-graph");
+    const emptyEl = document.getElementById("rc-laptimes-empty");
+    const bestEl  = document.getElementById("rc-laptimes-best");
+    if (!graphEl) return;
+
+    const myName = (isEngineer && driverInfo2)
+      ? (_engineerActiveCar === 2 ? driverInfo2.name : driverInfo?.name)
+      : driverInfo?.name;
+    const me = (data.drivers || []).find(d => d.name === myName);
+    const laps = me ? _rcCleanLaps(me.lapDurations) : [];
+
+    if (!laps.length) {
+      graphEl.innerHTML = "";
+      if (emptyEl) emptyEl.style.display = "block";
+      if (bestEl) bestEl.textContent = "";
+      return;
+    }
+    if (emptyEl) emptyEl.style.display = "none";
+
+    const raceFastest = _rcRaceFastest(data.drivers);
+    const times = laps.map(l => l.time);
+    const ownFastest = Math.min(...times);
+    const ownSlowest = Math.max(...times);
+    if (bestEl) bestEl.textContent = `Best: ${_rcFormatLapTime(ownFastest)}`;
+
+    const youHoldRaceFastest = !raceFastest || ownFastest <= raceFastest.time;
+    const minT = Math.min(ownFastest, raceFastest ? raceFastest.time : ownFastest);
+    const range = Math.max(ownSlowest - minT, 0.1);
+
+    const W = 300, H = 60, PADX = 5, plotTop = 16, plotBottom = H - 12;
+    const n = laps.length;
+    const x = i => n === 1 ? W / 2 : PADX + (i / (n - 1)) * (W - PADX * 2);
+    const y = t => plotTop + ((t - minT) / range) * (plotBottom - plotTop);
+
+    const points = laps.map((l, i) => ({ x: x(i), y: y(l.time), l }));
+    const pathD = points.map((p, i) => (i === 0 ? "M" : "L") + p.x.toFixed(1) + "," + p.y.toFixed(1)).join(" ");
+
+    const parts = points.map(p => {
+      let cls = "rc-lap-dot", labelCls = "";
+      if (youHoldRaceFastest && p.l.time === ownFastest) { cls += " race-fastest"; labelCls = "race-fastest"; }
+      else if (p.l.time === ownFastest) { cls += " fastest"; labelCls = "fastest"; }
+      else if (p.l.time === ownSlowest) { cls += " slowest"; labelCls = "slowest"; }
+      return `<circle class="${cls}" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="2.6"></circle>` +
+        `<text class="rc-lap-dot-label ${labelCls}" x="${p.x.toFixed(1)}" y="${(p.y - 5).toFixed(1)}" text-anchor="middle">${_rcFormatGraphTime(p.l.time)}</text>` +
+        `<text class="rc-lap-num-label" x="${p.x.toFixed(1)}" y="${(H - 2).toFixed(1)}" text-anchor="middle">L${p.l.lap}</text>`;
+    }).join("");
+
+    let refLine = "";
+    if (raceFastest && !youHoldRaceFastest) {
+      const ry = y(raceFastest.time);
+      refLine = `<line class="rc-race-fastest-ref" x1="${PADX}" y1="${ry.toFixed(1)}" x2="${(W - PADX).toFixed(1)}" y2="${ry.toFixed(1)}"></line>
+        <text class="rc-race-fastest-ref-label" x="${(W - PADX).toFixed(1)}" y="${(ry - 3).toFixed(1)}" text-anchor="end">${raceFastest.driver} · ${_rcFormatGraphTime(raceFastest.time)}</text>`;
+    }
+
+    graphEl.innerHTML = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">${refLine}<path class="rc-lap-line" d="${pathD}"></path>${parts}</svg>`;
   }
 
   // ── Legacy leaderboard ────────────────────────────────────────────────
@@ -969,7 +1300,7 @@
     }
     lb.innerHTML = data.drivers.map((d, i) => {
       const pos = i + 1;
-      const isMe = d.name === driverInfo?.name;
+      const isMe = d.name === activeDriverInfo()?.name;
       const posClass = pos === 1 ? "p1" : pos === 2 ? "p2" : pos === 3 ? "p3" : "";
       return `
         <div class="lb-row ${isMe ? "is-me" : ""}" style="${d.inPits ? "border-color:rgba(255,214,0,0.5);background:rgba(255,214,0,0.06);box-shadow:0 0 8px rgba(255,214,0,0.1);" : ""}">
@@ -1035,7 +1366,7 @@
     }
 
     lb.innerHTML = data.drivers.map((d, i) => {
-      const isMe = d.name === driverInfo?.name;
+      const isMe = d.name === activeDriverInfo()?.name;
       const rowClasses = ["f-row"];
       if (isMe) rowClasses.push("you");
       if (d.dnf) rowClasses.push("dnf");
@@ -1043,7 +1374,7 @@
       return `<div class="${rowClasses.join(" ")}">${fieldRowInner(d, i, data)}</div>`;
     }).join("");
 
-    const idx = driverInfo ? data.drivers.findIndex(d => d.name === driverInfo.name) : -1;
+    const idx = driverInfo ? data.drivers.findIndex(d => d.name === activeDriverInfo()?.name) : -1;
     if (pin) {
       if (idx === -1) {
         pin.style.display = "none";
@@ -1058,7 +1389,7 @@
   function renderNearby(data) {
     const el = document.getElementById("d-nearby");
     if (!el) return;
-    const refName = driverInfo?.name;
+    const refName = activeDriverInfo()?.name;
     if (!refName || !data.drivers?.length) {
       el.innerHTML = '<div style="font-size:11px;color:var(--muted);text-align:center;padding:16px;">No data yet.</div>';
       return;
@@ -1139,9 +1470,9 @@
         headers: { "Content-Type": "application/json" },
         body:    JSON.stringify({
           action,
-          driver:    driverInfo.name,
-          callsign:  driverInfo.callsign,
-          number:    driverInfo.number,
+          driver:    activeDriverInfo().name,
+          callsign:  activeDriverInfo().callsign,
+          number:    activeDriverInfo().number,
           discordId: user.id,
           username:  user.username,
           engineer:  isEngineer,
