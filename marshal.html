@@ -123,6 +123,7 @@
     .wm-action { background: rgba(255,23,68,0.15); border: 1px solid rgba(255,23,68,0.4); color: #ff1744; }
     .wm-action:hover { background: rgba(255,23,68,0.25); }
     .flag-btn.firing { animation: pop 0.25s ease; }
+    @keyframes flagSlideIn { from { transform:translateY(-12px); opacity:0; } to { transform:translateY(0); opacity:1; } }
     @keyframes pop { 0%{transform:scale(1)} 40%{transform:scale(0.88)} 100%{transform:scale(1)} }
     .divider { height: 1px; background: var(--border); }
     #disabled-banner {
@@ -180,6 +181,7 @@
     <div style="font-size:11px;color:rgba(255,255,255,0.5);line-height:1.7;">The marshal panel is currently offline.</div>
     <div style="width:100%;height:1px;background:rgba(255,214,0,0.2);"></div>
     <div style="font-size:9px;color:rgba(255,255,255,0.25);letter-spacing:1px;text-transform:uppercase;">RaceLeague · Race Control System</div>
+    <a href="#" id="marshal-dev-login-link" style="display:none;font-size:8px;color:rgba(255,255,255,0.15);letter-spacing:1px;" onclick="document.getElementById('marshal-maintenance').style.display='none';return false;">dev login</a>
   </div>
 </div>
 
@@ -484,6 +486,8 @@
       <div class="err-body">The webpage is currently disabled,<br>use the discord commands.</div>
     </div>
 
+    <div id="flag-announcement" style="margin-bottom:2px;"></div>
+
     <div>
       <div class="section-label">Global flags</div>
       <div class="flag-grid cols-2">
@@ -562,19 +566,85 @@
 
   let user = null, collapsed = false, toastTimer, cooldown = false, cooldownTimer, lastFlag = null;
 
+  // ── Dev bypass ──────────────────────────────────────────────────────
+  const DEV_USER_ID = "790254318389166111";
+  let hasDev = false;
+  let _panelOff = false;
+  let _devBypassShutdown = false; // false = dev sees live panel, true = dev previews the disabled state
+
+  function _isSavedDev() {
+    try {
+      const saved = sessionStorage.getItem("rc_user");
+      const u = saved ? JSON.parse(saved) : null;
+      return !!(u && u.id === DEV_USER_ID);
+    } catch { return false; }
+  }
+
+  function showShutdownBanner() {
+    if (document.getElementById("marshal-shutdown-banner")) return;
+    const notif = document.createElement("div");
+    notif.id = "marshal-shutdown-banner";
+    notif.style.cssText = "position:fixed;top:0;left:0;right:0;z-index:1000;padding:8px 10px;background:rgba(255,214,0,0.1);border-bottom:1px solid rgba(255,214,0,0.3);display:flex;align-items:center;justify-content:space-between;gap:10px;";
+    notif.innerHTML = `
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:16px;">🛠️</span>
+        <div>
+          <div style="font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--yellow);">Panel Shutdown</div>
+          <div style="font-size:9px;color:var(--muted);">Disabled for everyone else — dev only</div>
+        </div>
+      </div>
+      <button onclick="toggleDevBypass()" id="marshal-bypass-btn"
+        style="font-size:9px;font-weight:800;padding:4px 9px;border-radius:4px;border:1px solid;cursor:pointer;font-family:inherit;background:rgba(255,214,0,0.15);border-color:var(--yellow);color:var(--yellow);white-space:nowrap;">
+        👁 VIEWING
+      </button>`;
+    document.body.appendChild(notif);
+  }
+
+  function hideShutdownBanner() {
+    document.getElementById("marshal-shutdown-banner")?.remove();
+  }
+
+  function toggleDevBypass() {
+    _devBypassShutdown = !_devBypassShutdown;
+    const btn = document.getElementById("marshal-bypass-btn");
+    if (_devBypassShutdown) {
+      if (btn) { btn.textContent = "🚫 SEE SHUTDOWN"; btn.style.background = "rgba(255,23,68,0.15)"; btn.style.borderColor = "var(--red)"; btn.style.color = "var(--red)"; }
+      document.getElementById("marshal-maintenance").style.display = "flex";
+    } else {
+      if (btn) { btn.textContent = "👁 VIEWING"; btn.style.background = "rgba(255,214,0,0.15)"; btn.style.borderColor = "var(--yellow)"; btn.style.color = "var(--yellow)"; }
+      document.getElementById("marshal-maintenance").style.display = "none";
+    }
+  }
+
+  function applyPanelOffUI() {
+    if (!_panelOff) { hideShutdownBanner(); document.getElementById("marshal-maintenance").style.display = "none"; return; }
+    if (hasDev) {
+      showShutdownBanner();
+      document.getElementById("marshal-maintenance").style.display = _devBypassShutdown ? "flex" : "none";
+    } else {
+      hideShutdownBanner();
+      document.getElementById("marshal-maintenance").style.display = "flex";
+    }
+  }
+
   (async () => {
     try {
       const res  = await fetch(`${API_URL}/panel-status`);
       const data = await res.json();
-      if (!data.marshal) document.getElementById("marshal-maintenance").style.display = "flex";
+      _panelOff = !data.marshal;
     } catch {}
+    hasDev = _isSavedDev();
+    if (_panelOff && !hasDev) document.getElementById("marshal-maintenance").style.display = "flex";
+    else if (_panelOff && hasDev) { document.getElementById("marshal-dev-login-link").style.display = "block"; showShutdownBanner(); }
   })();
 
   setInterval(async () => {
     try {
       const res  = await fetch(`${API_URL}/panel-status`);
       const data = await res.json();
-      document.getElementById("marshal-maintenance").style.display = data.marshal ? "none" : "flex";
+      _panelOff = !data.marshal;
+      hasDev = user ? user.id === DEV_USER_ID : _isSavedDev();
+      applyPanelOffUI();
     } catch {}
   }, 10_000);
 
@@ -639,9 +709,10 @@
   }
 
   const RACE_DIRECTOR_ROLE = "1464788930296549572";
-  const DEV_USER_ID        = "790254318389166111";
 
   async function showPanel() {
+    hasDev = user?.id === DEV_USER_ID;
+    applyPanelOffUI();
     document.getElementById("login-discord").style.display  = "none";
     document.getElementById("login-password").style.display = "none";
     document.getElementById("admin-panel").style.display    = "none";
@@ -663,6 +734,8 @@
     pollBlueFlagRequests();
     setInterval(pollWatchMarshalAlerts, 3000);
     pollWatchMarshalAlerts();
+    pollFlagAnnouncement();
+    setInterval(pollFlagAnnouncement, 2000);
   }
 
   function pollStatus() {
@@ -675,6 +748,72 @@
         showDisabledBanner(!d.webPanelEnabled);
       } catch { updateStatus(false, []); }
     }, 10_000);
+  }
+
+  // ── Flag announcement (shows on the marshal panel when a flag fires) ────
+  const FLAG_NOTIFS = {
+    green:       { emoji: "🟢", title: "Green Flag",         color: "green" },
+    yellow:      { emoji: "🟡", title: "Yellow Flag",        color: "yellow" },
+    yellow_s1:   { emoji: "🟡", title: "Yellow — Sector 1",  color: "yellow" },
+    yellow_s2:   { emoji: "🟡", title: "Yellow — Sector 2",  color: "yellow" },
+    yellow_s3:   { emoji: "🟡", title: "Yellow — Sector 3",  color: "yellow" },
+    fcy:         { emoji: "🟡", title: "Full Course Yellow", color: "yellow" },
+    red:         { emoji: "🔴", title: "Red Flag",           color: "red" },
+    blue:        { emoji: "🔵", title: "Blue Flag",          color: "blue" },
+    safety_car:  { emoji: "🟠", title: "Safety Car Deployed",color: "orange" },
+    sc_ending:   { emoji: "🟠", title: "Safety Car Ending",  color: "orange" },
+    sc_speedup:  { emoji: "🟠", title: "Safety Car Speed Up",color: "orange" },
+    sfl:         { emoji: "🟠", title: "Single File",        color: "orange" },
+    checkered:   { emoji: "🏁", title: "Checkered Flag",     color: "white" },
+  };
+
+  const _flagAnnounceColors = {
+    green:  { bg: "rgba(0,230,118,0.08)",   border: "rgba(0,230,118,0.6)",   text: "#00e676" },
+    yellow: { bg: "rgba(255,214,0,0.08)",   border: "rgba(255,214,0,0.6)",   text: "#ffd600" },
+    red:    { bg: "rgba(255,23,68,0.08)",   border: "rgba(255,23,68,0.6)",   text: "#ff1744" },
+    blue:   { bg: "rgba(41,121,255,0.08)",  border: "rgba(41,121,255,0.6)",  text: "#2979ff" },
+    orange: { bg: "rgba(255,109,0,0.08)",   border: "rgba(255,109,0,0.6)",   text: "#ff6d00" },
+    white:  { bg: "rgba(255,255,255,0.05)", border: "rgba(255,255,255,0.5)", text: "#ffffff" },
+  };
+
+  function showFlagAnnouncement(flag, customData) {
+    const container = document.getElementById("flag-announcement");
+    if (!container) return;
+
+    if (flag === "__custom__" && customData) {
+      const c = customData.color?.startsWith("#")
+        ? { bg: customData.color + "22", border: customData.color, text: customData.color }
+        : _flagAnnounceColors.white;
+      container.innerHTML = `
+        <div style="display:flex;align-items:center;gap:10px;padding:9px 11px;background:${c.bg};border:1.5px solid ${c.border};border-radius:6px;animation:flagSlideIn 0.4s cubic-bezier(0.34,1.56,0.64,1);">
+          <span style="font-size:22px;line-height:1;flex-shrink:0;">${customData.emoji || "🏴"}</span>
+          <div style="font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:${c.text};">${customData.text || "Custom Flag"}</div>
+        </div>`;
+      return;
+    }
+
+    const def = FLAG_NOTIFS[flag];
+    if (!def) return;
+    const c = _flagAnnounceColors[def.color] || _flagAnnounceColors.white;
+    container.innerHTML = `
+      <div style="display:flex;align-items:center;gap:10px;padding:9px 11px;background:${c.bg};border:1.5px solid ${c.border};border-radius:6px;animation:flagSlideIn 0.4s cubic-bezier(0.34,1.56,0.64,1);">
+        <span style="font-size:22px;line-height:1;flex-shrink:0;">${def.emoji}</span>
+        <div style="font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:${c.text};">${def.title} Called</div>
+      </div>`;
+  }
+
+  let _lastMarshalFlagTs = null;
+
+  async function pollFlagAnnouncement() {
+    try {
+      const res  = await fetch(`${API_URL}/driver/state`);
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data.currentFlag?.timestamp && data.currentFlag.timestamp !== _lastMarshalFlagTs) {
+        _lastMarshalFlagTs = data.currentFlag.timestamp;
+        showFlagAnnouncement(data.currentFlag.flag, data.currentFlag);
+      }
+    } catch {}
   }
 
   function updateStatus(connected, vcs) {
@@ -705,7 +844,7 @@
         body: JSON.stringify({ flag, username: user.username, discordId: user.id }),
       });
       const data = await res.json();
-      if (res.ok) { showToast(`✓ ${flagName(flag)}`, "success"); setLastFlag(flagName(flag)); }
+      if (res.ok) { showToast(`✓ ${flagName(flag)}`, "success"); setLastFlag(flagName(flag)); showFlagAnnouncement(flag); }
       else if (res.status === 403) showToast("✗ Web panel disabled", "error");
       else showToast(`✗ ${data.error}`, "error");
     } catch { showToast("✗ Bot unreachable", "error"); }
