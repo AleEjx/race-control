@@ -1594,6 +1594,14 @@
     return `rgba(${r},${g},${b},${alpha})`;
   }
 
+  // Driver DB has no dedicated `team` field — callsigns are formatted
+  // "TEAM-NUMBER" (e.g. "AWR-18"), so pull the team code out of that prefix.
+  function teamFromCallsign(callsign) {
+    if (!callsign) return null;
+    const prefix = callsign.split("-")[0]?.trim().toUpperCase();
+    return prefix || null;
+  }
+
   let DRIVERS = [];
   let _driversLoaded = false;
 
@@ -1604,7 +1612,7 @@
       const data = await res.json();
       const drivers = data.drivers || [];
       DRIVERS = drivers
-        .map(d => ({ name: d.name, number: d.number, callsign: d.callsign, discordId: d.discordId, team: d.team || null }))
+        .map(d => ({ name: d.name, number: d.number, callsign: d.callsign, discordId: d.discordId, team: teamFromCallsign(d.callsign) }))
         .sort((a, b) => parseInt(a.number) - parseInt(b.number));
       _driversLoaded = true;
       return true;
