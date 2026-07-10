@@ -138,6 +138,58 @@
     @keyframes flagSlideIn { from { transform:translateY(-12px); opacity:0; } to { transform:translateY(0); opacity:1; } }
     @keyframes pop { 0%{transform:scale(1)} 40%{transform:scale(0.88)} 100%{transform:scale(1)} }
     .divider { height: 1px; background: var(--border); }
+
+    /* ── Section tabs (Flags / Setup / Team / Control) — mirrors the app's marshal panel ── */
+    .m-tabnav {
+      display: flex; gap: 2px; border-bottom: 1px solid var(--border); margin-bottom: 2px;
+    }
+    .m-tab-btn {
+      flex: 1; background: none; border: none; padding: 8px 4px 9px;
+      font-family: 'Oxanium', sans-serif; font-size: 10px; font-weight: 700;
+      letter-spacing: 1px; text-transform: uppercase; color: var(--muted);
+      cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .m-tab-btn:hover { color: var(--text); }
+    .m-tab-btn.active { color: var(--text); border-bottom-color: var(--red); }
+    .m-tab-panel { display: none; flex-direction: column; gap: 8px; }
+    .m-tab-panel.active { display: flex; }
+
+    .race-status-row {
+      display: flex; align-items: center; justify-content: space-between;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 5px;
+      padding: 7px 10px;
+    }
+    .race-status-row .rs-left { display: flex; align-items: center; gap: 6px; }
+    .race-status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--muted); flex-shrink: 0; transition: background 0.3s; }
+    .race-status-dot.live { background: var(--green); box-shadow: 0 0 5px var(--green); }
+    .rs-label { font-size: 11px; font-weight: 700; letter-spacing: 0.5px; color: var(--text); }
+    .rs-label.live { color: var(--green); }
+    .rs-right { font-size: 10px; color: var(--muted); letter-spacing: 0.3px; }
+
+    .m-lb-row {
+      display: flex; align-items: center; gap: 8px; padding: 6px 8px;
+      background: #0c0c14; border: 1px solid var(--border); border-radius: 4px;
+    }
+    .m-lb-row.pitting { border-color: rgba(255,214,0,0.35); }
+    .m-lb-row.dnf { opacity: 0.5; }
+    .m-lb-pos { width: 15px; text-align: center; font-size: 11px; font-weight: 900; color: var(--muted); flex-shrink: 0; }
+    .m-lb-num {
+      font-size: 10px; font-weight: 800; color: var(--blue); width: 30px; text-align: center;
+      flex-shrink: 0; background: rgba(41,121,255,0.12); border: 1px solid rgba(41,121,255,0.3);
+      border-radius: 3px; padding: 2px 0;
+    }
+    .m-lb-body { flex: 1; min-width: 0; }
+    .m-lb-name { font-size: 11px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .m-lb-call { font-size: 9px; color: var(--muted); }
+    .m-lb-gap { font-size: 10px; color: var(--muted); flex-shrink: 0; white-space: nowrap; }
+    .m-placeholder {
+      font-size: 11px; color: var(--muted); text-align: center; padding: 24px 10px; line-height: 1.6;
+    }
+    .input-full {
+      width: 100%; background: #0c0c14; border: 1px solid var(--border); color: var(--text);
+      font-family: 'Oxanium', sans-serif; font-size: 12px; padding: 7px 10px; border-radius: 4px; outline: none;
+    }
     #disabled-banner {
       display: none; flex-direction: column; align-items: center; justify-content: center;
       gap: 6px; padding: 14px 10px;
@@ -639,59 +691,107 @@
 
     <div id="flag-announcement" style="margin-bottom:2px;"></div>
 
-    <div>
-      <div class="section-label">Global flags</div>
-      <div class="flag-grid cols-2">
-        <button class="flag-btn green"  onclick="triggerFlag('green',  event)"><span class="fi">🟢</span><span class="fn">Green</span></button>
-        <button class="flag-btn red"    onclick="triggerFlag('red',    event)"><span class="fi">🔴</span><span class="fn">Red</span></button>
-        <button class="flag-btn yellow" onclick="triggerFlag('yellow', event)"><span class="fi">🟡</span><span class="fn">Yellow</span></button>
-        <button class="flag-btn yellow" onclick="triggerFlag('fcy',    event)"><span class="fi">🟡</span><span class="fn">FCY</span></button>
+    <div class="race-status-row">
+      <div class="rs-left">
+        <div class="race-status-dot" id="m-app-status-dot"></div>
+        <span class="rs-label" id="m-app-status-label">Connecting...</span>
       </div>
+      <div class="rs-right" id="m-race-pill">● Waiting</div>
     </div>
-    <div class="divider"></div>
-    <div>
-      <div class="section-label">Driver</div>
-      <div class="flag-grid cols-2">
-        <button class="flag-btn blue"  onclick="openBlueFlagModal(event)"><span class="fi">🔵</span><span class="fn">Blue Flag</span></button>
-        <button class="flag-btn white" onclick="showConstruction(event)"><span class="fi">🏁</span><span class="fn">Checkered</span></button>
-      </div>
-    </div>
-    <div class="divider"></div>
-    <div>
-      <div class="section-label">Safety car</div>
-      <div class="flag-grid cols-2">
-        <button class="flag-btn orange" onclick="triggerFlag('safety_car', event)"><span class="fi">🟠</span><span class="fn">Deploy</span></button>
-        <button class="flag-btn orange" onclick="triggerFlag('sc_ending',  event)"><span class="fi">🟠</span><span class="fn">Ending</span></button>
-        <button class="flag-btn orange" onclick="triggerFlag('sc_speedup', event)"><span class="fi">🟠</span><span class="fn">Speed Up</span></button>
-        <button class="flag-btn orange" onclick="triggerFlag('sfl',        event)"><span class="fi">🟠</span><span class="fn">SFL</span></button>
-      </div>
-    </div>
-    <div class="divider"></div>
-    <div id="blueflag-notifications" style="display:none;flex-direction:column;gap:6px;"></div>
-    <div id="watchmarshal-notifications" style="display:none;flex-direction:column;gap:6px;"></div>
 
-    <div id="widget-race-setup" style="display:none;">
-      <div class="divider" style="margin:4px 0 8px;"></div>
-      <div class="section-label">🏁 Race Setup</div>
-      <div style="background:#0c0c14;border:1px solid var(--border);border-radius:6px;padding:10px 12px;display:flex;flex-direction:column;gap:8px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
-          <span style="font-size:11px;">Total Laps</span>
-          <input type="number" id="widget-race-laps" min="1" max="99" value="10" style="width:65px;background:#0a0a10;border:1px solid var(--border);color:var(--text);font-family:'Oxanium',sans-serif;font-size:12px;font-weight:700;padding:4px 8px;border-radius:4px;outline:none;text-align:center;" />
+    <div class="m-tabnav">
+      <button class="m-tab-btn active" data-tab="flags"   onclick="setMarshalTab('flags')">Flags</button>
+      <button class="m-tab-btn"        data-tab="setup"   onclick="setMarshalTab('setup')">Setup</button>
+      <button class="m-tab-btn"        data-tab="team"    onclick="setMarshalTab('team')">Team</button>
+      <button class="m-tab-btn"        data-tab="control" onclick="setMarshalTab('control')">Control</button>
+    </div>
+
+    <div class="m-tab-panel active" id="m-tab-flags">
+      <div id="blueflag-notifications" style="display:none;flex-direction:column;gap:6px;"></div>
+      <div id="watchmarshal-notifications" style="display:none;flex-direction:column;gap:6px;"></div>
+
+      <div>
+        <div class="section-label" style="display:flex;justify-content:space-between;">
+          <span>Leaderboard</span>
+          <span id="m-lap-counter"></span>
         </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
-          <div><div style="font-size:11px;">Mandatory Pit Stops</div><div style="font-size:9px;color:var(--muted);">0 = disabled</div></div>
-          <input type="number" id="widget-race-pits" min="0" max="9" value="0" style="width:65px;background:#0a0a10;border:1px solid var(--border);color:var(--text);font-family:'Oxanium',sans-serif;font-size:12px;font-weight:700;padding:4px 8px;border-radius:4px;outline:none;text-align:center;" />
+        <input type="text" id="m-lb-search" placeholder="Search driver..." class="input-full" oninput="filterMarshalLeaderboard(this.value)" />
+        <div id="m-leaderboard" style="display:flex;flex-direction:column;gap:4px;margin-top:6px;">
+          <div class="m-placeholder">Waiting for race...</div>
         </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
-          <div><div style="font-size:11px;">Next Lap Cooldown</div><div style="font-size:9px;color:var(--muted);">seconds (0 = none)</div></div>
-          <input type="number" id="widget-race-interval" min="0" max="3600" value="0" style="width:65px;background:#0a0a10;border:1px solid var(--border);color:var(--text);font-family:'Oxanium',sans-serif;font-size:12px;font-weight:700;padding:4px 8px;border-radius:4px;outline:none;text-align:center;" />
-        </div>
-        <div style="display:flex;gap:5px;">
-          <button onclick="widgetStartRace()" style="flex:1;background:rgba(0,230,118,0.12);border:1px solid rgba(0,230,118,0.4);color:#00e676;font-family:'Oxanium',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:7px;border-radius:4px;cursor:pointer;">🏁 Start</button>
-          <button onclick="widgetResetRace()" style="background:#0a0a10;border:1px solid var(--border);color:var(--muted);font-family:'Oxanium',sans-serif;font-size:11px;font-weight:700;padding:7px 10px;border-radius:4px;cursor:pointer;">Reset</button>
-        </div>
-        <div id="widget-race-status" style="font-size:10px;color:var(--muted);text-align:center;min-height:14px;"></div>
       </div>
+
+      <div class="divider"></div>
+
+      <div>
+        <div class="section-label">Global flags</div>
+        <div class="flag-grid cols-2">
+          <button class="flag-btn green"  onclick="triggerFlag('green',  event)"><span class="fi">🟢</span><span class="fn">Green</span></button>
+          <button class="flag-btn red"    onclick="triggerFlag('red',    event)"><span class="fi">🔴</span><span class="fn">Red</span></button>
+          <button class="flag-btn yellow" onclick="triggerFlag('yellow', event)"><span class="fi">🟡</span><span class="fn">Yellow</span></button>
+          <button class="flag-btn yellow" onclick="triggerFlag('fcy',    event)"><span class="fi">🟡</span><span class="fn">FCY</span></button>
+        </div>
+        <div class="flag-grid" style="grid-template-columns:1fr;margin-top:5px;">
+          <button class="flag-btn blue" onclick="openBlueFlagModal(event)"><span class="fi">🔵</span><span class="fn">Blue Flag</span></button>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div>
+        <div class="section-label">Safety car</div>
+        <div class="flag-grid cols-2">
+          <button class="flag-btn orange" onclick="triggerFlag('safety_car', event)"><span class="fi">🟠</span><span class="fn">Deploy</span></button>
+          <button class="flag-btn orange" onclick="triggerFlag('sc_ending',  event)"><span class="fi">🟠</span><span class="fn">Ending</span></button>
+          <button class="flag-btn orange" onclick="triggerFlag('sc_speedup', event)"><span class="fi">🟠</span><span class="fn">Speed Up</span></button>
+          <button class="flag-btn orange" onclick="triggerFlag('sfl',        event)"><span class="fi">🟠</span><span class="fn">SFL</span></button>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div>
+        <div class="section-label">Other</div>
+        <div class="flag-grid cols-2">
+          <button class="flag-btn white" onclick="showConstruction(event)"><span class="fi">🏁</span><span class="fn">Checkered</span></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="m-tab-panel" id="m-tab-setup">
+      <div id="widget-race-setup" style="display:none;">
+        <div class="section-label">🏁 Race Setup</div>
+        <div style="background:#0c0c14;border:1px solid var(--border);border-radius:6px;padding:10px 12px;display:flex;flex-direction:column;gap:8px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+            <span style="font-size:11px;">Total Laps</span>
+            <input type="number" id="widget-race-laps" min="1" max="99" value="10" style="width:65px;background:#0a0a10;border:1px solid var(--border);color:var(--text);font-family:'Oxanium',sans-serif;font-size:12px;font-weight:700;padding:4px 8px;border-radius:4px;outline:none;text-align:center;" />
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+            <div><div style="font-size:11px;">Mandatory Pit Stops</div><div style="font-size:9px;color:var(--muted);">0 = disabled</div></div>
+            <input type="number" id="widget-race-pits" min="0" max="9" value="0" style="width:65px;background:#0a0a10;border:1px solid var(--border);color:var(--text);font-family:'Oxanium',sans-serif;font-size:12px;font-weight:700;padding:4px 8px;border-radius:4px;outline:none;text-align:center;" />
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+            <div><div style="font-size:11px;">Next Lap Cooldown</div><div style="font-size:9px;color:var(--muted);">seconds (0 = none)</div></div>
+            <input type="number" id="widget-race-interval" min="0" max="3600" value="0" style="width:65px;background:#0a0a10;border:1px solid var(--border);color:var(--text);font-family:'Oxanium',sans-serif;font-size:12px;font-weight:700;padding:4px 8px;border-radius:4px;outline:none;text-align:center;" />
+          </div>
+          <div style="display:flex;gap:5px;">
+            <button onclick="widgetStartRace()" style="flex:1;background:rgba(0,230,118,0.12);border:1px solid rgba(0,230,118,0.4);color:#00e676;font-family:'Oxanium',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:7px;border-radius:4px;cursor:pointer;">🏁 Start</button>
+            <button onclick="widgetResetRace()" style="background:#0a0a10;border:1px solid var(--border);color:var(--muted);font-family:'Oxanium',sans-serif;font-size:11px;font-weight:700;padding:7px 10px;border-radius:4px;cursor:pointer;">Reset</button>
+          </div>
+          <div id="widget-race-status" style="font-size:10px;color:var(--muted);text-align:center;min-height:14px;"></div>
+        </div>
+      </div>
+      <div class="m-placeholder" id="m-setup-empty">Race setup is only available to Race Directors.</div>
+    </div>
+
+    <div class="m-tab-panel" id="m-tab-team">
+      <div class="section-label">Attendance</div>
+      <div class="m-placeholder">🚧 Not wired up yet.<br>Let me know what data source you'd like this to pull from (VC presence, session logins, etc.) and I'll build it out.</div>
+    </div>
+
+    <div class="m-tab-panel" id="m-tab-control">
+      <div class="section-label">Race Control</div>
+      <div class="m-placeholder">🚧 Not wired up yet.<br>Per-driver actions (DNF, pit override, etc.) aren't available in the web panel yet — happy to build this next if you'd like.</div>
     </div>
   </div>
 </div>
@@ -912,7 +1012,10 @@
     document.getElementById("widget").style.display         = "block";
     rcShowNav();
     rcSetActiveTab("marshal");
-    if (user?.roles?.includes(RACE_DIRECTOR_ROLE)) { const rs = document.getElementById("widget-race-setup"); if (rs) rs.style.display = "block"; }
+    if (user?.roles?.includes(RACE_DIRECTOR_ROLE)) {
+      const rs = document.getElementById("widget-race-setup"); if (rs) rs.style.display = "block";
+      const empty = document.getElementById("m-setup-empty"); if (empty) empty.style.display = "none";
+    }
     document.getElementById("user-name").textContent = user.username;
     document.getElementById("user-avatar").src = user.avatar
       ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=32`
@@ -931,6 +1034,8 @@
     pollWatchMarshalAlerts();
     pollFlagAnnouncement();
     setInterval(pollFlagAnnouncement, 2000);
+    pollMarshalLeaderboard();
+    setInterval(pollMarshalLeaderboard, 3000);
   }
 
   function pollStatus() {
@@ -998,6 +1103,81 @@
   }
 
   let _lastMarshalFlagTs = null;
+
+  function setMarshalTab(tab) {
+    document.querySelectorAll(".m-tab-btn").forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
+    document.querySelectorAll(".m-tab-panel").forEach(p => p.classList.toggle("active", p.id === `m-tab-${tab}`));
+  }
+
+  let _marshalRaceData = null;
+
+  function marshalLbRow(d, i) {
+    const rowClasses = ["m-lb-row"];
+    if (d.dnf) rowClasses.push("dnf");
+    else if (d.inPits) rowClasses.push("pitting");
+    const gapTxt = d.dnf ? "DNF" : d.finished ? "Finished" : (d.gap || "–");
+    return `
+      <div class="${rowClasses.join(" ")}">
+        <div class="m-lb-pos">${i + 1}</div>
+        <div class="m-lb-num">#${d.number}</div>
+        <div class="m-lb-body">
+          <div class="m-lb-name">${d.name}</div>
+          <div class="m-lb-call">${d.callsign}</div>
+        </div>
+        <div class="m-lb-gap">${gapTxt}</div>
+      </div>`;
+  }
+
+  function renderMarshalLeaderboard(drivers) {
+    const el = document.getElementById("m-leaderboard");
+    if (!el) return;
+    if (!drivers || !drivers.length) {
+      el.innerHTML = '<div class="m-placeholder">Waiting for race...</div>';
+      return;
+    }
+    el.innerHTML = drivers.map((d, i) => marshalLbRow(d, i)).join("");
+  }
+
+  function filterMarshalLeaderboard(q) {
+    if (!_marshalRaceData?.drivers) return;
+    const query = q.toLowerCase();
+    const filtered = query
+      ? _marshalRaceData.drivers.filter(d =>
+          d.name.toLowerCase().includes(query) || d.callsign.toLowerCase().includes(query) || d.number.includes(query))
+      : _marshalRaceData.drivers;
+    renderMarshalLeaderboard(filtered);
+  }
+
+  async function pollMarshalLeaderboard() {
+    const dot = document.getElementById("m-app-status-dot");
+    const label = document.getElementById("m-app-status-label");
+    const pill = document.getElementById("m-race-pill");
+    try {
+      const res = await fetch(`${API_URL}/driver/state`);
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      _marshalRaceData = data;
+
+      if (dot) dot.classList.add("live");
+      if (label) { label.textContent = "App Active"; label.classList.add("live"); }
+      if (pill) pill.textContent = data.raceStarted ? "● Live" : "● Waiting";
+
+      const lapCounterEl = document.getElementById("m-lap-counter");
+      if (lapCounterEl) {
+        if (data.totalLaps && data.drivers?.length) {
+          const maxLap = Math.max(...data.drivers.map(d => d.lap || 1));
+          lapCounterEl.textContent = `Lap ${maxLap} / ${data.totalLaps}`;
+        } else lapCounterEl.textContent = "";
+      }
+
+      const q = document.getElementById("m-lb-search")?.value || "";
+      if (q) filterMarshalLeaderboard(q);
+      else renderMarshalLeaderboard(data.drivers || []);
+    } catch {
+      if (dot) dot.classList.remove("live");
+      if (label) { label.textContent = "Unreachable"; label.classList.remove("live"); }
+    }
+  }
 
   async function pollFlagAnnouncement() {
     try {
