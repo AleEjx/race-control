@@ -149,6 +149,7 @@
     .btn-discord { background: var(--discord); color: #fff; }
     .btn-green   { background: rgba(0,230,118,0.15); border: 1px solid rgba(0,230,118,0.4); color: var(--green); }
     .btn-blue    { background: rgba(41,121,255,0.15); border: 1px solid rgba(41,121,255,0.4); color: var(--blue); }
+    .btn-red     { background: rgba(255,23,68,0.15); border: 1px solid rgba(255,23,68,0.4); color: var(--red); }
     .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--muted); }
 
     .role-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -187,6 +188,45 @@
     }
     input[type="text"]:focus { border-color: var(--blue); }
     input[type="text"]::placeholder { color: var(--muted); }
+
+    select.eng-select {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'Oxanium', sans-serif;
+      font-size: 13px;
+      padding: 10px 12px;
+      border-radius: var(--radius);
+      outline: none;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2350506a' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      background-size: 16px;
+      padding-right: 34px;
+      transition: border-color 0.2s;
+      cursor: pointer;
+    }
+    select.eng-select:focus { border-color: var(--blue); }
+    select.eng-select option { background: var(--surface); color: var(--text); }
+
+    .eng-field-label {
+      font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted);
+      margin-bottom: 6px; display: block;
+    }
+    .eng-user-pill {
+      display: flex; align-items: center; gap: 10px; padding: 10px;
+      background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+    }
+    .eng-user-pill .eng-uname { font-size: 13px; font-weight: 700; color: var(--text); }
+    .eng-user-pill .eng-usub  { font-size: 10px; color: var(--green); display: flex; align-items: center; gap: 3px; margin-top: 1px; }
+    .eng-quiet-link {
+      background: none; border: none; color: var(--muted); font-family: 'Oxanium', sans-serif;
+      font-size: 10px; cursor: pointer; text-decoration: underline; text-align: center; padding: 2px;
+    }
+    .eng-quiet-link:hover { color: var(--text); }
 
     .error-text { font-size: 11px; color: var(--red); text-align: center; min-height: 16px; }
     .info-text  { font-size: 10px; color: var(--muted); text-align: center; line-height: 1.5; }
@@ -618,14 +658,30 @@
 <!-- Screen 3: Engineer setup -->
 <div class="screen" id="screen-engineer">
   <div class="logo">Race<span>League</span></div>
+  <div class="sub">Engineer Setup</div>
   <div class="card">
-    <div class="card-title">🎧 Engineer Setup</div>
-    <div class="info-text">Enter the username of the driver you are engineering for.</div>
-    <input type="text" id="engineer-driver-input" placeholder="e.g. SETH" style="text-transform:uppercase;" />
-    <div class="info-text" style="margin-top:6px;">Engineering two cars? Add a second driver (optional).</div>
-    <input type="text" id="engineer-driver2-input" placeholder="e.g. MORGAN (optional)" style="text-transform:uppercase;" />
-    <button class="btn btn-blue" onclick="confirmEngineer()">Confirm Driver</button>
-    <button class="btn btn-outline" onclick="goBack('screen-role')">← Back</button>
+    <div class="eng-user-pill">
+      <img id="eng-avatar" src="" style="width:32px;height:32px;border-radius:50%;" />
+      <div>
+        <div class="eng-uname" id="eng-username">–</div>
+        <div class="eng-usub">🎧 Engineer</div>
+      </div>
+    </div>
+    <div>
+      <span class="eng-field-label">Driver 1 (required)</span>
+      <select class="eng-select" id="engineer-driver-select">
+        <option value="">Select a driver...</option>
+      </select>
+    </div>
+    <div>
+      <span class="eng-field-label">Driver 2 (optional)</span>
+      <select class="eng-select" id="engineer-driver2-select">
+        <option value="">None</option>
+      </select>
+    </div>
+    <button class="btn btn-red" onclick="confirmEngineer()">Continue →</button>
+    <button class="eng-quiet-link" onclick="goBack('screen-role')">← Back</button>
+    <button class="eng-quiet-link" id="engineer-skip-link" style="display:none;" onclick="skipEngineerScreen()">⚙ Skip (dev only)</button>
     <div class="error-text" id="engineer-error"></div>
   </div>
 </div>
@@ -1226,7 +1282,7 @@ async function showRoleScreen() {
 
   function selectRole(role) {
     document.getElementById("role-error").textContent = "";
-    if (role === "engineer") { isEngineer = true; showScreen("screen-engineer"); return; }
+    if (role === "engineer") { isEngineer = true; showEngineerScreen(); return; }
 
     isEngineer = false;
     const autoDriver = DRIVER_DISCORD_IDS[user.id];
@@ -1239,17 +1295,47 @@ async function showRoleScreen() {
     launchPanel();
   }
 
+  function driverOptionHTML(d) {
+    return `<option value="${d.name}">${d.name} #${d.number} (${d.callsign})</option>`;
+  }
+
+  function showEngineerScreen() {
+    document.getElementById("eng-avatar").src = user.avatar
+      ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=64`
+      : `https://cdn.discordapp.com/embed/avatars/${parseInt(user.id) % 5}.png`;
+    document.getElementById("eng-username").textContent = user.username || "–";
+
+    const sorted = [...DRIVERS].sort((a, b) => parseInt(a.number) - parseInt(b.number));
+    const optionsHtml = sorted.map(driverOptionHTML).join("");
+    document.getElementById("engineer-driver-select").innerHTML  = `<option value="">Select a driver...</option>${optionsHtml}`;
+    document.getElementById("engineer-driver2-select").innerHTML = `<option value="">None</option>${optionsHtml}`;
+    document.getElementById("engineer-error").textContent = "";
+
+    const skipLink = document.getElementById("engineer-skip-link");
+    if (skipLink) skipLink.style.display = hasDev ? "block" : "none";
+
+    showScreen("screen-engineer");
+  }
+
+  function skipEngineerScreen() {
+    isEngineer = true;
+    driverInfo = { name: "DEV", number: "0", callsign: "DEV" };
+    driverInfo2 = null;
+    launchPanel();
+  }
+
   function confirmEngineer() {
-    const input = document.getElementById("engineer-driver-input").value.trim().toUpperCase();
-    const driver = DRIVERS.find(d => d.name === input);
-    if (!driver) { document.getElementById("engineer-error").textContent = `❌ Driver "${input}" not found.`; return; }
+    const name = document.getElementById("engineer-driver-select").value;
+    if (!name) { document.getElementById("engineer-error").textContent = "❌ Please select a driver."; return; }
+    const driver = DRIVERS.find(d => d.name === name);
+    if (!driver) { document.getElementById("engineer-error").textContent = `❌ Driver "${name}" not found.`; return; }
     driverInfo = driver;
 
-    const input2 = document.getElementById("engineer-driver2-input").value.trim().toUpperCase();
-    if (input2) {
-      const driver2 = DRIVERS.find(d => d.name === input2);
-      if (!driver2) { document.getElementById("engineer-error").textContent = `❌ Driver "${input2}" not found.`; return; }
-      if (driver2.name === driver.name) { document.getElementById("engineer-error").textContent = `❌ Pick two different drivers.`; return; }
+    const name2 = document.getElementById("engineer-driver2-select").value;
+    if (name2) {
+      if (name2 === name) { document.getElementById("engineer-error").textContent = `❌ Pick two different drivers.`; return; }
+      const driver2 = DRIVERS.find(d => d.name === name2);
+      if (!driver2) { document.getElementById("engineer-error").textContent = `❌ Driver "${name2}" not found.`; return; }
       driverInfo2 = driver2;
     } else {
       driverInfo2 = null;
