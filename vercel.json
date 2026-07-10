@@ -1,7 +1,8 @@
 {
   "rewrites": [
-    { "source": "/marshal",    "destination": "/marshal.html" },
+    { "source": "/api/(.*)", "destination": "/api/$1" },
+    { "source": "/marshal",       "destination": "/marshal.html" },
     { "source": "/marshal/(.*)", "destination": "/marshal.html" },
-    { "source": "/(.*)",       "destination": "/driver.html" }
+    { "source": "/(.*)",         "destination": "/driver.html" }
   ]
 }
