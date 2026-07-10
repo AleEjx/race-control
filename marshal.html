@@ -1577,6 +1577,23 @@
   // Live roster (was a hand-typed, stale snapshot — now pulled from the same
   // /driver-db endpoint the dev panel and driver.html use, scoped to the
   // active league so academy/main marshals see the right roster).
+  const TEAM_COLORS = {
+    MAR: "#640000", LOT: "#b8a956", NCC: "#f00000", LND: "#d4843d",
+    ST: "#505050", AWR: "#2352fd", XYZ: "#c26a37", MIS: "#262e82",
+    SC: "#2a2a2a", TNT: "#c765ff", ARG: "#4c52d0", DR: "#1f8b4c",
+    VIP: "#5d0296", FP: "#001cd8", JOG: "#e3002f", GP: "#ff7f00",
+    IGR: "#d4843d", EN: "#ffff28",
+  };
+  const OTHER_COLOR = "#7a7a90";
+
+  function hexToRgba(hex, alpha) {
+    const h = hex.replace("#", "");
+    const r = parseInt(h.substring(0, 2), 16);
+    const g = parseInt(h.substring(2, 4), 16);
+    const b = parseInt(h.substring(4, 6), 16);
+    return `rgba(${r},${g},${b},${alpha})`;
+  }
+
   let DRIVERS = [];
   let _driversLoaded = false;
 
@@ -1587,7 +1604,7 @@
       const data = await res.json();
       const drivers = data.drivers || [];
       DRIVERS = drivers
-        .map(d => ({ name: d.name, number: d.number, callsign: d.callsign, discordId: d.discordId }))
+        .map(d => ({ name: d.name, number: d.number, callsign: d.callsign, discordId: d.discordId, team: d.team || null }))
         .sort((a, b) => parseInt(a.number) - parseInt(b.number));
       _driversLoaded = true;
       return true;
@@ -1616,19 +1633,55 @@
     const q = document.getElementById("blueflag-search").value.toLowerCase();
     renderDriverList(DRIVERS.filter(d=>d.name.toLowerCase().includes(q)||d.callsign.toLowerCase().includes(q)||d.number.includes(q)));
   }
+
+  // Groups drivers by team, preserving the order teams first appear in
+  // (DRIVERS is already sorted by car number, so groups surface in that order).
+  // Drivers with no team, or a team not in TEAM_COLORS, land in "OTHER".
+  function groupDriversByTeam(drivers) {
+    const order = [];
+    const groups = {};
+    drivers.forEach(d => {
+      const key = d.team && TEAM_COLORS[d.team] ? d.team : "OTHER";
+      if (!groups[key]) { groups[key] = []; order.push(key); }
+      groups[key].push(d);
+    });
+    return order.map(team => ({ team, drivers: groups[team] }));
+  }
+
   function renderDriverList(drivers) {
     const list = document.getElementById("blueflag-list");
-    list.innerHTML = !drivers.length
-      ? '<div style="font-size:11px;color:#50506a;text-align:center;padding:12px;">No drivers found</div>'
-      : drivers.map(d=>`
-        <button onclick="selectBlueFlagDriver('${d.name}','${d.callsign}','${d.number}')"
-          style="display:flex;align-items:center;gap:10px;background:#0c0c14;border:1px solid #1a1a28;border-radius:5px;padding:8px 10px;cursor:pointer;width:100%;text-align:left;"
-          onmouseover="this.style.borderColor='rgba(41,121,255,0.4)'" onmouseout="this.style.borderColor='#1a1a28'">
-          <div style="width:28px;height:28px;border-radius:4px;background:rgba(41,121,255,0.15);border:1px solid rgba(41,121,255,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-            <span style="font-size:11px;font-weight:800;color:#2979ff;">#${d.number}</span>
+    if (!drivers.length) {
+      list.innerHTML = '<div style="font-size:11px;color:#50506a;text-align:center;padding:12px;">No drivers found</div>';
+      return;
+    }
+    const groups = groupDriversByTeam(drivers);
+    list.innerHTML = groups.map(({ team, drivers: teamDrivers }) => {
+      const color = team === "OTHER" ? OTHER_COLOR : TEAM_COLORS[team];
+      const border = team === "OTHER" ? "rgba(255,255,255,0.08)" : hexToRgba(color, 0.35);
+      const headerBg = team === "OTHER" ? "rgba(255,255,255,0.03)" : hexToRgba(color, 0.12);
+      const badgeBg = hexToRgba(color, 0.15);
+      const badgeBorder = hexToRgba(color, 0.4);
+      return `
+        <div style="border:1px solid ${border};border-radius:6px;overflow:hidden;margin-bottom:10px;">
+          <div style="padding:5px 10px;background:${headerBg};border-bottom:1px solid ${border};">
+            <span style="font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:${color};">${team}</span>
           </div>
-          <div><div style="font-size:12px;font-weight:700;color:#e8e8f0;font-family:'Oxanium',sans-serif;">${d.name}</div><div style="font-size:9px;color:#50506a;">${d.callsign}</div></div>
-        </button>`).join("");
+          <div style="padding:8px;display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+            ${teamDrivers.map(d => `
+              <button onclick="selectBlueFlagDriver('${d.name}','${d.callsign}','${d.number}')"
+                style="display:flex;align-items:center;gap:10px;background:#0c0c14;border:1px solid ${border};border-radius:5px;padding:8px 10px;cursor:pointer;text-align:left;min-width:0;"
+                onmouseover="this.style.borderColor='${color}'" onmouseout="this.style.borderColor='${border}'">
+                <div style="width:28px;height:28px;border-radius:4px;background:${badgeBg};border:1px solid ${badgeBorder};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                  <span style="font-size:11px;font-weight:800;color:${color};">#${d.number}</span>
+                </div>
+                <div style="min-width:0;overflow:hidden;">
+                  <div style="font-size:12px;font-weight:700;color:#e8e8f0;font-family:'Oxanium',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${d.name}</div>
+                  <div style="font-size:9px;color:#50506a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${d.callsign}</div>
+                </div>
+              </button>`).join("")}
+          </div>
+        </div>`;
+    }).join("");
   }
   async function selectBlueFlagDriver(name, callsign, number) {
     closeBlueFlagModal();
