@@ -752,45 +752,30 @@
   const REDIRECT_URI  = encodeURIComponent(window.location.origin + "/");
   const DISCORD_OAUTH = `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=identify`;
 
-  const DRIVER_DISCORD_IDS = {
-    "884223249939050507": "ACHILLES",
-    "799844642984034314": "AUBRN",
-    "1487269583898284183": "BRYAN",
-    "749509586800869418": "CHASE",
-    "660419748894343169": "CODA",
-    "1228434328653140162": "CONTRAPTION",
-    "818561366948315198": "LAMAR",
-    "852652597315240028": "NBOUCH",
-    "1318225336265084998": "NOJO",
-    "1140182555207946301": "PETER",
-    "708247459343761421": "QUAH",
-    "763093725903585291": "SETH",
-    "1112809205771010150": "SHADOW",
-    "1127975831197724813": "SUPA",
-    "1036614995737321552": "SWEATER",
-    "1081740933021835354": "UNLIMITED",
-    "790254318389166111": "SANDRIK",
-  };
+  // Populated at runtime from the live driver database (see loadDriverDB below) —
+  // this used to be a hand-typed, stale snapshot that drifted from the real roster.
+  let DRIVER_DISCORD_IDS = {};
+  let DRIVERS = [];
+  let _driverDbLoaded = false;
 
-  const DRIVERS = [
-    { name: "ACHILLES",    number: "15",  callsign: "NC-15"   },
-    { name: "AUBRN",       number: "18",  callsign: "VAS-18"  },
-    { name: "BRYAN",       number: "87",  callsign: "VSE-87"  },
-    { name: "CHASE",       number: "09",  callsign: "CH-09"   },
-    { name: "CODA",        number: "07",  callsign: "MPS-56"  },
-    { name: "CONTRAPTION", number: "33",  callsign: "CON-33"  },
-    { name: "LAMAR",       number: "44",  callsign: "LMR-44"  },
-    { name: "NBOUCH",      number: "12",  callsign: "RB-12"   },
-    { name: "NOJO",        number: "55",  callsign: "NJ-55"   },
-    { name: "PETER",       number: "86",  callsign: "NC-86"   },
-    { name: "QUAH",        number: "28",  callsign: "LTS-28"  },
-    { name: "SETH",        number: "01",  callsign: "VAS-01"  },
-    { name: "SHADOW",      number: "48",  callsign: "ST-48"   },
-    { name: "SUPA",        number: "66",  callsign: "SUP-66"  },
-    { name: "SWEATER",     number: "31",  callsign: "APX-31"  },
-    { name: "UNLIMITED",   number: "99",  callsign: "UNL-99"  },
-    { name: "SANDRIK",     number: "109", callsign: "ES-109"  },
-  ].sort((a, b) => parseInt(a.number) - parseInt(b.number));
+  async function loadDriverDB() {
+    try {
+      const res = await fetch(`${API_URL}/driver-db`);
+      if (!res.ok) return false;
+      const data = await res.json();
+      const drivers = data.drivers || [];
+      DRIVERS = drivers
+        .map(d => ({ name: d.name, number: d.number, callsign: d.callsign }))
+        .sort((a, b) => parseInt(a.number) - parseInt(b.number));
+      DRIVER_DISCORD_IDS = {};
+      drivers.forEach(d => { if (d.discordId) DRIVER_DISCORD_IDS[d.discordId] = d.name; });
+      _driverDbLoaded = true;
+      return true;
+    } catch (e) {
+      console.warn("[DriverDB] Load failed:", e.message);
+      return false;
+    }
+  }
 
   const FLAG_NOTIFS = {
     green:      { emoji:"🟢", title:"Green Flag",         color:"green",  sound:"GreenFlag.mp4" },
@@ -990,19 +975,25 @@
     else hideShutdownBanner();
   }
 
-function showRoleScreen() {
+async function showRoleScreen() {
   applyDevBypassState();
+
+  document.getElementById("role-username").textContent = user.username;
+  const title = document.querySelector("#screen-role .card-title");
+  if (title) title.textContent = "Loading...";
+  showScreen("screen-role");
+
+  await loadDriverDB();
 
   document.getElementById("role-avatar").src = user.avatar
     ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=64`
     : `https://cdn.discordapp.com/embed/avatars/${parseInt(user.id) % 5}.png`;
   document.getElementById("role-username").textContent = user.username;
 
-  const isInDB = !!DRIVER_DISCORD_IDS[user.id] || user.id === DEV_USER_ID;
+  const isInDB = !!DRIVER_DISCORD_IDS[user.id];
   document.querySelectorAll(".role-btn").forEach(btn => {
     if (btn.getAttribute("onclick")?.includes("racer")) btn.style.display = isInDB ? "" : "none";
   });
-  const title = document.querySelector("#screen-role .card-title");
   if (title) title.textContent = isInDB ? "Who are you joining as?" : "You are joining as an Engineer";
 
   showScreen("screen-role");
