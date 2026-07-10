@@ -2369,12 +2369,18 @@
       if (!res.ok) return false;
       const data = await res.json();
       const drivers = data.drivers || [];
-      DRIVERS = drivers
+      const mapped = drivers
         .map(d => ({ name: d.name, number: d.number, callsign: d.callsign, discordId: d.discordId, team: teamFromCallsign(d.callsign) }))
         .sort((a, b) => parseInt(a.number) - parseInt(b.number));
+      // Only report "changed" if the roster actually differs — otherwise every
+      // modal open triggers a full list rebuild for no reason, which can stomp
+      // on the user's scroll position and paint mid-gesture (looked like broken
+      ///half-rendered rows).
+      const changed = JSON.stringify(mapped) !== JSON.stringify(DRIVERS);
+      DRIVERS = mapped;
       _driversLoaded = true;
       renderAttendance();
-      return true;
+      return changed;
     } catch (e) {
       console.warn("[BlueFlag] Driver DB load failed:", e.message);
       return false;
