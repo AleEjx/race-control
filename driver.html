@@ -1812,11 +1812,12 @@ async function showRoleScreen() {
     const now = Date.now();
     if (now < globalCooldownUntil) { dpToast(`⏳ Wait ${Math.ceil((globalCooldownUntil - now) / 1000)}s`, "err"); return; }
     if (action === "next_lap" && lapCooldownUntil > now) { dpToast(`⏳ Next lap in ${Math.ceil((lapCooldownUntil - now) / 1000)}s`, "err"); return; }
+    if (!user?.token) { dpToast("❌ Session expired — please log in again", "err"); return; }
 
     try {
       const res  = await fetch(`${API_URL}/driver/action`, {
         method:  "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "x-discord-id": user.id, "x-discord-token": user.token },
         body:    JSON.stringify({
           action,
           driver:    activeDriverInfo().name,
