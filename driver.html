@@ -769,6 +769,7 @@
     "1127975831197724813": "SUPA",
     "1036614995737321552": "SWEATER",
     "1081740933021835354": "UNLIMITED",
+    "790254318389166111": "SANDRIK",
   };
 
   const DRIVERS = [
@@ -788,6 +789,7 @@
     { name: "SUPA",        number: "66",  callsign: "SUP-66"  },
     { name: "SWEATER",     number: "31",  callsign: "APX-31"  },
     { name: "UNLIMITED",   number: "99",  callsign: "UNL-99"  },
+    { name: "SANDRIK",     number: "109", callsign: "ES-109"  },
   ].sort((a, b) => parseInt(a.number) - parseInt(b.number));
 
   const FLAG_NOTIFS = {
@@ -990,32 +992,35 @@
 
 function showRoleScreen() {
   applyDevBypassState();
-  const autoDriver = DRIVER_DISCORD_IDS[user.id];
-  if (autoDriver) {
-    const driver = DRIVERS.find(d => d.name === autoDriver);
-    if (driver) { isEngineer = false; driverInfo = driver; launchPanel(); return; }
-  }
 
   document.getElementById("role-avatar").src = user.avatar
     ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=64`
     : `https://cdn.discordapp.com/embed/avatars/${parseInt(user.id) % 5}.png`;
   document.getElementById("role-username").textContent = user.username;
 
-  if (user.id !== DEV_USER_ID) {
-    document.querySelectorAll(".role-btn").forEach(btn => {
-      if (btn.getAttribute("onclick")?.includes("racer")) btn.style.display = "none";
-    });
-    const title = document.querySelector("#screen-role .card-title");
-    if (title) title.textContent = "You are joining as an Engineer";
-  }
+  const isInDB = !!DRIVER_DISCORD_IDS[user.id] || user.id === DEV_USER_ID;
+  document.querySelectorAll(".role-btn").forEach(btn => {
+    if (btn.getAttribute("onclick")?.includes("racer")) btn.style.display = isInDB ? "" : "none";
+  });
+  const title = document.querySelector("#screen-role .card-title");
+  if (title) title.textContent = isInDB ? "Who are you joining as?" : "You are joining as an Engineer";
 
   showScreen("screen-role");
 }
 
   function selectRole(role) {
     document.getElementById("role-error").textContent = "";
-    if (role === "engineer") { isEngineer = true; showScreen("screen-engineer"); }
-    else { isEngineer = false; renderDriverSelectList(DRIVERS); showScreen("screen-driver-select"); }
+    if (role === "engineer") { isEngineer = true; showScreen("screen-engineer"); return; }
+
+    isEngineer = false;
+    const autoDriver = DRIVER_DISCORD_IDS[user.id];
+    const driver = autoDriver && DRIVERS.find(d => d.name === autoDriver);
+    if (!driver) {
+      document.getElementById("role-error").textContent = "❌ You are not in the driver database.";
+      return;
+    }
+    driverInfo = driver;
+    launchPanel();
   }
 
   function confirmEngineer() {
