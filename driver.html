@@ -1113,8 +1113,8 @@
     document.getElementById("layout-modern").style.display = style === "modern" ? "block" : "none";
     const actLegacy = document.getElementById("legacy-action-section");
     const actModern = document.getElementById("modern-action-section");
-    if (actLegacy) actLegacy.style.display = (isEngineer && style === "legacy") ? "block" : "none";
-    if (actModern) actModern.style.display = (isEngineer && style === "modern") ? "block" : "none";
+    if (actLegacy) actLegacy.style.display = (style === "legacy") ? "block" : "none";
+    if (actModern) actModern.style.display = (style === "modern") ? "block" : "none";
     if (_raceState) renderRaceState(_raceState);
     dpToast(`✓ Panel style set to ${style === "legacy" ? "Legacy" : "Modern"}`, "ok");
   }
