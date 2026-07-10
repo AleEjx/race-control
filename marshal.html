@@ -924,6 +924,7 @@
       showDisabledBanner(!d.webPanelEnabled);
     } catch { updateStatus(false, []); }
     pollStatus();
+    loadBlueFlagDrivers();
     setInterval(pollBlueFlagRequests, 3000);
     pollBlueFlagRequests();
     setInterval(pollWatchMarshalAlerts, 3000);
@@ -1573,25 +1574,42 @@
   function closeToolbox() { document.getElementById("toolbox-panel").style.display = "none"; }
 
   // ── Blue Flag Modal ───────────────────────────────────────────────────────
-  const DRIVERS = [
-    {name:"SETH",number:"01",callsign:"VAS-01"},{name:"CODA",number:"07",callsign:"MPS-56"},
-    {name:"NBOUCH",number:"12",callsign:"RB-12"},{name:"ACHILLES",number:"15",callsign:"NC-15"},
-    {name:"AUBRN",number:"18",callsign:"VAS-18"},{name:"QUAH",number:"28",callsign:"LTS-28"},
-    {name:"SWEATER",number:"31",callsign:"APX-31"},{name:"SHADOW",number:"48",callsign:"ST-48"},
-    {name:"NOJO",number:"55",callsign:"NJ-55"},{name:"SUPA",number:"66",callsign:"SUP-66"},
-    {name:"PETER",number:"86",callsign:"NC-86"},{name:"BRYAN",number:"87",callsign:"VSE-87"},
-    {name:"UNLIMITED",number:"99",callsign:"UNL-99"},{name:"SANDRIK",number:"109",callsign:"ES-109"},
-    {name:"CHASE",number:"09",callsign:"CH-09"},{name:"CONTRAPTION",number:"33",callsign:"CON-33"},
-    {name:"LAMAR",number:"44",callsign:"LMR-44"},
-  ].sort((a,b)=>parseInt(a.number)-parseInt(b.number));
+  // Live roster (was a hand-typed, stale snapshot — now pulled from the same
+  // /driver-db endpoint the dev panel and driver.html use, scoped to the
+  // active league so academy/main marshals see the right roster).
+  let DRIVERS = [];
+  let _driversLoaded = false;
 
-  function openBlueFlagModal(e) {
+  async function loadBlueFlagDrivers() {
+    try {
+      const res = await fetch(`${API_URL}/driver-db?league=${_activeLeague}`);
+      if (!res.ok) return false;
+      const data = await res.json();
+      const drivers = data.drivers || [];
+      DRIVERS = drivers
+        .map(d => ({ name: d.name, number: d.number, callsign: d.callsign, discordId: d.discordId }))
+        .sort((a, b) => parseInt(a.number) - parseInt(b.number));
+      _driversLoaded = true;
+      return true;
+    } catch (e) {
+      console.warn("[BlueFlag] Driver DB load failed:", e.message);
+      return false;
+    }
+  }
+
+  async function openBlueFlagModal(e) {
     const btn = e?.currentTarget;
     if (btn) { btn.classList.remove("firing"); void btn.offsetWidth; btn.classList.add("firing"); setTimeout(()=>btn.classList.remove("firing"),300); }
     document.getElementById("blueflag-search").value = "";
+    // Show whatever we've got instantly, then refresh from the server so the
+    // modal never feels stale (roster changes, mid-race swaps, etc).
     renderDriverList(DRIVERS);
     document.getElementById("blueflag-modal").style.display = "flex";
     setTimeout(()=>document.getElementById("blueflag-search").focus(),100);
+    const changed = await loadBlueFlagDrivers();
+    if (changed && document.getElementById("blueflag-modal").style.display === "flex") {
+      filterDrivers();
+    }
   }
   function closeBlueFlagModal() { document.getElementById("blueflag-modal").style.display = "none"; }
   function filterDrivers() {
@@ -1612,7 +1630,43 @@
           <div><div style="font-size:12px;font-weight:700;color:#e8e8f0;font-family:'Oxanium',sans-serif;">${d.name}</div><div style="font-size:9px;color:#50506a;">${d.callsign}</div></div>
         </button>`).join("");
   }
-  function selectBlueFlagDriver(name) { closeBlueFlagModal(); showToast(`🚧 Blue Flag for ${name} — coming soon!`, "error"); }
+  async function selectBlueFlagDriver(name, callsign, number) {
+    closeBlueFlagModal();
+    if (cooldown) { showToast("⏳ Wait 5 seconds!", "error"); return; }
+    startCooldown();
+    const target = DRIVERS.find(d => d.name === name);
+    try {
+      // NOTE: targetDiscordId/targetName/targetCallsign/targetNumber are our
+      // best-guess field names for the blue-flag target — double check these
+      // against flagApi.js's /flag handler and rename if it expects something
+      // else (e.g. `target` as a single object).
+      const res = await fetch(`${API_URL}/flag`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-discord-id": user.id, "x-discord-token": user.token },
+        body: JSON.stringify({
+          flag: "blue",
+          username: user.username,
+          discordId: user.id,
+          targetDiscordId: target?.discordId || null,
+          targetName: name,
+          targetCallsign: callsign,
+          targetNumber: number,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        showToast(`✓ Blue Flag — ${name}`, "success");
+        setLastFlag(`Blue Flag (${name})`);
+        showFlagAnnouncement("blue");
+      } else if (res.status === 403) {
+        showToast("✗ Web panel disabled", "error");
+      } else {
+        showToast(`✗ ${data.error || "Failed"}`, "error");
+      }
+    } catch {
+      showToast("✗ Bot unreachable", "error");
+    }
+  }
 
   // ── Custom Audio ──────────────────────────────────────────────────────────
   let _audioFile = null;
