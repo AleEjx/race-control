@@ -747,7 +747,8 @@
 <div id="dp-toast"></div>
 
 <script>
-  const API_URL = "https://needs-songs-comprehensive-viking.trycloudflare.com/";
+  let API_URL = "https://needs-songs-comprehensive-viking.trycloudflare.com";
+  const GIST_ID = "746339b1b2924446563e6349ef89ce8a";
   const CLIENT_ID     = "1467595519718195473";
   const REDIRECT_URI  = encodeURIComponent(window.location.origin + "/");
   const DISCORD_OAUTH = `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=identify`;
@@ -898,7 +899,30 @@
 
   let _panelOff = false;
 
+  async function fetchApiUrlFromGist() {
+    try {
+      const res = await fetch(`https://api.github.com/gists/${GIST_ID}`);
+      const data = await res.json();
+      const file = data.files?.["racecontrol-api.json"];
+      if (!file) return null;
+      return JSON.parse(file.content).url || null;
+    } catch (e) { console.error("[Gist] Failed to fetch URL:", e); return null; }
+  }
+
+  setInterval(async () => {
+    const freshUrl = await fetchApiUrlFromGist();
+    if (freshUrl && freshUrl !== API_URL) {
+      console.log("[Gist] URL changed —", freshUrl);
+      API_URL = freshUrl;
+    }
+  }, 60_000);
+
   (async () => {
+    const gistUrl = await fetchApiUrlFromGist();
+    if (gistUrl && gistUrl !== API_URL) {
+      console.log("[Gist] URL changed —", gistUrl);
+      API_URL = gistUrl;
+    }
     try {
       const res  = await fetch(`${API_URL}/panel-status`);
       const data = await res.json();
