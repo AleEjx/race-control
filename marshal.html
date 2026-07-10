@@ -1107,6 +1107,7 @@
     } catch { updateStatus(false, []); }
     pollStatus();
     loadBlueFlagDrivers();
+    syncAttendanceFromServer();
     setInterval(pollBlueFlagRequests, 3000);
     pollBlueFlagRequests();
     setInterval(pollWatchMarshalAlerts, 3000);
@@ -1186,6 +1187,8 @@
   function setMarshalTab(tab) {
     document.querySelectorAll(".m-tab-btn").forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
     document.querySelectorAll(".m-tab-panel").forEach(p => p.classList.toggle("active", p.id === `m-tab-${tab}`));
+    if (tab === "team") renderAttendance();
+    if (tab === "control") renderControlList();
   }
 
   let _marshalRaceData = null;
@@ -1252,9 +1255,171 @@
       const q = document.getElementById("m-lb-search")?.value || "";
       if (q) filterMarshalLeaderboard(q);
       else renderMarshalLeaderboard(data.drivers || []);
+      renderControlList();
     } catch {
       if (dot) dot.classList.remove("live");
       if (label) { label.textContent = "Unreachable"; label.classList.remove("live"); }
+    }
+  }
+
+  // ── Team tab: attendance ────────────────────────────────────────────────
+  // Must match DIRECTOR_ROLE_ID in flagApi.js's /admin/attendance route —
+  // NOT the same role as RACE_DIRECTOR_ROLE above (that one gates race setup).
+  const ATTENDANCE_DIRECTOR_ROLE = "1510621069864603718";
+  let _attendance = JSON.parse(localStorage.getItem("rc_attendance") || "{}");
+
+  function canManageAttendance() {
+    return !!(user?.isAdmin || user?.roles?.includes(ATTENDANCE_DIRECTOR_ROLE));
+  }
+
+  async function syncAttendanceFromServer() {
+    try {
+      const res = await fetch(`${API_URL}/attendance`);
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data.attendance) {
+        _attendance = data.attendance;
+        localStorage.setItem("rc_attendance", JSON.stringify(_attendance));
+        renderAttendance();
+      }
+    } catch (e) { console.warn("[Attendance] Sync failed:", e.message); }
+  }
+
+  function renderAttendance() {
+    const el = document.getElementById("m-attendance");
+    if (!el) return;
+    if (!DRIVERS.length) {
+      el.innerHTML = '<div class="m-placeholder">Loading roster...</div>';
+      return;
+    }
+    const canManage = canManageAttendance();
+    const drivers = [...DRIVERS].sort((a, b) => parseInt(a.number) - parseInt(b.number));
+    el.innerHTML = drivers.map(d => {
+      const present = _attendance[d.name] !== false;
+      const disabledAttrs = canManage ? "" : "disabled";
+      const disabledOpacity = canManage ? "" : "opacity:0.4;cursor:not-allowed;";
+      return `
+        <div class="m-lb-row" style="cursor:default;">
+          <div class="m-lb-num">#${d.number}</div>
+          <div class="m-lb-body">
+            <div class="m-lb-name" style="${present ? "" : "color:var(--muted);"}">${d.name}</div>
+            <div class="m-lb-call">${d.callsign}</div>
+          </div>
+          <button onclick="toggleAttendance('${d.name}')" ${disabledAttrs}
+            style="font-size:9px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;padding:5px 8px;border-radius:4px;background:${present ? "rgba(0,230,118,0.12)" : "rgba(255,23,68,0.12)"};border:1px solid ${present ? "var(--green)" : "var(--red)"};color:${present ? "var(--green)" : "var(--red)"};${disabledOpacity}">
+            ${present ? "✓ Here" : "✗ Absent"}
+          </button>
+        </div>`;
+    }).join("");
+    if (!canManage && !document.getElementById("attendance-permission-note")) {
+      el.insertAdjacentHTML("beforeend", `<div id="attendance-permission-note" style="font-size:10px;color:var(--muted);text-align:center;padding:6px;">Only Admins can edit attendance.</div>`);
+    }
+  }
+
+  async function toggleAttendance(name) {
+    if (!canManageAttendance()) { showToast("✗ Only Admins can edit attendance", "error"); return; }
+    const present = _attendance[name] !== false;
+    _attendance[name] = !present;
+    localStorage.setItem("rc_attendance", JSON.stringify(_attendance));
+    renderAttendance();
+    if (!API_URL || !user?.token) return;
+    try {
+      await fetch(`${API_URL}/admin/attendance`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-discord-id": user.id, "x-discord-token": user.token },
+        body: JSON.stringify({ attendance: _attendance }),
+      });
+    } catch (e) { console.warn("[Attendance] Push failed:", e.message); }
+  }
+
+  // ── Control tab: race control list ──────────────────────────────────────
+  function renderControlList(filterQ) {
+    const el = document.getElementById("mc-driver-list");
+    if (!el) return;
+    const drivers = _marshalRaceData?.drivers || [];
+
+    const lapEl = document.getElementById("mc-lap-counter");
+    if (lapEl && _marshalRaceData?.totalLaps && drivers.length) {
+      const maxLap = Math.max(...drivers.map(d => d.lap || 1));
+      lapEl.textContent = `Lap ${maxLap} / ${_marshalRaceData.totalLaps}`;
+    } else if (lapEl) lapEl.textContent = "";
+
+    if (!drivers.length) {
+      el.innerHTML = '<div class="m-placeholder">Waiting for race...</div>';
+      return;
+    }
+
+    const term = (filterQ ?? document.getElementById("mc-search")?.value ?? "").toLowerCase().trim();
+    const rows = drivers.map((d, i) => {
+      if (term && !d.name.toLowerCase().includes(term) && !(d.callsign || "").toLowerCase().includes(term)) return "";
+      const statusLabel = d.dnf ? "DNF" : d.finished ? "Finished" : d.inPits ? "In Pits" : "Racing";
+      const statusColor = d.dnf ? "var(--red)" : d.finished ? "var(--blue)" : d.inPits ? "var(--yellow)" : "var(--green)";
+      return `
+        <div class="m-lb-row" onclick="openControlModal('${d.name}')" style="cursor:pointer;">
+          <div class="m-lb-pos">${i + 1}</div>
+          <div class="m-lb-num">#${d.number}</div>
+          <div class="m-lb-body">
+            <div class="m-lb-name">${d.name}</div>
+            <div class="m-lb-call">${d.callsign}</div>
+          </div>
+          <div class="m-lb-gap" style="text-align:right;">
+            <div>Lap ${d.lap || 1}</div>
+            <div style="font-size:8px;color:${statusColor};">${statusLabel}</div>
+          </div>
+        </div>`;
+    }).join("");
+
+    el.innerHTML = rows || '<div class="m-placeholder">No drivers match your search.</div>';
+  }
+
+  function filterControlList(q) { renderControlList(q); }
+
+  function openControlModal(name) {
+    const drivers = _marshalRaceData?.drivers || [];
+    const idx = drivers.findIndex(d => d.name === name);
+    if (idx === -1) return;
+    const d = drivers[idx];
+
+    document.getElementById("cm-name").value = name;
+    document.getElementById("control-modal-title").textContent = `Edit — ${name}`;
+    document.getElementById("cm-lap").value = d.lap || 1;
+    document.getElementById("cm-status").value = d.dnf ? "dnf" : d.finished ? "finished" : d.inPits ? "pit" : "racing";
+    document.getElementById("cm-position").value = idx + 1;
+    document.getElementById("cm-error").textContent = "";
+    document.getElementById("control-modal").style.display = "flex";
+  }
+
+  function closeControlModal() {
+    document.getElementById("control-modal").style.display = "none";
+  }
+
+  async function saveControlEntry() {
+    const name = document.getElementById("cm-name").value;
+    const lap = parseInt(document.getElementById("cm-lap").value, 10) || 1;
+    const status = document.getElementById("cm-status").value;
+    const position = parseInt(document.getElementById("cm-position").value, 10) || 1;
+    const errEl = document.getElementById("cm-error");
+
+    if (!user?.token) { errEl.textContent = "✗ Not authenticated as marshal."; return; }
+
+    errEl.textContent = "";
+    try {
+      const res = await fetch(`${API_URL}/marshal/control-update`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-discord-id": user.id, "x-discord-token": user.token },
+        body: JSON.stringify({ name, lap, status, position }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) {
+        _marshalRaceData = data.state || _marshalRaceData;
+        closeControlModal();
+        renderControlList();
+        showToast(`✓ Updated ${name}`, "success");
+      } else {
+        errEl.textContent = `✗ ${data.error || "Failed to save."}`;
+      }
+    } catch {
+      errEl.textContent = "✗ Bot unreachable.";
     }
   }
 
@@ -1874,6 +2039,7 @@
         .map(d => ({ name: d.name, number: d.number, callsign: d.callsign, discordId: d.discordId, team: teamFromCallsign(d.callsign) }))
         .sort((a, b) => parseInt(a.number) - parseInt(b.number));
       _driversLoaded = true;
+      renderAttendance();
       return true;
     } catch (e) {
       console.warn("[BlueFlag] Driver DB load failed:", e.message);
