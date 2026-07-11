@@ -2435,7 +2435,7 @@
       const badgeBg = hexToRgba(color, 0.15);
       const badgeBorder = hexToRgba(color, 0.4);
       return `
-        <div style="border:1px solid ${border};border-radius:6px;overflow:hidden;margin-bottom:10px;">
+        <div style="border:1px solid ${border};border-radius:6px;overflow:hidden;margin-bottom:10px;background:#101018;contain:paint;transform:translateZ(0);-webkit-transform:translateZ(0);isolation:isolate;">
           <div style="padding:5px 10px;background:${headerBg};border-bottom:1px solid ${border};">
             <span style="font-size:9px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:${color};">${team}</span>
           </div>
