@@ -1152,7 +1152,7 @@
     } catch (e) { console.error("[Gist] Failed to fetch URL:", e); return null; }
   }
 
-  (async () => {
+  const apiUrlReady = (async () => {
     const gistUrl = await fetchApiUrlFromGist();
     if (gistUrl && gistUrl !== API_URL) {
       console.log("[Gist] URL changed —", gistUrl);
@@ -1190,9 +1190,12 @@
   const code   = params.get("code");
   // Deferred so every const/let below in this file (SECTIONS, adminMode, etc.)
   // is guaranteed to be initialized before we ever call showPanel()/showAdminPanel().
-  setTimeout(() => {
-    if (code) { window.history.replaceState({}, document.title, "/marshal"); exchangeCode(code); }
-    else {
+  setTimeout(async () => {
+    if (code) {
+      window.history.replaceState({}, document.title, "/marshal");
+      await apiUrlReady; // ensure API_URL reflects the live tunnel before we auth
+      exchangeCode(code);
+    } else {
       const saved = sessionStorage.getItem("rc_user");
       if (saved) {
         user = JSON.parse(saved);
