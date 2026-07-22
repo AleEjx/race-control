@@ -366,6 +366,27 @@
   <div class="login-error" id="pw-error"></div>
 </div>
 
+<!-- Yellow Flag Modal -->
+<div id="yellowflag-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:200;align-items:center;justify-content:center;">
+  <div style="background:#13131a;border:1.5px solid rgba(255,214,0,0.4);border-radius:10px;width:calc(100% - 32px);max-width:280px;display:flex;flex-direction:column;">
+    <div style="padding:12px 14px;border-bottom:1px solid #1f1f2e;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#fff;">🟡 Yellow Flag</div>
+        <div style="font-size:9px;color:#50506a;margin-top:2px;">Select a sector</div>
+      </div>
+      <button onclick="closeYellowFlagModal()" style="background:none;border:none;color:#50506a;font-size:16px;cursor:pointer;padding:2px 6px;">✕</button>
+    </div>
+    <div style="padding:10px 14px;display:flex;flex-direction:column;gap:8px;">
+      <button onclick="triggerFlag('yellow_s1', event); closeYellowFlagModal();"
+        style="background:rgba(255,214,0,0.1);border:1px solid rgba(255,214,0,0.35);color:#ffd600;font-family:'Oxanium',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.5px;padding:10px;border-radius:6px;cursor:pointer;">🟡 Sector 1</button>
+      <button onclick="triggerFlag('yellow_s2', event); closeYellowFlagModal();"
+        style="background:rgba(255,214,0,0.1);border:1px solid rgba(255,214,0,0.35);color:#ffd600;font-family:'Oxanium',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.5px;padding:10px;border-radius:6px;cursor:pointer;">🟡 Sector 2</button>
+      <button onclick="triggerFlag('yellow_s3', event); closeYellowFlagModal();"
+        style="background:rgba(255,214,0,0.1);border:1px solid rgba(255,214,0,0.35);color:#ffd600;font-family:'Oxanium',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.5px;padding:10px;border-radius:6px;cursor:pointer;">🟡 Sector 3</button>
+    </div>
+  </div>
+</div>
+
 <!-- Blue Flag Modal -->
 <div id="blueflag-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:200;align-items:center;justify-content:center;">
   <div style="background:#13131a;border:1.5px solid rgba(41,121,255,0.4);border-radius:10px;width:calc(100% - 32px);max-width:320px;max-height:80vh;display:flex;flex-direction:column;">
@@ -981,7 +1002,7 @@
         <div class="flag-grid cols-2">
           <button class="flag-btn green"  onclick="triggerFlag('green',  event)"><span class="fi">🟢</span><span class="fn">Green</span></button>
           <button class="flag-btn red"    onclick="triggerFlag('red',    event)"><span class="fi">🔴</span><span class="fn">Red</span></button>
-          <button class="flag-btn yellow" onclick="triggerFlag('yellow', event)"><span class="fi">🟡</span><span class="fn">Yellow</span></button>
+          <button class="flag-btn yellow" onclick="openYellowFlagModal(event)"><span class="fi">🟡</span><span class="fn">Yellow</span></button>
           <button class="flag-btn yellow" onclick="triggerFlag('fcy',    event)"><span class="fi">🟡</span><span class="fn">FCY</span></button>
         </div>
         <div class="flag-grid" style="grid-template-columns:1fr;margin-top:5px;">
@@ -1034,7 +1055,7 @@
           <div id="widget-race-status" style="font-size:10px;color:var(--muted);text-align:center;min-height:14px;"></div>
         </div>
       </div>
-      <div class="m-placeholder" id="m-setup-empty">Race setup is only available to Race Directors.</div>
+      <div class="m-placeholder" id="m-setup-empty">Race setup is only available to Marshals and Race Directors.</div>
     </div>
 
     <div class="m-tab-panel" id="m-tab-team">
@@ -1083,6 +1104,7 @@
 
   // ── Dev bypass ──────────────────────────────────────────────────────
   const DEV_USER_ID = "790254318389166111";
+  const MARSHAL_ROLE = "1464788931823538430";
   let hasDev = false;
   let _panelOff = false;
   let _devBypassShutdown = false; // false = dev sees live panel, true = dev previews the disabled state
@@ -1276,7 +1298,7 @@
     document.getElementById("widget").style.display         = "block";
     rcShowNav();
     rcSetActiveTab("marshal");
-    if (user?.roles?.includes(RACE_DIRECTOR_ROLE) || user?.id === DEV_USER_ID) {
+    if (user?.roles?.includes(MARSHAL_ROLE) || user?.roles?.includes(RACE_DIRECTOR_ROLE) || user?.id === DEV_USER_ID) {
       const rs = document.getElementById("widget-race-setup"); if (rs) rs.style.display = "block";
       const empty = document.getElementById("m-setup-empty"); if (empty) empty.style.display = "none";
     }
@@ -1448,13 +1470,15 @@
   }
 
   // ── Team tab: attendance ────────────────────────────────────────────────
-  // Must match DIRECTOR_ROLE_ID in flagApi.js's /admin/attendance route —
-  // NOT the same role as RACE_DIRECTOR_ROLE above (that one gates race setup).
+  // flagApi.js's /admin/attendance route now gates on MARSHAL_ROLE_ID directly;
+  // ATTENDANCE_DIRECTOR_ROLE is kept here so Directors without the Marshal role
+  // (if that ever happens) still retain access — not the same role as
+  // RACE_DIRECTOR_ROLE above (that one gates race setup).
   const ATTENDANCE_DIRECTOR_ROLE = "1510621069864603718";
   let _attendance = JSON.parse(localStorage.getItem("rc_attendance") || "{}");
 
   function canManageAttendance() {
-    return !!(user?.isAdmin || user?.roles?.includes(ATTENDANCE_DIRECTOR_ROLE));
+    return !!(user?.isAdmin || user?.roles?.includes(MARSHAL_ROLE) || user?.roles?.includes(ATTENDANCE_DIRECTOR_ROLE));
   }
 
   async function syncAttendanceFromServer() {
@@ -1497,12 +1521,12 @@
         </div>`;
     }).join("");
     if (!canManage && !document.getElementById("attendance-permission-note")) {
-      el.insertAdjacentHTML("beforeend", `<div id="attendance-permission-note" style="font-size:10px;color:var(--muted);text-align:center;padding:6px;">Only Admins can edit attendance.</div>`);
+      el.insertAdjacentHTML("beforeend", `<div id="attendance-permission-note" style="font-size:10px;color:var(--muted);text-align:center;padding:6px;">Only Marshals can edit attendance.</div>`);
     }
   }
 
   async function toggleAttendance(name) {
-    if (!canManageAttendance()) { showToast("✗ Only Admins can edit attendance", "error"); return; }
+    if (!canManageAttendance()) { showToast("✗ Only Marshals can edit attendance", "error"); return; }
     const present = _attendance[name] !== false;
     _attendance[name] = !present;
     localStorage.setItem("rc_attendance", JSON.stringify(_attendance));
@@ -2389,6 +2413,11 @@
       return false;
     }
   }
+
+  function openYellowFlagModal(e) {
+    document.getElementById("yellowflag-modal").style.display = "flex";
+  }
+  function closeYellowFlagModal() { document.getElementById("yellowflag-modal").style.display = "none"; }
 
   async function openBlueFlagModal(e) {
     const btn = e?.currentTarget;
