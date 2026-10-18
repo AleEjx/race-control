@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Download TurboGrid Driver — VMS</title>
+<style>
+  :root{
+    --bg:#171a21; --panel:#1f232d; --line:#313746; --text:#eceff4; --muted:#9aa3b5;
+    --red:#e5352b; --lit:#ff4a3d; --green:#3ddc84;
+    --font: "Bahnschrift","Segoe UI","Helvetica Neue",Arial,sans-serif;
+    --mono: ui-monospace,"Cascadia Mono",Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{background:var(--bg);color:var(--text);font-family:var(--font);line-height:1.5;min-height:100vh}
+  main{max-width:720px;margin:0 auto;padding:56px 24px 72px}
+  .brand{color:var(--muted);font-size:.95rem;margin:0 0 40px}
+
+  h1{font-size:clamp(2.4rem,7vw,3.8rem);line-height:1.02;margin:0 0 14px;font-weight:700;letter-spacing:-.01em}
+  .lede{color:var(--muted);font-size:1.1rem;max-width:52ch;margin:0 0 32px}
+
+  .dl{display:inline-flex;align-items:center;gap:14px;background:var(--red);color:#fff;text-decoration:none;
+      font-weight:700;font-size:1.15rem;padding:16px 28px;border-radius:6px}
+  .dl:hover{background:var(--lit)}
+  .dl:focus-visible,.copy:focus-visible{outline:3px solid #fff;outline-offset:3px}
+  .meta{color:var(--muted);font-size:.95rem;margin:14px 0 0}
+
+  section{margin-top:52px}
+  h2{font-size:1.25rem;margin:0 0 14px}
+  ol{margin:0;padding-left:1.3em;max-width:60ch}
+  li{margin-bottom:8px}
+  .note{background:var(--panel);border-left:4px solid #f5b83d;padding:14px 18px;border-radius:0 6px 6px 0;max-width:60ch}
+  .note p{margin:0}
+  .hash{display:flex;gap:10px;align-items:stretch;flex-wrap:wrap}
+  code{font-family:var(--mono);font-size:.82rem;background:var(--panel);border:1px solid var(--line);
+       padding:10px 12px;border-radius:6px;word-break:break-all;flex:1 1 320px}
+  .copy{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:6px;padding:0 16px;font:inherit;cursor:pointer}
+  .copy:hover{border-color:var(--muted)}
+  footer{margin-top:64px;color:var(--muted);font-size:.9rem}
+  footer a{color:var(--text)}
+</style>
+</head>
+<body>
+<main>
+  <p class="brand">VMS</p>
+
+  <h1>TurboGrid Driver</h1>
+  <p class="lede">Voice Marshalling System</p>
+
+  <!-- TODO: replace DOWNLOAD_URL with the real link to the .exe -->
+  <a class="dl" id="dl" href="DOWNLOAD_URL" download>Download for Windows</a>
+  <p class="meta">Version 1.0.0 &middot; 73.4 MB &middot; Windows installer (.exe)</p>
+
+  <section>
+    <h2>Install</h2>
+    <ol>
+      <li>Run <strong>TurboGrid-Driver-Setup-1_0_0.exe</strong> once it finishes downloading.</li>
+      <li>Follow the installer prompts.</li>
+      <li>Open TurboGrid Driver and sign in with Discord.</li>
+    </ol>
+  </section>
+
+  <section>
+    <div class="note">
+      <p><strong>Windows shows a blue &ldquo;protected your PC&rdquo; screen?</strong> The installer isn&rsquo;t code-signed yet. Select <em>More info</em>, then <em>Run anyway</em>. You can confirm you have the right file with the checksum below.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Verify your download</h2>
+    <div class="hash">
+      <code id="hash">97904c1629d33ff0ea1c06b4a14786f181a5647637965b111066c8c5e8c39dc4</code>
+      <button class="copy" id="copy" type="button">Copy SHA-256</button>
+    </div>
+  </section>
+
+  <footer>Problems installing? Make a ticket in the TurboGrid Server</footer>
+</main>
+
+<script>
+  document.getElementById('copy').addEventListener('click', function(){
+    var btn = this, txt = document.getElementById('hash').textContent;
+    (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(function(){
+      btn.textContent = 'Copied';
+      setTimeout(function(){ btn.textContent = 'Copy SHA-256'; }, 1500);
+    }).catch(function(){ btn.textContent = 'Copy failed'; });
+  });
+</script>
+</body>
+</html>
