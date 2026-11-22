@@ -6,14 +6,7 @@ const GATE_ROLE = "1464966733554126959";   // role that unlocks /botmaster
 const DEV_ID    = "790254318389166111";    // always allowed
 const LOG_CHANNEL = "1465105099113107631";
 
-// Must mirror DEFAULT_STAFF_ROLES in ticketModule.js
-const TYPES = [
-  { key: "committee",      label: "Committee",         def: "1487493211952910406" },
-  { key: "moderation",     label: "Moderation",        def: "1464789545580232950" },
-  { key: "juniormgmt",     label: "Junior management", def: "1487493211952910406" },
-  { key: "publicsessions", label: "Public sessions",   def: "1564433474780274788" },
-  { key: "stewardappeals", label: "Steward appeals",   def: "1510621069864603718" },
-];
+const TYPEKEYS = ["committee", "moderation", "juniormgmt", "publicsessions", "stewardappeals"];
 
 const sign = (p) => crypto.createHmac("sha256", process.env.BOTMASTER_SESSION_SECRET || "").update(p).digest("base64url");
 
@@ -56,4 +49,37 @@ async function audit(user, text) {
   } catch {}
 }
 
-module.exports = { GUILD, GATE_ROLE, DEV_ID, TYPES, issue, verify, ptero, audit };
+const FILE = encodeURIComponent("/database/ticketConfig.json");   // /home/container/database/ticketConfig.json
+async function readCfg() {
+  const r = await ptero(`/files/contents?file=${FILE}`);
+  if (!r.ok) return {};
+  try { return JSON.parse(await r.text()); } catch { return {}; }
+}
+const writeCfg = (cfg) => ptero(`/files/write?file=${FILE}`, { method: "POST", headers: { "Content-Type": "text/plain" }, body: JSON.stringify(cfg, null, 2) });
+
+const discord = (path, opts = {}) => fetch(`https://discord.com/api/v10${path}`, {
+  ...opts, headers: { Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}`, "Content-Type": "application/json" },
+});
+
+function parseEmoji(e) {
+  const m = /^<(a?):(\w+):(\d+)>$/.exec(e || "");
+  return m ? { id: m[3], name: m[2], animated: !!m[1] } : (e ? { name: e } : undefined);
+}
+
+// Same payload the bot's -tm command builds from the panel config
+function panelToPayload(p) {
+  const color = parseInt(String(p.color || "#db85c5").replace("#", ""), 16);
+  const embeds = [];
+  if (p.bannerImage) embeds.push({ color, image: { url: p.bannerImage } });
+  embeds.push({
+    color, title: p.title || undefined, description: p.description || undefined,
+    fields: (p.fields || []).map((f) => ({ name: "\u200b", value: f.value, inline: !!f.inline })),
+    ...(p.image ? { image: { url: p.image } } : {}),
+  });
+  const options = (p.options || []).filter((o) => o.enabled !== false).map((o) => ({
+    label: o.label, value: o.value, description: o.description || undefined, emoji: parseEmoji(o.emoji),
+  }));
+  return { embeds, components: [{ type: 1, components: [{ type: 3, custom_id: "ticket_select", placeholder: p.placeholder, options }] }] };
+}
+
+module.exports = { GUILD, GATE_ROLE, DEV_ID, TYPEKEYS, issue, verify, ptero, audit, readCfg, writeCfg, discord, panelToPayload };
