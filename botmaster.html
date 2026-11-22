@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Botmaster · RaceLeague</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0d0f14;--surface:#151922;--border:#262c3a;--text:#e8ebf2;--muted:#8b93a7;--accent:#db85c5;--ok:#3ddc84;--warn:#f5b84b;--bad:#ff6b6b;
+--cut:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px))}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 'Oxanium',system-ui,sans-serif}
+main{max-width:720px;margin:0 auto;padding:32px 20px 140px}
+h1{font-size:2.4rem;line-height:1.1;margin:0 0 4px;font-weight:700}
+p.sub{color:var(--muted);margin:0 0 28px;max-width:60ch}
+.card{background:var(--surface);border:1px solid var(--border);clip-path:var(--cut);padding:22px}
+.card h2{font-size:1.15rem;margin:0 0 2px}
+.row{display:grid;grid-template-columns:1fr 1.4fr;gap:12px;align-items:center;padding:14px 0;border-top:1px solid var(--border)}
+.row:first-of-type{border-top:0}
+.row small{display:block;color:var(--muted);font-size:.78rem;word-break:break-all}
+select,input{width:100%;background:var(--bg);color:var(--text);border:1px solid var(--border);padding:10px 12px;font:inherit}
+select:focus,input:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.row.dirty select,.row.dirty input{border-color:var(--accent)}
+button{font:inherit;font-weight:600;color:var(--text);background:var(--surface);border:1px solid var(--border);padding:11px 20px;cursor:pointer;clip-path:var(--cut)}
+button.primary{background:var(--accent);color:#1a0f17;border-color:var(--accent)}
+button:disabled{opacity:.4;cursor:not-allowed}
+.actions{display:flex;justify-content:flex-end;margin-top:14px}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.who{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:.9rem;white-space:nowrap}
+.who button{padding:6px 12px;font-size:.85rem}
+.bar{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--border);padding:14px 20px calc(14px + env(safe-area-inset-bottom,0px))}
+.bar>div{max-width:720px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.state{display:flex;align-items:center;gap:8px;margin-right:auto}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--muted)}
+.dot.running{background:var(--ok)}.dot.starting,.dot.stopping{background:var(--warn)}.dot.offline{background:var(--bad)}
+.msg{margin:14px 0 0;min-height:1.4em;font-size:.92rem}.msg.err{color:var(--bad)}.msg.ok{color:var(--ok)}
+.center{text-align:center;padding:12vh 0}.center .card{max-width:420px;margin:24px auto 0;text-align:left}
+.hidden{display:none!important}
+@media(max-width:560px){.row{grid-template-columns:1fr}h1{font-size:1.9rem}}
+@media(prefers-reduced-motion:no-preference){button{transition:filter .15s}button:hover:not(:disabled){filter:brightness(1.15)}}
+</style>
+</head>
+<body>
+<main>
+  <section id="login" class="center hidden">
+    <h1>Botmaster</h1>
+    <p class="sub" style="margin:0 auto">Log in with Discord to manage the RaceLeague bot.</p>
+    <div class="card">
+      <p style="margin-top:0">You need the Botmaster role in the RaceLeague server. Access is checked every time you log in.</p>
+      <button class="primary" id="loginBtn" style="width:100%">Log in with Discord</button>
+      <p class="msg err" id="loginMsg"></p>
+    </div>
+  </section>
+
+  <section id="panel" class="hidden">
+    <div class="top">
+      <div><h1>Botmaster</h1><p class="sub">Choose which role handles each ticket type. New tickets use the change straight away; no restart needed.</p></div>
+      <div class="who"><span id="uname"></span><button id="logoutBtn">Log out</button></div>
+    </div>
+    <div class="card">
+      <h2>Ticket staff roles</h2>
+      <div id="rows"></div>
+      <div class="actions"><button class="primary" id="saveBtn" disabled>Save changes</button></div>
+      <p class="msg" id="saveMsg"></p>
+    </div>
+  </section>
+</main>
+
+<div class="bar hidden" id="bar"><div>
+  <div class="state"><span class="dot" id="dot"></span><span id="stateTxt">Checking bot…</span></div>
+  <button id="startBtn" disabled>Start bot</button>
+  <button id="restartBtn" disabled>Restart bot</button>
+</div></div>
+
+<script>
+const CLIENT_ID = "1467595519718195473";
+const REDIRECT = location.origin + "/botmaster";
+const $ = (s) => document.querySelector(s);
+let token = sessionStorage.getItem("bm_token"), types = [], roles = null, pollTimer;
+
+function show(id, on) { $(id).classList.toggle("hidden", !on); }
+function say(el, text, kind) { el.textContent = text || ""; el.className = "msg" + (kind ? " " + kind : ""); }
+function logout() { sessionStorage.clear(); token = null; clearInterval(pollTimer); show("#panel", false); show("#bar", false); show("#login", true); }
+
+async function api(path, opts = {}) {
+  const r = await fetch("/api/botmaster/" + path, { ...opts, headers: { "Content-Type": "application/json", Authorization: "Bearer " + token } });
+  const d = await r.json().catch(() => ({}));
+  if (r.status === 401) { logout(); say($("#loginMsg"), d.error || "Session expired. Log in again.", "err"); }
+  if (!r.ok) throw new Error(d.error || "Request failed (" + r.status + ")");
+  return d;
+}
+
+$("#loginBtn").onclick = () => {
+  const state = crypto.randomUUID();
+  sessionStorage.setItem("bm_state", state);
+  location.href = "https://discord.com/api/oauth2/authorize?" + new URLSearchParams({
+    client_id: CLIENT_ID, redirect_uri: REDIRECT, response_type: "code", scope: "identify guilds.members.read", state });
+};
+$("#logoutBtn").onclick = logout;
+
+async function finishLogin(code, state) {
+  history.replaceState(null, "", "/botmaster");
+  if (state !== sessionStorage.getItem("bm_state")) { show("#login", true); return say($("#loginMsg"), "Login check failed. Try again.", "err"); }
+  const r = await fetch("/api/botmaster/auth", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ code, redirectUri: REDIRECT }) });
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok) { show("#login", true); return say($("#loginMsg"), d.error || "Login failed.", "err"); }
+  token = d.token; sessionStorage.setItem("bm_token", token); sessionStorage.setItem("bm_user", d.user.username);
+  openPanel();
+}
+
+function renderRows() {
+  const box = $("#rows"); box.innerHTML = "";
+  for (const t of types) {
+    const row = document.createElement("div"); row.className = "row"; row.dataset.key = t.key;
+    const lab = document.createElement("div"); lab.textContent = t.label;
+    const cur = document.createElement("small"); cur.textContent = "Current: " + t.roleId; lab.appendChild(cur);
+    let field;
+    if (roles) {
+      field = document.createElement("select");
+      const list = roles.some((r) => r.id === t.roleId) ? roles : [{ id: t.roleId, name: "Unknown role" }, ...roles];
+      for (const r of list) { const o = document.createElement("option"); o.value = r.id; o.textContent = r.name; field.appendChild(o); }
+      field.value = t.roleId;
+    } else {
+      field = document.createElement("input"); field.inputMode = "numeric"; field.placeholder = "Role ID"; field.value = t.roleId;
+    }
+    field.oninput = field.onchange = () => { row.classList.toggle("dirty", field.value.trim() !== t.roleId); $("#saveBtn").disabled = !box.querySelector(".dirty"); say($("#saveMsg"), ""); };
+    row.append(lab, field); box.appendChild(row);
+  }
+}
+
+async function loadConfig() {
+  const d = await api("config"); types = d.types; roles = d.roles; renderRows();
+}
+
+$("#saveBtn").onclick = async () => {
+  const staffRoles = {};
+  document.querySelectorAll("#rows .row.dirty").forEach((r) => { staffRoles[r.dataset.key] = r.querySelector("select,input").value.trim(); });
+  $("#saveBtn").disabled = true;
+  try {
+    const d = await api("config", { method: "POST", body: JSON.stringify({ staffRoles }) });
+    say($("#saveMsg"), d.changed ? "Saved. New tickets use these roles now." : "Nothing to change.", "ok");
+    await loadConfig();
+  } catch (e) { say($("#saveMsg"), e.message, "err"); $("#saveBtn").disabled = false; }
+};
+
+async function refreshState() {
+  try {
+    const { state } = await api("power");
+    $("#dot").className = "dot " + state;
+    $("#stateTxt").textContent = { running: "Bot is running", offline: "Bot is offline", starting: "Bot is starting…", stopping: "Bot is stopping…" }[state] || state;
+    $("#startBtn").disabled = state !== "offline";
+    $("#restartBtn").disabled = state === "offline" || state === "starting" || state === "stopping";
+  } catch (e) { $("#stateTxt").textContent = e.message; $("#startBtn").disabled = $("#restartBtn").disabled = true; }
+}
+
+async function power(action) {
+  if (action === "restart" && !confirm("Restart the bot? It will be offline for a few seconds.")) return;
+  $("#startBtn").disabled = $("#restartBtn").disabled = true;
+  try { await api("power", { method: "POST", body: JSON.stringify({ action }) }); $("#stateTxt").textContent = action === "start" ? "Starting…" : "Restarting…"; setTimeout(refreshState, 2500); }
+  catch (e) { $("#stateTxt").textContent = e.message; }
+}
+$("#startBtn").onclick = () => power("start");
+$("#restartBtn").onclick = () => power("restart");
+
+async function openPanel() {
+  show("#login", false); show("#panel", true); show("#bar", true);
+  $("#uname").textContent = sessionStorage.getItem("bm_user") || "";
+  try { await loadConfig(); } catch (e) { say($("#saveMsg"), e.message, "err"); }
+  refreshState(); clearInterval(pollTimer); pollTimer = setInterval(() => { if (!document.hidden) refreshState(); }, 10000);
+}
+
+const q = new URLSearchParams(location.search);
+if (q.get("code")) finishLogin(q.get("code"), q.get("state"));
+else if (token) openPanel();
+else show("#login", true);
+</script>
+</body>
+</html>
