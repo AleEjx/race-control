@@ -37,6 +37,13 @@ button:disabled{opacity:.4;cursor:not-allowed}
 .msg{margin:14px 0 0;min-height:1.4em;font-size:.92rem}.msg.err{color:var(--bad)}.msg.ok{color:var(--ok)}
 .center{text-align:center;padding:12vh 0}.center .card{max-width:420px;margin:24px auto 0;text-align:left}
 .hidden{display:none!important}
+textarea{width:100%;background:var(--bg);color:var(--text);border:1px solid var(--border);padding:10px 12px;font:inherit;resize:vertical}
+textarea:focus{outline:2px solid var(--accent);outline-offset:2px}
+input[type=checkbox]{width:auto;accent-color:var(--accent)}input[type=color]{padding:2px;height:42px}
+.card+.card{margin-top:16px}.card h3{font-size:1rem;margin:18px 0 0}.hint{color:var(--muted);font-size:.85rem;margin:2px 0 0}
+.check{display:flex;align-items:center;gap:10px;padding:8px 0}
+.opt{display:grid;grid-template-columns:auto 1fr 1.4fr 1fr;gap:8px;align-items:center;padding:10px 0;border-top:1px solid var(--border)}
+@media(max-width:560px){.opt{grid-template-columns:auto 1fr}.opt input:nth-of-type(n+2){grid-column:1/-1}}
 @media(max-width:560px){.row{grid-template-columns:1fr}h1{font-size:1.9rem}}
 @media(prefers-reduced-motion:no-preference){button{transition:filter .15s}button:hover:not(:disabled){filter:brightness(1.15)}}
 </style>
@@ -55,15 +62,12 @@ button:disabled{opacity:.4;cursor:not-allowed}
 
   <section id="panel" class="hidden">
     <div class="top">
-      <div><h1>Botmaster</h1><p class="sub">Choose which role handles each ticket type. New tickets use the change straight away; no restart needed.</p></div>
+      <div><h1>Botmaster</h1><p class="sub">Change the ticket panel and every ticket setting here. Changes apply to new tickets straight away; no restart needed.</p></div>
       <div class="who"><span id="uname"></span><button id="logoutBtn">Log out</button></div>
     </div>
-    <div class="card">
-      <h2>Ticket staff roles</h2>
-      <div id="rows"></div>
-      <div class="actions"><button class="primary" id="saveBtn" disabled>Save changes</button></div>
-      <p class="msg" id="saveMsg"></p>
-    </div>
+    <div id="sections"></div>
+    <div class="actions" style="margin-top:16px"><button class="primary" id="saveBtn" disabled>Save changes</button></div>
+    <p class="msg" id="saveMsg"></p>
   </section>
 </main>
 
@@ -77,7 +81,7 @@ button:disabled{opacity:.4;cursor:not-allowed}
 const CLIENT_ID = "1467595519718195473";
 const REDIRECT = location.origin + "/botmaster";
 const $ = (s) => document.querySelector(s);
-let token = sessionStorage.getItem("bm_token"), types = [], roles = null, pollTimer;
+let token = sessionStorage.getItem("bm_token"), pollTimer;
 
 function show(id, on) { $(id).classList.toggle("hidden", !on); }
 function say(el, text, kind) { el.textContent = text || ""; el.className = "msg" + (kind ? " " + kind : ""); }
@@ -109,40 +113,91 @@ async function finishLogin(code, state) {
   openPanel();
 }
 
-function renderRows() {
-  const box = $("#rows"); box.innerHTML = "";
-  for (const t of types) {
-    const row = document.createElement("div"); row.className = "row"; row.dataset.key = t.key;
-    const lab = document.createElement("div"); lab.textContent = t.label;
-    const cur = document.createElement("small"); cur.textContent = "Current: " + t.roleId; lab.appendChild(cur);
-    let field;
-    if (roles) {
-      field = document.createElement("select");
-      const list = roles.some((r) => r.id === t.roleId) ? roles : [{ id: t.roleId, name: "Unknown role" }, ...roles];
-      for (const r of list) { const o = document.createElement("option"); o.value = r.id; o.textContent = r.name; field.appendChild(o); }
-      field.value = t.roleId;
-    } else {
-      field = document.createElement("input"); field.inputMode = "numeric"; field.placeholder = "Role ID"; field.value = t.roleId;
-    }
-    field.oninput = field.onchange = () => { row.classList.toggle("dirty", field.value.trim() !== t.roleId); $("#saveBtn").disabled = !box.querySelector(".dirty"); say($("#saveMsg"), ""); };
-    row.append(lab, field); box.appendChild(row);
-  }
+const NAMES = { committee: "Committee", moderation: "Moderation", juniormgmt: "Junior management", publicsessions: "Public sessions", stewardappeals: "Steward appeals" };
+const FEATURES = { TICKETS_ENABLED: "Tickets open (turn off to pause new tickets)", AI_ENABLED: "AI replies in tickets", AI_CHANNEL_TOOLS: "Let the AI read channels", MESSAGE_BATCHING: "Batch rapid messages", SPAM_DETECTION: "Spam detection", NOTES_SUMMARY: "Ticket notes summary", COMMUNITY_DB: "Community database" };
+let cfg = null, lists = {}, dirty = false, pubCh = "";
+
+const el = (t, p = {}, ...k) => { const e = Object.assign(document.createElement(t), p); e.append(...k); return e; };
+function markDirty() { dirty = true; $("#saveBtn").disabled = false; say($("#saveMsg"), ""); }
+function text(get, set, o = {}) {
+  const e = el(o.area ? "textarea" : "input", { value: get() || "", placeholder: o.ph || "", ...(o.area ? { rows: o.rows || 3 } : { type: o.type || "text" }) });
+  e.oninput = () => { set(e.value); markDirty(); }; return e;
+}
+function check(get, set, label) {
+  const e = el("input", { type: "checkbox", checked: !!get() }); e.onchange = () => { set(e.checked); markDirty(); };
+  return el("label", { className: "check" }, e, label);
+}
+function pick(list, get, set, quiet) {
+  let e;
+  if (list) {
+    e = el("select");
+    let l = list.some((x) => x.id === get()) ? list : [{ id: get(), name: get() ? "Unknown (" + get() + ")" : "Choose…" }, ...list];
+    l.forEach((x) => e.append(el("option", { value: x.id, textContent: x.name }))); e.value = get();
+  } else e = el("input", { inputMode: "numeric", placeholder: "ID", value: get() || "" });
+  e.onchange = e.oninput = () => { set(e.value.trim()); if (!quiet) markDirty(); }; return e;
+}
+const row = (label, ctl, hint) => el("div", { className: "row" }, el("div", { textContent: label }, ...(hint ? [el("small", { textContent: hint })] : [])), ctl);
+const card = (title, desc, ...k) => el("div", { className: "card" }, el("h2", { textContent: title }), ...(desc ? [el("p", { className: "hint", textContent: desc })] : []), ...k);
+
+function render() {
+  const box = $("#sections"); box.innerHTML = "";
+  if (!cfg.panel) { $("#saveBtn").hidden = true; return box.append(card("Settings aren't loaded yet", "Upload the new ticketModule.js to the bot and restart it once. It writes its settings file on startup, and they show up here.")); }
+  $("#saveBtn").hidden = false;
+  const P = cfg.panel;
+  // 1. panel message
+  const pc = card("Ticket panel", "The message people use to open tickets: the banner, the text and the dropdown.",
+    row("Colour", text(() => P.color, (v) => (P.color = v), { type: "color" })),
+    row("Banner image", text(() => P.bannerImage, (v) => (P.bannerImage = v), { ph: "https://…" }), "Link to the image at the top. Leave empty for none."),
+    row("Title", text(() => P.title, (v) => (P.title = v))),
+    row("Intro text", text(() => P.description, (v) => (P.description = v), { area: 1, rows: 5 })));
+  P.fields.forEach((f, i) => pc.append(
+    row("Column " + (i + 1), text(() => f.value, (v) => (f.value = v), { area: 1, rows: 7 }), "Markdown and emoji like <:name:id> work."),
+    row("", check(() => f.inline, (v) => (f.inline = v), "Show beside the other column"))));
+  pc.append(
+    row("Bottom image", text(() => P.image, (v) => (P.image = v), { ph: "https://…" })),
+    row("Dropdown prompt", text(() => P.placeholder, (v) => (P.placeholder = v))),
+    el("h3", { textContent: "Dropdown entries" }), el("p", { className: "hint", textContent: "Untick an entry to hide it from the dropdown. Emoji can be 🎫 or <:name:id>." }));
+  P.options.forEach((o) => pc.append(el("div", { className: "opt", title: NAMES[o.value] },
+    check(() => o.enabled, (v) => (o.enabled = v), ""),
+    text(() => o.label, (v) => (o.label = v), { ph: "Name" }), text(() => o.description, (v) => (o.description = v), { ph: "Description" }), text(() => o.emoji, (v) => (o.emoji = v), { ph: "Emoji" }))));
+  // 2. ticket types
+  const tc = card("Ticket types", "Who handles each type, where the ticket opens, and how its channel is named.");
+  Object.keys(NAMES).forEach((k) => {
+    cfg.staffRoles = cfg.staffRoles || {}; cfg.categories = cfg.categories || {}; cfg.channelPrefixes = cfg.channelPrefixes || {};
+    tc.append(el("h3", { textContent: NAMES[k] }),
+      row("Staff role", pick(lists.roles, () => (cfg.staffRoles[k] || [])[0], (v) => (cfg.staffRoles[k] = [v]))),
+      row("Category", pick(lists.categories, () => cfg.categories[k], (v) => (cfg.categories[k] = v))),
+      row("Channel name starts with", text(() => cfg.channelPrefixes[k] || "", (v) => (cfg.channelPrefixes[k] = v.toLowerCase()), { ph: "ticket" }), "Becomes appeal-username, ticket-username…"));
+  });
+  // 3. logs + features
+  cfg.features = cfg.features || {};
+  const fc = card("Logs and features", "", row("Ticket log channel", pick(lists.channels, () => cfg.logChannelId, (v) => (cfg.logChannelId = v))));
+  Object.keys(FEATURES).forEach((k) => fc.append(check(() => cfg.features[k], (v) => (cfg.features[k] = v), FEATURES[k])));
+  // 4. publish
+  pubCh = pubCh || (cfg.panelMessage || {}).channelId || "";
+  const pubMsg = el("p", { className: "msg" });
+  const pubBtn = el("button", { className: "primary", textContent: "Post or update panel" });
+  pubBtn.onclick = async () => {
+    pubBtn.disabled = true; say(pubMsg, "");
+    try { if (dirty) await save(true); const d = await api("panel", { method: "POST", body: JSON.stringify({ channelId: pubCh }) }); say(pubMsg, d.edited ? "Panel updated." : "Panel posted.", "ok"); }
+    catch (e) { say(pubMsg, e.message, "err"); } pubBtn.disabled = false;
+  };
+  const pu = card("Publish panel", "Sends your saved panel to a channel. If you posted it there before, that message is edited instead of posting a new one. Saves any pending changes first.",
+    row("Channel", pick(lists.channels, () => pubCh, (v) => (pubCh = v), true)), el("div", { className: "actions" }, pubBtn), pubMsg);
+  box.append(pc, tc, fc, pu);
 }
 
-async function loadConfig() {
-  const d = await api("config"); types = d.types; roles = d.roles; renderRows();
-}
+async function loadConfig() { const d = await api("config"); cfg = d.config; lists = { roles: d.roles, categories: d.categories, channels: d.channels }; dirty = false; $("#saveBtn").disabled = true; render(); }
 
-$("#saveBtn").onclick = async () => {
-  const staffRoles = {};
-  document.querySelectorAll("#rows .row.dirty").forEach((r) => { staffRoles[r.dataset.key] = r.querySelector("select,input").value.trim(); });
+async function save(quiet) {
+  const config = {}; ["staffRoles", "categories", "channelPrefixes", "logChannelId", "features", "panel"].forEach((k) => { if (cfg[k] !== undefined) config[k] = cfg[k]; });
   $("#saveBtn").disabled = true;
   try {
-    const d = await api("config", { method: "POST", body: JSON.stringify({ staffRoles }) });
-    say($("#saveMsg"), d.changed ? "Saved. New tickets use these roles now." : "Nothing to change.", "ok");
-    await loadConfig();
-  } catch (e) { say($("#saveMsg"), e.message, "err"); $("#saveBtn").disabled = false; }
-};
+    const d = await api("config", { method: "POST", body: JSON.stringify({ config }) });
+    await loadConfig(); if (!quiet) say($("#saveMsg"), d.changed ? "Saved. New tickets use these settings now." : "Nothing to change.", "ok");
+  } catch (e) { say($("#saveMsg"), e.message, "err"); $("#saveBtn").disabled = false; if (quiet) throw e; }
+}
+$("#saveBtn").onclick = () => save();
 
 async function refreshState() {
   try {
