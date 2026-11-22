@@ -7,228 +7,269 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0d0f14;--surface:#151922;--border:#262c3a;--text:#e8ebf2;--muted:#8b93a7;--accent:#db85c5;--ok:#3ddc84;--warn:#f5b84b;--bad:#ff6b6b;
+:root{--bg:#0d0f14;--s1:#151922;--s2:#1b2030;--bd:#262c3a;--tx:#e8ebf2;--mu:#8b93a7;--ac:#db85c5;--ok:#3ddc84;--wn:#f5b84b;--bad:#ff6b6b;
 --cut:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px))}
 *{box-sizing:border-box}
-html,body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 'Oxanium',system-ui,sans-serif}
-main{max-width:720px;margin:0 auto;padding:32px 20px 140px}
-h1{font-size:2.4rem;line-height:1.1;margin:0 0 4px;font-weight:700}
-p.sub{color:var(--muted);margin:0 0 28px;max-width:60ch}
-.card{background:var(--surface);border:1px solid var(--border);clip-path:var(--cut);padding:22px}
-.card h2{font-size:1.15rem;margin:0 0 2px}
-.row{display:grid;grid-template-columns:1fr 1.4fr;gap:12px;align-items:center;padding:14px 0;border-top:1px solid var(--border)}
-.row:first-of-type{border-top:0}
-.row small{display:block;color:var(--muted);font-size:.78rem;word-break:break-all}
-select,input{width:100%;background:var(--bg);color:var(--text);border:1px solid var(--border);padding:10px 12px;font:inherit}
-select:focus,input:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.row.dirty select,.row.dirty input{border-color:var(--accent)}
-button{font:inherit;font-weight:600;color:var(--text);background:var(--surface);border:1px solid var(--border);padding:11px 20px;cursor:pointer;clip-path:var(--cut)}
-button.primary{background:var(--accent);color:#1a0f17;border-color:var(--accent)}
-button:disabled{opacity:.4;cursor:not-allowed}
-.actions{display:flex;justify-content:flex-end;margin-top:14px}
-.top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
-.who{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:.9rem;white-space:nowrap}
-.who button{padding:6px 12px;font-size:.85rem}
-.bar{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--border);padding:14px 20px calc(14px + env(safe-area-inset-bottom,0px))}
-.bar>div{max-width:720px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-.state{display:flex;align-items:center;gap:8px;margin-right:auto}
-.dot{width:10px;height:10px;border-radius:50%;background:var(--muted)}
-.dot.running{background:var(--ok)}.dot.starting,.dot.stopping{background:var(--warn)}.dot.offline{background:var(--bad)}
-.msg{margin:14px 0 0;min-height:1.4em;font-size:.92rem}.msg.err{color:var(--bad)}.msg.ok{color:var(--ok)}
-.center{text-align:center;padding:12vh 0}.center .card{max-width:420px;margin:24px auto 0;text-align:left}
+html,body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 'Oxanium',system-ui,sans-serif}
+main{max-width:1080px;margin:0 auto;padding:28px 20px 150px}
+h1{font-size:2rem;line-height:1.1;margin:0 0 4px}h2{font-size:1.1rem;margin:0}
+.sub,.fh,.hint{color:var(--mu)}.sub{margin:0}.hint{margin:2px 0 0;font-size:.88rem}
 .hidden{display:none!important}
-textarea{width:100%;background:var(--bg);color:var(--text);border:1px solid var(--border);padding:10px 12px;font:inherit;resize:vertical}
-textarea:focus{outline:2px solid var(--accent);outline-offset:2px}
-input[type=checkbox]{width:auto;accent-color:var(--accent)}input[type=color]{padding:2px;height:42px}
-.card+.card{margin-top:16px}.card h3{font-size:1rem;margin:18px 0 0}.hint{color:var(--muted);font-size:.85rem;margin:2px 0 0}
-.check{display:flex;align-items:center;gap:10px;padding:8px 0}
-.opt{display:grid;grid-template-columns:auto 1fr 1.4fr 1fr;gap:8px;align-items:center;padding:10px 0;border-top:1px solid var(--border)}
-@media(max-width:560px){.opt{grid-template-columns:auto 1fr}.opt input:nth-of-type(n+2){grid-column:1/-1}}
-@media(max-width:560px){.row{grid-template-columns:1fr}h1{font-size:1.9rem}}
-@media(prefers-reduced-motion:no-preference){button{transition:filter .15s}button:hover:not(:disabled){filter:brightness(1.15)}}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:22px}
+.who{display:flex;align-items:center;gap:10px;color:var(--mu);white-space:nowrap}
+button{font:inherit;font-weight:600;color:var(--tx);background:var(--s1);border:1px solid var(--bd);padding:10px 18px;cursor:pointer;clip-path:var(--cut)}
+button.primary{background:var(--ac);color:#1a0f17;border-color:var(--ac)}
+button:disabled{opacity:.4;cursor:not-allowed}.who button{padding:6px 12px;font-size:.85rem}
+:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+#tabs{display:flex;gap:4px;border-bottom:1px solid var(--bd);margin-bottom:20px;overflow-x:auto}
+#tabs button{background:none;border:0;border-bottom:2px solid transparent;color:var(--mu);padding:10px 16px;clip-path:none;white-space:nowrap}
+#tabs button.on{color:var(--tx);border-bottom-color:var(--ac)}
+.split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,400px);gap:20px;align-items:start}
+.pvwrap{position:sticky;top:16px;display:grid;gap:12px}
+details.g,.card{background:var(--s1);border:1px solid var(--bd);clip-path:var(--cut)}
+.card{padding:18px;margin-bottom:14px}details.g{margin-bottom:12px}
+details.g>summary{padding:14px 18px;cursor:pointer;font-weight:600;list-style:none;display:flex;justify-content:space-between}
+details.g>summary::-webkit-details-marker{display:none}details.g>summary::after{content:"+";color:var(--mu)}details[open]>summary::after{content:"–"}
+.gb{padding:0 18px 16px;display:grid;gap:14px}.card .gb{padding:12px 0 0}
+.f{display:grid;gap:5px}.fl{font-weight:600;font-size:.9rem}.fh{font-size:.8rem}
+input[type=text],input:not([type]),select,textarea{width:100%;background:var(--bg);color:var(--tx);border:1px solid var(--bd);padding:9px 11px;font:inherit}
+textarea{resize:vertical}input[type=color]{width:100%;height:40px;padding:2px;background:var(--bg);border:1px solid var(--bd)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.ent{border:1px solid var(--bd);background:var(--s2);padding:12px;display:grid;gap:10px}
+.hd{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.tg{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--bd)}.tg small{display:block;color:var(--mu)}
+.sw{position:relative;width:42px;height:24px;flex:none}.sw input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer}
+.sw span{position:absolute;inset:0;background:var(--bd);border-radius:12px;pointer-events:none}
+.sw span::after{content:"";position:absolute;left:3px;top:3px;width:18px;height:18px;border-radius:50%;background:var(--tx)}
+.sw input:checked+span{background:var(--ac)}.sw input:checked+span::after{left:21px;background:#1a0f17}
+.sw input:focus-visible+span{outline:2px solid var(--ac);outline-offset:2px}
+.savebar{position:fixed;top:0;left:0;right:0;z-index:30;display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;background:var(--s2);border-bottom:1px solid var(--ac);padding:10px 16px}
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--s1);border-top:1px solid var(--bd);padding:12px 20px calc(12px + env(safe-area-inset-bottom,0px))}
+.bar>div{max-width:1080px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.state{display:flex;align-items:center;gap:8px;margin-right:auto}.dot{width:10px;height:10px;border-radius:50%;background:var(--mu)}
+.dot.running{background:var(--ok)}.dot.starting,.dot.stopping{background:var(--wn)}.dot.offline{background:var(--bad)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:84px;z-index:40;max-width:90vw;background:var(--s2);border:1px solid var(--bd);border-left:4px solid var(--mu);padding:10px 16px}
+.toast.ok{border-left-color:var(--ok)}.toast.err{border-left-color:var(--bad)}
+.center{text-align:center;padding:10vh 0}.center .card{max-width:420px;margin:24px auto 0;text-align:left}.msg{min-height:1.4em;color:var(--bad);font-size:.9rem}
+/* Discord-style preview */
+.pv{background:#313338;color:#dbdee1;padding:14px;border-radius:8px;font:14px/1.4 system-ui,sans-serif}
+.emb{background:#2b2d31;border-left:4px solid #db85c5;border-radius:4px;padding:10px 12px;margin-bottom:8px;overflow:hidden}
+.pimg{display:block;max-width:100%;border-radius:4px;margin-top:8px}.emb>.pimg:first-child{margin-top:0}
+.et{font-weight:700;color:#fff;margin-bottom:4px}.ed,.ef{font-size:13.5px}.ef{display:flex;flex-wrap:wrap;gap:10px 16px;margin-top:8px}
+.half{flex:1 1 40%;min-width:130px}.full{flex:1 1 100%}.q{border-left:3px solid #4e5058;padding-left:8px}
+.emo{width:18px;height:18px;vertical-align:-4px}
+.sel{background:#1e1f22;border-radius:4px;padding:9px 12px;display:flex;justify-content:space-between;color:#949ba4}
+.menu{background:#2b2d31;border:1px solid #1e1f22;border-radius:4px;margin-top:4px;padding:4px}
+.mo{display:flex;gap:10px;align-items:center;padding:6px 8px}.mo b{display:block;font-weight:600}.mo small{color:#949ba4}
+@media(max-width:900px){.split{grid-template-columns:1fr}.pvwrap{position:static}}
+@media(max-width:560px){.grid2,.two{grid-template-columns:1fr}h1{font-size:1.6rem}}
 </style>
 </head>
 <body>
 <main>
   <section id="login" class="center hidden">
     <h1>Botmaster</h1>
-    <p class="sub" style="margin:0 auto">Log in with Discord to manage the RaceLeague bot.</p>
+    <p class="sub">Manage the RaceLeague ticket system and bot.</p>
     <div class="card">
-      <p style="margin-top:0">You need the Botmaster role in the RaceLeague server. Access is checked every time you log in.</p>
+      <p style="margin-top:0">Log in with Discord. You need the Botmaster role in the RaceLeague server; it's checked every time you log in.</p>
       <button class="primary" id="loginBtn" style="width:100%">Log in with Discord</button>
-      <p class="msg err" id="loginMsg"></p>
+      <p class="msg" id="loginMsg"></p>
     </div>
   </section>
 
   <section id="panel" class="hidden">
     <div class="top">
-      <div><h1>Botmaster</h1><p class="sub">Change the ticket panel and every ticket setting here. Changes apply to new tickets straight away; no restart needed.</p></div>
+      <div><h1>Botmaster</h1><p class="sub">Edit the ticket panel and settings. Changes apply to new tickets straight away.</p></div>
       <div class="who"><span id="uname"></span><button id="logoutBtn">Log out</button></div>
     </div>
-    <div id="sections"></div>
-    <div class="actions" style="margin-top:16px"><button class="primary" id="saveBtn" disabled>Save changes</button></div>
-    <p class="msg" id="saveMsg"></p>
+    <nav id="tabs" class="hidden">
+      <button data-t="panel" class="on">Ticket panel</button><button data-t="types">Ticket types</button><button data-t="settings">Logs and features</button>
+    </nav>
+    <div id="view"><p class="hint">Loading settings…</p></div>
   </section>
 </main>
 
+<div class="savebar hidden" id="savebar"><span>You have unsaved changes</span><button id="discardBtn">Discard</button><button class="primary" id="saveBtn">Save changes</button></div>
 <div class="bar hidden" id="bar"><div>
   <div class="state"><span class="dot" id="dot"></span><span id="stateTxt">Checking bot…</span></div>
-  <button id="startBtn" disabled>Start bot</button>
-  <button id="restartBtn" disabled>Restart bot</button>
+  <button id="startBtn" disabled>Start bot</button><button id="restartBtn" disabled>Restart bot</button>
 </div></div>
+<div class="toast hidden" id="toast" role="status"></div>
 
 <script>
-const CLIENT_ID = "1467595519718195473";
-const REDIRECT = location.origin + "/botmaster";
+const CLIENT_ID = "1467595519718195473", REDIRECT = location.origin + "/botmaster";
 const $ = (s) => document.querySelector(s);
-let token = sessionStorage.getItem("bm_token"), pollTimer;
+const NAMES = { committee: "Committee", moderation: "Moderation", juniormgmt: "Junior management", publicsessions: "Public sessions", stewardappeals: "Steward appeals" };
+const FEATURES = { TICKETS_ENABLED: ["Open for new tickets", "Turn off to pause people opening tickets."], AI_ENABLED: ["AI assistant", "Replies inside ticket channels."], AI_CHANNEL_TOOLS: ["AI can read channels", "Lets the assistant look up answers in server channels."],
+  MESSAGE_BATCHING: ["Group rapid messages"], SPAM_DETECTION: ["Spam detection"], NOTES_SUMMARY: ["Notes summary"], COMMUNITY_DB: ["Community database"] };
+const openG = { look: true, text: true, dd: false };
+let token = sessionStorage.getItem("bm_token"), pollTimer, toastT, cfg = null, lists = {}, dirty = false, pubCh = "", tab = "panel";
 
-function show(id, on) { $(id).classList.toggle("hidden", !on); }
-function say(el, text, kind) { el.textContent = text || ""; el.className = "msg" + (kind ? " " + kind : ""); }
-function logout() { sessionStorage.clear(); token = null; clearInterval(pollTimer); show("#panel", false); show("#bar", false); show("#login", true); }
+const show = (id, on) => $(id).classList.toggle("hidden", !on);
+const el = (t, p = {}, ...k) => { const e = Object.assign(document.createElement(t), p); e.append(...k); return e; };
+function toast(msg, kind) { const t = $("#toast"); t.textContent = msg; t.className = "toast " + (kind || ""); clearTimeout(toastT); toastT = setTimeout(() => t.classList.add("hidden"), kind === "err" ? 8000 : 3500); }
+function logout() { sessionStorage.clear(); token = null; dirty = false; clearInterval(pollTimer); ["#panel", "#bar", "#savebar"].forEach((s) => show(s, false)); show("#login", true); }
 
 async function api(path, opts = {}) {
   const r = await fetch("/api/botmaster/" + path, { ...opts, headers: { "Content-Type": "application/json", Authorization: "Bearer " + token } });
   const d = await r.json().catch(() => ({}));
-  if (r.status === 401) { logout(); say($("#loginMsg"), d.error || "Session expired. Log in again.", "err"); }
+  if (r.status === 401) { logout(); $("#loginMsg").textContent = d.error || "Session expired. Log in again."; }
   if (!r.ok) throw new Error(d.error || "Request failed (" + r.status + ")");
   return d;
 }
 
 $("#loginBtn").onclick = () => {
-  const state = crypto.randomUUID();
-  sessionStorage.setItem("bm_state", state);
-  location.href = "https://discord.com/api/oauth2/authorize?" + new URLSearchParams({
-    client_id: CLIENT_ID, redirect_uri: REDIRECT, response_type: "code", scope: "identify guilds.members.read", state });
+  const state = crypto.randomUUID(); sessionStorage.setItem("bm_state", state);
+  location.href = "https://discord.com/api/oauth2/authorize?" + new URLSearchParams({ client_id: CLIENT_ID, redirect_uri: REDIRECT, response_type: "code", scope: "identify guilds.members.read", state });
 };
 $("#logoutBtn").onclick = logout;
 
 async function finishLogin(code, state) {
   history.replaceState(null, "", "/botmaster");
-  if (state !== sessionStorage.getItem("bm_state")) { show("#login", true); return say($("#loginMsg"), "Login check failed. Try again.", "err"); }
+  if (state !== sessionStorage.getItem("bm_state")) { show("#login", true); $("#loginMsg").textContent = "Login check failed. Try again."; return; }
   const r = await fetch("/api/botmaster/auth", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ code, redirectUri: REDIRECT }) });
   const d = await r.json().catch(() => ({}));
-  if (!r.ok) { show("#login", true); return say($("#loginMsg"), d.error || "Login failed.", "err"); }
-  token = d.token; sessionStorage.setItem("bm_token", token); sessionStorage.setItem("bm_user", d.user.username);
-  openPanel();
+  if (!r.ok) { show("#login", true); $("#loginMsg").textContent = d.error || "Login failed."; return; }
+  token = d.token; sessionStorage.setItem("bm_token", token); sessionStorage.setItem("bm_user", d.user.username); openPanel();
 }
 
-const NAMES = { committee: "Committee", moderation: "Moderation", juniormgmt: "Junior management", publicsessions: "Public sessions", stewardappeals: "Steward appeals" };
-const FEATURES = { TICKETS_ENABLED: "Tickets open (turn off to pause new tickets)", AI_ENABLED: "AI replies in tickets", AI_CHANNEL_TOOLS: "Let the AI read channels", MESSAGE_BATCHING: "Batch rapid messages", SPAM_DETECTION: "Spam detection", NOTES_SUMMARY: "Ticket notes summary", COMMUNITY_DB: "Community database" };
-let cfg = null, lists = {}, dirty = false, pubCh = "";
-
-const el = (t, p = {}, ...k) => { const e = Object.assign(document.createElement(t), p); e.append(...k); return e; };
-function markDirty() { dirty = true; $("#saveBtn").disabled = false; say($("#saveMsg"), ""); }
+// ── form helpers ──────────────────────────────────────────────
+function touch() { dirty = true; show("#savebar", true); renderPreview(); }
+function field(label, ctl, hint) { return el("label", { className: "f" }, el("span", { className: "fl", textContent: label }), ctl, ...(hint ? [el("span", { className: "fh", textContent: hint })] : [])); }
 function text(get, set, o = {}) {
   const e = el(o.area ? "textarea" : "input", { value: get() || "", placeholder: o.ph || "", ...(o.area ? { rows: o.rows || 3 } : { type: o.type || "text" }) });
-  e.oninput = () => { set(e.value); markDirty(); }; return e;
+  e.oninput = () => { set(e.value); touch(); }; return e;
 }
-function check(get, set, label) {
-  const e = el("input", { type: "checkbox", checked: !!get() }); e.onchange = () => { set(e.checked); markDirty(); };
-  return el("label", { className: "check" }, e, label);
+function sw(get, set, label) {
+  const i = el("input", { type: "checkbox", checked: !!get(), ariaLabel: label || "On" }); i.onchange = () => { set(i.checked); touch(); };
+  return el("span", { className: "sw" }, i, el("span"));
 }
+const tgl = (title, desc, get, set) => el("div", { className: "tg" }, el("div", {}, title, ...(desc ? [el("small", { textContent: desc })] : [])), sw(get, set, title));
 function pick(list, get, set, quiet) {
   let e;
   if (list) {
-    e = el("select");
-    let l = list.some((x) => x.id === get()) ? list : [{ id: get(), name: get() ? "Unknown (" + get() + ")" : "Choose…" }, ...list];
-    l.forEach((x) => e.append(el("option", { value: x.id, textContent: x.name }))); e.value = get();
+    e = el("select"); const cur = get();
+    (list.some((x) => x.id === cur) ? list : [{ id: cur || "", name: cur ? "Unknown (" + cur + ")" : "Choose…" }, ...list]).forEach((x) => e.append(el("option", { value: x.id, textContent: x.name })));
+    e.value = cur || "";
   } else e = el("input", { inputMode: "numeric", placeholder: "ID", value: get() || "" });
-  e.onchange = e.oninput = () => { set(e.value.trim()); if (!quiet) markDirty(); }; return e;
+  e.onchange = e.oninput = () => { set(e.value.trim()); if (!quiet) touch(); }; return e;
 }
-const row = (label, ctl, hint) => el("div", { className: "row" }, el("div", { textContent: label }, ...(hint ? [el("small", { textContent: hint })] : [])), ctl);
-const card = (title, desc, ...k) => el("div", { className: "card" }, el("h2", { textContent: title }), ...(desc ? [el("p", { className: "hint", textContent: desc })] : []), ...k);
+function group(key, title, ...k) { const d = el("details", { className: "g", open: !!openG[key] }, el("summary", { textContent: title }), el("div", { className: "gb" }, ...k)); d.ontoggle = () => (openG[key] = d.open); return d; }
+
+// ── live preview (looks like the Discord message) ─────────────
+const esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+const emo = (s) => { const m = /^<a?:\w+:(\d+)>$/.exec(s || ""); return m ? `<img class="emo" alt="" src="https://cdn.discordapp.com/emojis/${m[1]}.webp?size=32">` : esc(s); };
+function md(s) {
+  return esc(s).replace(/&lt;a?:\w+:(\d+)&gt;/g, '<img class="emo" alt="" src="https://cdn.discordapp.com/emojis/$1.webp?size=32">').replace(/\*\*(.+?)\*\*/g, "<b>$1</b>")
+    .split("\n").map((l) => (l.startsWith("&gt; ") ? `<div class="q">${l.slice(5)}</div>` : l + "<br>")).join("");
+}
+function renderPreview() {
+  const box = $("#pv"); if (!box || !cfg.panel) return;
+  const P = cfg.panel, c = /^#[0-9a-f]{6}$/i.test(P.color) ? P.color : "#db85c5";
+  const img = (u) => (/^https:\/\//.test(u || "") ? `<img class="pimg" alt="" src="${esc(u)}" onerror="this.style.display='none'">` : "");
+  const opts = P.options.filter((o) => o.enabled);
+  box.innerHTML = (P.bannerImage ? `<div class="emb" style="border-color:${c}">${img(P.bannerImage)}</div>` : "")
+    + `<div class="emb" style="border-color:${c}">${P.title ? `<div class="et">${md(P.title)}</div>` : ""}${P.description ? `<div class="ed">${md(P.description)}</div>` : ""}`
+    + `<div class="ef">${P.fields.map((f) => `<div class="${f.inline ? "half" : "full"}">${md(f.value)}</div>`).join("")}</div>${img(P.image)}</div>`
+    + `<div class="sel"><span>${esc(P.placeholder)}</span><span>⌄</span></div><div class="menu">`
+    + opts.map((o) => `<div class="mo">${emo(o.emoji)}<div><b>${esc(o.label)}</b><small>${esc(o.description)}</small></div></div>`).join("") + "</div>";
+}
+
+// ── screens ───────────────────────────────────────────────────
+function showTab(t) {
+  tab = t; document.querySelectorAll("#tabs button").forEach((b) => b.classList.toggle("on", b.dataset.t === t));
+  ["panel", "types", "settings"].forEach((n) => $("#t-" + n) && $("#t-" + n).classList.toggle("hidden", n !== t));
+}
+document.querySelectorAll("#tabs button").forEach((b) => (b.onclick = () => showTab(b.dataset.t)));
 
 function render() {
-  const box = $("#sections"); box.innerHTML = "";
-  if (!cfg.panel) { $("#saveBtn").hidden = true; return box.append(card("Settings aren't loaded yet", "Upload the new ticketModule.js to the bot and restart it once. It writes its settings file on startup, and they show up here.")); }
-  $("#saveBtn").hidden = false;
+  const v = $("#view"); v.innerHTML = ""; dirty = false; show("#savebar", false); $("#saveBtn").disabled = false;
+  if (!cfg.panel) { show("#tabs", false); return v.append(el("div", { className: "card" }, el("h2", { textContent: "Settings aren't loaded yet" }), el("p", { className: "hint", textContent: "Upload the new ticketModule.js to the bot and restart it once. It writes its settings file on startup, and they appear here." }))); }
+  show("#tabs", true);
+  ["staffRoles", "categories", "channelPrefixes", "features"].forEach((k) => (cfg[k] = cfg[k] || {}));
   const P = cfg.panel;
-  // 1. panel message
-  const pc = card("Ticket panel", "The message people use to open tickets: the banner, the text and the dropdown.",
-    row("Colour", text(() => P.color, (v) => (P.color = v), { type: "color" })),
-    row("Banner image", text(() => P.bannerImage, (v) => (P.bannerImage = v), { ph: "https://…" }), "Link to the image at the top. Leave empty for none."),
-    row("Title", text(() => P.title, (v) => (P.title = v))),
-    row("Intro text", text(() => P.description, (v) => (P.description = v), { area: 1, rows: 5 })));
-  P.fields.forEach((f, i) => pc.append(
-    row("Column " + (i + 1), text(() => f.value, (v) => (f.value = v), { area: 1, rows: 7 }), "Markdown and emoji like <:name:id> work."),
-    row("", check(() => f.inline, (v) => (f.inline = v), "Show beside the other column"))));
-  pc.append(
-    row("Bottom image", text(() => P.image, (v) => (P.image = v), { ph: "https://…" })),
-    row("Dropdown prompt", text(() => P.placeholder, (v) => (P.placeholder = v))),
-    el("h3", { textContent: "Dropdown entries" }), el("p", { className: "hint", textContent: "Untick an entry to hide it from the dropdown. Emoji can be 🎫 or <:name:id>." }));
-  P.options.forEach((o) => pc.append(el("div", { className: "opt", title: NAMES[o.value] },
-    check(() => o.enabled, (v) => (o.enabled = v), ""),
-    text(() => o.label, (v) => (o.label = v), { ph: "Name" }), text(() => o.description, (v) => (o.description = v), { ph: "Description" }), text(() => o.emoji, (v) => (o.emoji = v), { ph: "Emoji" }))));
-  // 2. ticket types
-  const tc = card("Ticket types", "Who handles each type, where the ticket opens, and how its channel is named.");
-  Object.keys(NAMES).forEach((k) => {
-    cfg.staffRoles = cfg.staffRoles || {}; cfg.categories = cfg.categories || {}; cfg.channelPrefixes = cfg.channelPrefixes || {};
-    tc.append(el("h3", { textContent: NAMES[k] }),
-      row("Staff role", pick(lists.roles, () => (cfg.staffRoles[k] || [])[0], (v) => (cfg.staffRoles[k] = [v]))),
-      row("Category", pick(lists.categories, () => cfg.categories[k], (v) => (cfg.categories[k] = v))),
-      row("Channel name starts with", text(() => cfg.channelPrefixes[k] || "", (v) => (cfg.channelPrefixes[k] = v.toLowerCase()), { ph: "ticket" }), "Becomes appeal-username, ticket-username…"));
-  });
-  // 3. logs + features
-  cfg.features = cfg.features || {};
-  const fc = card("Logs and features", "", row("Ticket log channel", pick(lists.channels, () => cfg.logChannelId, (v) => (cfg.logChannelId = v))));
-  Object.keys(FEATURES).forEach((k) => fc.append(check(() => cfg.features[k], (v) => (cfg.features[k] = v), FEATURES[k])));
-  // 4. publish
+
+  const editor = el("div", {},
+    group("look", "Look",
+      field("Colour", text(() => P.color, (x) => (P.color = x), { type: "color" })),
+      field("Banner image", text(() => P.bannerImage, (x) => (P.bannerImage = x), { ph: "https://…" }), "Link to the image at the top. Leave empty for none."),
+      field("Bottom image", text(() => P.image, (x) => (P.image = x), { ph: "https://…" }))),
+    group("text", "Text",
+      field("Title", text(() => P.title, (x) => (P.title = x))),
+      field("Intro text", text(() => P.description, (x) => (P.description = x), { area: 1, rows: 4 })),
+      ...P.fields.map((f, i) => el("div", { className: "ent" },
+        field("Column " + (i + 1), text(() => f.value, (x) => (f.value = x), { area: 1, rows: 6 }), "Supports **bold**, > quotes and emoji like <:name:id>."),
+        tgl("Show beside the other column", "", () => f.inline, (x) => (f.inline = x))))),
+    group("dd", "Dropdown",
+      field("Prompt", text(() => P.placeholder, (x) => (P.placeholder = x))),
+      ...P.options.map((o) => el("div", { className: "ent" },
+        el("div", { className: "hd" }, el("b", { textContent: NAMES[o.value] || o.value }), el("span", { className: "hd" }, el("small", { className: "fh", textContent: "Show" }), sw(() => o.enabled, (x) => (o.enabled = x), "Show " + o.value))),
+        el("div", { className: "two" }, field("Name", text(() => o.label, (x) => (o.label = x))), field("Emoji", text(() => o.emoji, (x) => (o.emoji = x), { ph: "🎫 or <:name:id>" }))),
+        field("Description", text(() => o.description, (x) => (o.description = x)))))));
+
   pubCh = pubCh || (cfg.panelMessage || {}).channelId || "";
-  const pubMsg = el("p", { className: "msg" });
   const pubBtn = el("button", { className: "primary", textContent: "Post or update panel" });
   pubBtn.onclick = async () => {
-    pubBtn.disabled = true; say(pubMsg, "");
-    try { if (dirty) await save(true); const d = await api("panel", { method: "POST", body: JSON.stringify({ channelId: pubCh }) }); say(pubMsg, d.edited ? "Panel updated." : "Panel posted.", "ok"); }
-    catch (e) { say(pubMsg, e.message, "err"); } pubBtn.disabled = false;
+    if (!pubCh) return toast("Pick a channel first.", "err");
+    pubBtn.disabled = true;
+    try { if (dirty) await save(true); const d = await api("panel", { method: "POST", body: JSON.stringify({ channelId: pubCh }) }); toast(d.edited ? "Panel updated in Discord." : "Panel posted in Discord.", "ok"); }
+    catch (e) { toast(e.message, "err"); } pubBtn.disabled = false;
   };
-  const pu = card("Publish panel", "Sends your saved panel to a channel. If you posted it there before, that message is edited instead of posting a new one. Saves any pending changes first.",
-    row("Channel", pick(lists.channels, () => pubCh, (v) => (pubCh = v), true)), el("div", { className: "actions" }, pubBtn), pubMsg);
-  box.append(pc, tc, fc, pu);
+  const side = el("div", { className: "pvwrap" }, el("div", { className: "pv", id: "pv" }),
+    el("div", { className: "card", style: "margin:0" }, el("h2", { textContent: "Publish to Discord" }), el("p", { className: "hint", textContent: "Sends your saved panel to a channel. If you posted it there before, that message is edited instead. Pending changes are saved first." }),
+      el("div", { className: "gb" }, field("Channel", pick(lists.channels, () => pubCh, (x) => (pubCh = x), true)), pubBtn)));
+  const tPanel = el("div", { id: "t-panel", className: "split" }, editor, side);
+
+  const tTypes = el("div", { id: "t-types", className: "grid2" });
+  Object.keys(NAMES).forEach((k) => tTypes.append(el("div", { className: "card", style: "margin:0" }, el("h2", { textContent: NAMES[k] }), el("div", { className: "gb" },
+    field("Staff role", pick(lists.roles, () => (cfg.staffRoles[k] || [])[0], (x) => (cfg.staffRoles[k] = [x])), "Can see, claim and close these tickets."),
+    field("Category", pick(lists.categories, () => cfg.categories[k], (x) => (cfg.categories[k] = x)), "Where new tickets open."),
+    field("Channel name starts with", text(() => cfg.channelPrefixes[k] || "", (x) => (cfg.channelPrefixes[k] = x.toLowerCase()), { ph: "ticket" }), "For example appeal-username.")))));
+
+  const tSet = el("div", { id: "t-settings" },
+    el("div", { className: "card" }, el("h2", { textContent: "Ticket logs" }), el("div", { className: "gb" }, field("Log channel", pick(lists.channels, () => cfg.logChannelId, (x) => (cfg.logChannelId = x)), "Closed tickets and staff actions are logged here."))),
+    el("div", { className: "card" }, el("h2", { textContent: "Features" }), ...Object.keys(FEATURES).map((k) => tgl(FEATURES[k][0], FEATURES[k][1], () => cfg.features[k], (x) => (cfg.features[k] = x)))));
+
+  v.append(tPanel, tTypes, tSet); showTab(tab); renderPreview();
 }
 
-async function loadConfig() { const d = await api("config"); cfg = d.config; lists = { roles: d.roles, categories: d.categories, channels: d.channels }; dirty = false; $("#saveBtn").disabled = true; render(); }
+async function loadConfig() { const d = await api("config"); cfg = d.config; lists = { roles: d.roles, categories: d.categories, channels: d.channels }; render(); }
 
 async function save(quiet) {
   const config = {}; ["staffRoles", "categories", "channelPrefixes", "logChannelId", "features", "panel"].forEach((k) => { if (cfg[k] !== undefined) config[k] = cfg[k]; });
   $("#saveBtn").disabled = true;
-  try {
-    const d = await api("config", { method: "POST", body: JSON.stringify({ config }) });
-    await loadConfig(); if (!quiet) say($("#saveMsg"), d.changed ? "Saved. New tickets use these settings now." : "Nothing to change.", "ok");
-  } catch (e) { say($("#saveMsg"), e.message, "err"); $("#saveBtn").disabled = false; if (quiet) throw e; }
+  try { const d = await api("config", { method: "POST", body: JSON.stringify({ config }) }); await loadConfig(); if (!quiet) toast(d.changed ? "Saved. New tickets use these settings now." : "Nothing to change.", "ok"); }
+  catch (e) { toast(e.message, "err"); $("#saveBtn").disabled = false; if (quiet) throw e; }
 }
 $("#saveBtn").onclick = () => save();
+$("#discardBtn").onclick = () => loadConfig().then(() => toast("Changes discarded.")).catch((e) => toast(e.message, "err"));
+addEventListener("beforeunload", (e) => { if (dirty) { e.preventDefault(); e.returnValue = ""; } });
 
+// ── bot controls ──────────────────────────────────────────────
 async function refreshState() {
   try {
     const { state } = await api("power");
     $("#dot").className = "dot " + state;
     $("#stateTxt").textContent = { running: "Bot is running", offline: "Bot is offline", starting: "Bot is starting…", stopping: "Bot is stopping…" }[state] || state;
-    $("#startBtn").disabled = state !== "offline";
-    $("#restartBtn").disabled = state === "offline" || state === "starting" || state === "stopping";
+    $("#startBtn").disabled = state !== "offline"; $("#restartBtn").disabled = state === "offline" || state === "starting" || state === "stopping";
   } catch (e) { $("#stateTxt").textContent = e.message; $("#startBtn").disabled = $("#restartBtn").disabled = true; }
 }
-
 async function power(action) {
   if (action === "restart" && !confirm("Restart the bot? It will be offline for a few seconds.")) return;
   $("#startBtn").disabled = $("#restartBtn").disabled = true;
   try { await api("power", { method: "POST", body: JSON.stringify({ action }) }); $("#stateTxt").textContent = action === "start" ? "Starting…" : "Restarting…"; setTimeout(refreshState, 2500); }
-  catch (e) { $("#stateTxt").textContent = e.message; }
+  catch (e) { toast(e.message, "err"); refreshState(); }
 }
-$("#startBtn").onclick = () => power("start");
-$("#restartBtn").onclick = () => power("restart");
+$("#startBtn").onclick = () => power("start"); $("#restartBtn").onclick = () => power("restart");
 
 async function openPanel() {
-  show("#login", false); show("#panel", true); show("#bar", true);
-  $("#uname").textContent = sessionStorage.getItem("bm_user") || "";
-  try { await loadConfig(); } catch (e) { say($("#saveMsg"), e.message, "err"); }
+  show("#login", false); show("#panel", true); show("#bar", true); $("#uname").textContent = sessionStorage.getItem("bm_user") || "";
+  try { await loadConfig(); } catch (e) { $("#view").textContent = e.message; }
   refreshState(); clearInterval(pollTimer); pollTimer = setInterval(() => { if (!document.hidden) refreshState(); }, 10000);
 }
 
 const q = new URLSearchParams(location.search);
-if (q.get("code")) finishLogin(q.get("code"), q.get("state"));
-else if (token) openPanel();
-else show("#login", true);
+if (q.get("code")) finishLogin(q.get("code"), q.get("state")); else if (token) openPanel(); else show("#login", true);
 </script>
 </body>
 </html>
